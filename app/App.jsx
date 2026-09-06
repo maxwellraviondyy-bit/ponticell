@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Smartphone, Tablet, Star, BarChart3, Tag, ClipboardList, Wallet, Lightbulb } from "lucide-react";
+import { Smartphone, Tablet, Star, BarChart3, Tag, ClipboardList, Wallet } from "lucide-react";
 
 const CLOUDINARY_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD;
 const CLOUDINARY_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET;
@@ -120,11 +120,6 @@ export default function App() {
   const liveTapTimer = React.useRef(null);
   const [photoViewer, setPhotoViewer] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(1);
-  const [refHarga, setRefHarga] = useState([]);
-  const [refSearch, setRefSearch] = useState("");
-  const [refSortBy, setRefSortBy] = useState("brand");
-  const [refModal, setRefModal] = useState(null); // eslint-disable-line
-  const [refModalData, setRefModalData] = useState({});
 
   const [activeTab, setActiveTab] = useState("hp");
   const [productType, setProductType] = useState("hp");
@@ -163,8 +158,6 @@ export default function App() {
   const editPhotoRefs = [useRef(null), useRef(null), useRef(null)];
   const [testimoni, setTestimoni] = useState([]);
   const [testiItems, setTestiItems] = useState([]);
-  const [konten, setKonten] = useState([]);
-  const [kontenUploading, setKontenUploading] = useState(false); // [{preview, url, keterangan, uploading}]
   const testiFileRef = useRef(null);
 
   // DB helpers
@@ -174,20 +167,17 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting, kontenData] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
-        api.get("/api/refharga"),
         api.get("/api/testimoni"),
         api.get("/api/settings?key=finance_pin"),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
       setActivities(acts.map(dbToActivity));
-      setRefHarga(refs);
       setTestimoni(testis);
-      if (kontenData) setKonten(kontenData);
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
     } catch(e) {
       console.error("Load error:", e);
@@ -208,39 +198,8 @@ export default function App() {
     return () => clearInterval(interval);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleAddRef = async () => {
-    const { brand, model, ram, storage, kode } = refModalData;
-    if (!brand || !model || !kode) return alert("Brand, Model dan Kode Referensi wajib diisi!");
-    setSyncing(true);
-    try {
-      await api.post("/api/refharga", { id: Date.now(), brand, model, ram: ram||"-", storage: storage||"-", kode: kode.toUpperCase(), created_by: currentUser?.name||"Admin" });
-      await loadAllData();
-    } catch(e) { alert("Gagal simpan: "+e.message); }
-    setSyncing(false);
-    setRefModal(null); setRefModalData({});
-  };
 
-  const handleEditRef = async () => {
-    const { id, brand, model, ram, storage, kode } = refModalData;
-    if (!brand || !model || !kode) return alert("Brand, Model dan Kode Referensi wajib diisi!");
-    setSyncing(true);
-    try {
-      await api.put("/api/refharga", { id, brand, model, ram: ram||"-", storage: storage||"-", kode: kode.toUpperCase() });
-      await loadAllData();
-    } catch(e) { alert("Gagal update: "+e.message); }
-    setSyncing(false);
-    setRefModal(null); setRefModalData({});
-  };
 
-  const handleDeleteRef = async (id) => {
-    if (!window.confirm("Hapus referensi ini?")) return;
-    setSyncing(true);
-    try {
-      await api.del("/api/refharga", { id });
-      await loadAllData();
-    } catch(e) { alert("Gagal hapus: "+e.message); }
-    setSyncing(false);
-  };
 
 const MAX_LOGIN_ATTEMPTS = 3;
 const LOCK_DURATION_MS = 60 * 60 * 1000; // 60 menit
@@ -787,9 +746,7 @@ const handleLogin = async () => {
             ...(currentUser.role === "admin" ? [
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
               ["finance", <Wallet size={16} />, "Finance"],
-              ["konten", <span>🖼️</span>, "Konten"],
             ] : []),
-            ["refharga", <Lightbulb size={16} />, "Ref. Harga Ambil"],
           ] : []),
         ].map(([tab, icon, label]) => (
           <button key={tab} style={c.navBtn(activeTab === tab)} onClick={() => {
@@ -1564,229 +1521,9 @@ const handleLogin = async () => {
           </div>
         )}
 
-        {/* ===== REFERENSI HARGA AMBIL ===== */}
-        {activeTab === "refharga" && (() => {
-          const filtered = refHarga
-            .filter(item => {
-              const q = refSearch.toLowerCase();
-              return !q || (item.brand||"").toLowerCase().includes(q) || (item.model||"").toLowerCase().includes(q) || (item.kode||"").toLowerCase().includes(q);
-            })
-            .sort((a, b) => {
-              if (refSortBy === "brand") return (a.brand||"").localeCompare(b.brand||"");
-              if (refSortBy === "model") return (a.model||"").localeCompare(b.model||"");
-              if (refSortBy === "ram") return (a.ram||"").localeCompare(b.ram||"");
-              if (refSortBy === "storage") return (a.storage||"").localeCompare(b.storage||"");
-              return 0;
-            });
-          return (
-            <>
-              <div style={{ background:"#FFF7ED", border:"1px solid #FED7AA", borderRadius:12, padding:"10px 14px", marginBottom:14, fontSize:12, color:"#92400E" }}>
-                💡 Daftar referensi harga beli HP second. Kode bersifat <strong>rahasia</strong> — hanya staff yang tahu artinya.
-              </div>
-              <div style={{ display:"flex", gap:8, marginBottom:12, flexWrap:"wrap" }}>
-                <input style={{ ...c.input, flex:1, minWidth:160, marginBottom:0 }} placeholder="🔍 Cari merk, model, atau kode..."
-                  value={refSearch} onChange={e => setRefSearch(e.target.value)} />
-                <select style={{ ...c.input, marginBottom:0, minWidth:140 }} value={refSortBy} onChange={e => setRefSortBy(e.target.value)}>
-                  <option value="brand">Urutkan: Merk</option>
-                  <option value="model">Urutkan: Nama</option>
-                  <option value="ram">Urutkan: RAM</option>
-                  <option value="storage">Urutkan: Storage</option>
-                </select>
-              </div>
-              {currentUser?.role === "admin" && (
-                <div style={{ marginBottom:14 }}>
-                  <button style={c.btn("primary")} onClick={() => { setRefModal("add"); setRefModalData({}); }}>+ Tambah Referensi</button>
-                </div>
-              )}
-              {filtered.length === 0 ? (
-                <div style={{ ...c.card(), textAlign:"center", padding:40 }}>
-                  <div style={{ fontSize:36, marginBottom:10 }}>💡</div>
-                  <div style={{ fontSize:13, color:"#94A3B8" }}>{refHarga.length === 0 ? "Belum ada referensi harga" : "Tidak ada hasil"}</div>
-                </div>
-              ) : (
-                <div style={c.card()}>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 70px 80px 90px" + (currentUser?.role==="admin" ? " 60px" : ""), gap:8, padding:"8px 4px 10px", borderBottom:"2px solid #E2E8F0", marginBottom:4 }}>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase" }}>Merk / Model</span>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase", textAlign:"center" }}>RAM</span>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase", textAlign:"center" }}>Storage</span>
-                    <span style={{ fontSize:10, fontWeight:700, color:"#94A3B8", textTransform:"uppercase", textAlign:"center" }}>Referensi</span>
-                    {currentUser?.role === "admin" && <span></span>}
-                  </div>
-                  {filtered.map((item, idx) => (
-                    <div key={item.id} style={{ display:"grid", gridTemplateColumns:"1fr 70px 80px 90px" + (currentUser?.role==="admin" ? " 60px" : ""), gap:8, padding:"10px 4px", borderBottom: idx < filtered.length-1 ? "1px solid #F1F5F9" : "none", alignItems:"center" }}>
-                      <div>
-                        <div style={{ fontSize:13, fontWeight:700, color:"#1E293B" }}>{item.brand}</div>
-                        <div style={{ fontSize:12, color:"#64748B" }}>{item.model}</div>
-                      </div>
-                      <div style={{ fontSize:12, color:"#64748B", textAlign:"center" }}>{item.ram||"-"}</div>
-                      <div style={{ fontSize:12, color:"#64748B", textAlign:"center" }}>{item.storage||"-"}</div>
-                      <div style={{ textAlign:"center" }}>
-                        <span style={{ fontSize:13, fontWeight:800, color:"#C9A227", background:"#FFF7F5", border:"2px solid #C9A22733", borderRadius:8, padding:"3px 10px", letterSpacing:1, fontFamily:"monospace" }}>
-                          {item.kode}
-                        </span>
-                      </div>
-                      {currentUser?.role === "admin" && (
-                        <div style={{ display:"flex", gap:4 }}>
-                          <button onClick={() => { setRefModal("edit"); setRefModalData({...item}); }}
-                            style={{ background:"#F1F5F9", border:"none", borderRadius:6, padding:"4px 7px", cursor:"pointer", fontSize:12 }}>✏️</button>
-                          <button onClick={() => handleDeleteRef(item.id)}
-                            style={{ background:"#FEE2E2", border:"none", borderRadius:6, padding:"4px 7px", cursor:"pointer", fontSize:12 }}>🗑️</button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          );
-        })()}
+
 
       </div>
-
-        {/* ===== KONTEN CMS ===== */}
-        {activeTab === "konten" && currentUser?.role === "admin" && (() => {
-          const banners = konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan);
-          const brands = konten.filter(k => k.kategori === "brand");
-          const cabangs = konten.filter(k => k.kategori === "cabang");
-          const infos = konten.filter(k => k.kategori === "info");
-
-          const getInfo = (kunci) => infos.find(i => i.kunci === kunci)?.nilai || "";
-
-          const uploadKonten = async (file, kategori, kunci, urutan = 0) => {
-            setKontenUploading(true);
-            try {
-              const url = await uploadToCloudinary(file);
-              await api.post("/api/konten", { kategori, kunci, nilai: url, urutan });
-              await loadAllData();
-            } catch(e) { alert("Gagal upload: " + e.message); }
-            setKontenUploading(false);
-          };
-
-          const simpanInfo = async (kunci, nilai) => {
-            await api.post("/api/konten", { kategori: "info", kunci, nilai, urutan: 0 });
-            await loadAllData();
-          };
-
-          const hapusKonten = async (id) => {
-            if (!window.confirm("Hapus item ini?")) return;
-            await api.del("/api/konten", { id });
-            await loadAllData();
-          };
-
-          const CABANG_LIST = ["KP", "Jawi", "Kobar", "Jeruju"];
-          const BRAND_LIST = ["Samsung", "Xiaomi", "Oppo", "Vivo", "Realme", "Apple", "Infinix", "Tecno", "Itel", "Advan"];
-
-          return (
-            <div>
-              <div style={c.sectionTitle}>🖼️ Manajemen Konten</div>
-              <div style={{ fontSize: 13, color: "#64748B", marginBottom: 24 }}>Upload dan kelola semua konten visual landing page</div>
-
-              {/* ── INFO TOKO ── */}
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>ℹ️ Info Toko</div>
-                {[
-                  { label: "Nama Toko", kunci: "info_nama", placeholder: "PontiCell" },
-                  { label: "Tagline", kunci: "info_tagline", placeholder: "Toko HP & Tablet Terpercaya di Pontianak" },
-                  { label: "Nomor WhatsApp", kunci: "info_wa", placeholder: "6283808484969" },
-                ].map(f => (
-                  <div key={f.kunci} style={{ marginBottom: 12 }}>
-                    <label style={c.label}>{f.label}</label>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <input style={{ ...c.input, marginBottom: 0, flex: 1 }} placeholder={f.placeholder}
-                        defaultValue={getInfo(f.kunci)}
-                        id={`info_${f.kunci}`} />
-                      <button style={c.btn("primary")} onClick={() => {
-                        const val = document.getElementById(`info_${f.kunci}`).value;
-                        if (val) simpanInfo(f.kunci, val);
-                      }}>Simpan</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* ── BANNER HERO ── */}
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>📸 Banner Hero</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Tampil sebagai slideshow di halaman utama. Ukuran ideal: 1920×600px.</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, marginBottom: 14 }}>
-                  {banners.map((b, i) => (
-                    <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #E2E8F0" }}>
-                      <img src={b.nilai} alt={`banner ${i+1}`} style={{ width: "100%", height: 110, objectFit: "cover" }} />
-                      <div style={{ position: "absolute", top: 6, right: 6, display: "flex", gap: 4 }}>
-                        <div style={{ background: "rgba(0,0,0,0.6)", borderRadius: 6, padding: "2px 8px", fontSize: 10, color: "#fff" }}>#{b.urutan + 1}</div>
-                        <button onClick={() => hapusKonten(b.id)} style={{ background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "2px 8px", cursor: "pointer" }}>🗑️</button>
-                      </div>
-                    </div>
-                  ))}
-                  {/* Add banner */}
-                  <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 110, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 6 }}>
-                    <span style={{ fontSize: 24 }}>+</span>
-                    <span style={{ fontSize: 11, color: "#64748B" }}>Tambah Banner</span>
-                    <input type="file" accept="image/*" style={{ display: "none" }}
-                      onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner", `banner_${Date.now()}`, banners.length); e.target.value = ""; }} />
-                  </label>
-                </div>
-                {kontenUploading && <div style={{ fontSize: 12, color: "#F97316" }}>⏳ Mengupload...</div>}
-              </div>
-
-              {/* ── LOGO BRAND ── */}
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>🏷️ Logo Brand</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Logo brand yang tampil di section Brand Populer. Format PNG transparan lebih bagus.</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
-                  {BRAND_LIST.map(brand => {
-                    const existing = brands.find(b => b.kunci === `brand_${brand.toLowerCase()}`);
-                    return (
-                      <div key={brand} style={{ border: "1px solid #E2E8F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
-                        {existing
-                          ? <img src={existing.nilai} alt={brand} style={{ height: 36, objectFit: "contain", marginBottom: 6 }} />
-                          : <div style={{ height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 6 }}>🏷️</div>
-                        }
-                        <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>{brand}</div>
-                        <label style={{ ...c.btn("ghost"), fontSize: 10, padding: "4px 10px", cursor: "pointer", display: "inline-block" }}>
-                          {existing ? "Ganti" : "Upload"}
-                          <input type="file" accept="image/*" style={{ display: "none" }}
-                            onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "brand", `brand_${brand.toLowerCase()}`, 0); e.target.value = ""; }} />
-                        </label>
-                        {existing && <button onClick={() => hapusKonten(existing.id)} style={{ background: "none", border: "none", color: "#EF4444", fontSize: 11, cursor: "pointer", marginLeft: 4 }}>🗑️</button>}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* ── FOTO CABANG ── */}
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>🏪 Foto Cabang</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Foto interior atau eksterior tiap cabang untuk ditampilkan di section Lokasi.</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
-                  {CABANG_LIST.map(cabang => {
-                    const existing = cabangs.find(c => c.kunci === `cabang_${cabang.toLowerCase()}`);
-                    return (
-                      <div key={cabang} style={{ border: "1px solid #E2E8F0", borderRadius: 10, overflow: "hidden" }}>
-                        {existing
-                          ? <div style={{ position: "relative" }}>
-                              <img src={existing.nilai} alt={cabang} style={{ width: "100%", height: 120, objectFit: "cover" }} />
-                              <button onClick={() => hapusKonten(existing.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "2px 8px", cursor: "pointer" }}>🗑️</button>
-                            </div>
-                          : <div style={{ height: 120, background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32 }}>🏪</div>
-                        }
-                        <div style={{ padding: "10px 12px" }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Cabang {cabang}</div>
-                          <label style={{ ...c.btn("ghost"), fontSize: 11, padding: "5px 12px", cursor: "pointer", display: "inline-block" }}>
-                            {existing ? "Ganti Foto" : "Upload Foto"}
-                            <input type="file" accept="image/*" style={{ display: "none" }}
-                              onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "cabang", `cabang_${cabang.toLowerCase()}`, 0); e.target.value = ""; }} />
-                          </label>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          );
-        })()}
 
       {/* ===== MODAL DETAIL PRODUK ===== */}
       {viewItem && (
@@ -2314,53 +2051,6 @@ const handleLogin = async () => {
           </div>
         </div>
       )}
-      {/* ===== MODAL REFERENSI HARGA ===== */}
-      {(refModal === "add" || refModal === "edit") && (
-        <div style={c.modal} onClick={() => setRefModal(null)}>
-          <div style={c.modalBox} onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize:15, fontWeight:800, marginBottom:18 }}>
-              {refModal === "add" ? "➕ Tambah Referensi Harga" : "✏️ Edit Referensi Harga"}
-            </div>
-
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-              <div>
-                <label style={c.label}>Merk *</label>
-                <select style={c.input} value={refModalData.brand||""} onChange={e => setRefModalData({...refModalData, brand:e.target.value})}>
-                  <option value="">-- Pilih --</option>
-                  {["Samsung","iPhone","Xiaomi","OPPO","Vivo","Realme","Infinix","Tecno","Itel","Lainnya"].map(b => <option key={b}>{b}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={c.label}>Kode Referensi *</label>
-                <input style={{ ...c.input, textTransform:"uppercase", letterSpacing:3, fontWeight:800, fontSize:15, textAlign:"center" }}
-                  placeholder="LY-LA" maxLength={10}
-                  value={refModalData.kode||""}
-                  onChange={e => setRefModalData({...refModalData, kode:e.target.value.toUpperCase()})} />
-              </div>
-            </div>
-
-            <label style={c.label}>Model *</label>
-            <input style={c.input} placeholder="Contoh: Galaxy S25 Ultra" value={refModalData.model||""} onChange={e => setRefModalData({...refModalData, model:e.target.value})} />
-
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-              <div>
-                <label style={c.label}>RAM</label>
-                <input style={c.input} placeholder="8GB" value={refModalData.ram||""} onChange={e => setRefModalData({...refModalData, ram:e.target.value})} />
-              </div>
-              <div>
-                <label style={c.label}>Storage</label>
-                <input style={c.input} placeholder="256GB" value={refModalData.storage||""} onChange={e => setRefModalData({...refModalData, storage:e.target.value})} />
-              </div>
-            </div>
-
-            <div style={{ display:"flex", gap:8 }}>
-              <button style={{ ...c.btn("primary"), flex:1 }} onClick={refModal==="add" ? handleAddRef : handleEditRef}>Simpan</button>
-              <button style={{ ...c.btn("ghost"), flex:1 }} onClick={() => setRefModal(null)}>Batal</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ===== MODAL SET / UBAH PIN FINANCE ===== */}
       {showSetPinModal && (
         <div style={c.modal} onClick={() => setShowSetPinModal(false)}>
