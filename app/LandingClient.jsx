@@ -74,7 +74,6 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       {/* Navbar */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${G.border}`, padding: "0 20px", height: 64, display: "flex", alignItems: "center", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
-          <div style={{ width: 34, height: 34, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>📱</div>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: G.blue, lineHeight: 1 }}>{infoNama || "PontiCell"}</div>
             <div style={{ fontSize: 9, color: G.gray }}>by.Max · Pontianak</div>
