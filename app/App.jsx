@@ -159,6 +159,8 @@ export default function App() {
   const [testimoni, setTestimoni] = useState([]);
   const [testiItems, setTestiItems] = useState([]);
   const testiFileRef = useRef(null);
+  const [konten, setKonten] = useState([]);
+  const [kontenUploading, setKontenUploading] = useState(false);
 
   // DB helpers
   const dbToItem = (r) => ({ id: r.id, type: r.type, brand: r.brand, model: r.model, ram: r.ram, storage: r.storage, color: r.color, condition: r.condition, imei: r.imei, buyPrice: r.buy_price, sellPrice: r.sell_price, notes: r.notes, photos: r.photos || [], stocks: r.stocks || emptyStocks(), createdAt: r.created_at });
@@ -167,17 +169,19 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting, kontenData] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
         api.get("/api/testimoni"),
         api.get("/api/settings?key=finance_pin"),
+        api.get("/api/konten"),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
       setActivities(acts.map(dbToActivity));
       setTestimoni(testis);
+      if (kontenData) setKonten(kontenData);
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
     } catch(e) {
       console.error("Load error:", e);
@@ -746,6 +750,7 @@ const handleLogin = async () => {
             ...(currentUser.role === "admin" ? [
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
               ["finance", <Wallet size={16} />, "Finance"],
+              ["konten", <span style={{fontSize:14}}>🖼️</span>, "Konten"],
             ] : []),
           ] : []),
         ].map(([tab, icon, label]) => (
@@ -1408,6 +1413,143 @@ const handleLogin = async () => {
             </>
           );
         })()}
+        {/* ===== KONTEN CMS ===== */}
+        {activeTab === "konten" && currentUser?.role === "admin" && (() => {
+          const banners = konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan);
+          const brandItems = konten.filter(k => k.kategori === "brand");
+          const cabangItems = konten.filter(k => k.kategori === "cabang");
+          const infoItems = konten.filter(k => k.kategori === "info");
+          const getInfo = (kunci) => infoItems.find(item => item.kunci === kunci)?.nilai || "";
+
+          const uploadKonten = async (file, kategori, kunci, urutan) => {
+            setKontenUploading(true);
+            try {
+              const url = await uploadToCloudinary(file);
+              await api.post("/api/konten", { kategori, kunci, nilai: url, urutan: urutan || 0 });
+              await loadAllData();
+            } catch(e) { alert("Gagal upload: " + e.message); }
+            setKontenUploading(false);
+          };
+
+          const simpanInfo = async (kunci, nilai) => {
+            setSyncing(true);
+            try {
+              await api.post("/api/konten", { kategori: "info", kunci, nilai, urutan: 0 });
+              await loadAllData();
+              alert("Tersimpan!");
+            } catch(e) { alert("Gagal: " + e.message); }
+            setSyncing(false);
+          };
+
+          const hapusKonten = async (id) => {
+            if (!window.confirm("Hapus item ini?")) return;
+            setSyncing(true);
+            try {
+              await api.del("/api/konten", { id });
+              await loadAllData();
+            } catch(e) { alert("Gagal hapus: " + e.message); }
+            setSyncing(false);
+          };
+
+          const CABANG_LIST = ["KP", "Jawi", "Kobar", "Jeruju"];
+          const BRAND_LIST = ["Samsung", "Xiaomi", "Oppo", "Vivo", "Realme", "Apple", "Infinix", "Tecno", "Itel", "Advan"];
+
+          return (
+            <div>
+              <div style={c.sectionTitle}>Manajemen Konten</div>
+              <div style={{ fontSize: 13, color: "#64748B", marginBottom: 24 }}>Upload dan kelola konten visual landing page</div>
+
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Info Toko</div>
+                {[
+                  { label: "Nama Toko", kunci: "info_nama", ph: "PontiCell" },
+                  { label: "Tagline", kunci: "info_tagline", ph: "Toko HP & Tablet Terpercaya" },
+                  { label: "Nomor WhatsApp", kunci: "info_wa", ph: "6283808484969" },
+                ].map(f => (
+                  <div key={f.kunci} style={{ marginBottom: 12 }}>
+                    <label style={c.label}>{f.label}</label>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input style={{ ...c.input, marginBottom: 0, flex: 1 }} placeholder={f.ph} defaultValue={getInfo(f.kunci)} id={"konten_" + f.kunci} />
+                      <button style={c.btn("primary")} onClick={() => { const v = document.getElementById("konten_" + f.kunci).value; if (v) simpanInfo(f.kunci, v); }}>Simpan</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Banner Hero (Slideshow)</div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Ukuran ideal 1920x600px. Bisa upload banyak banner.</div>
+                {kontenUploading && <div style={{ fontSize: 12, color: "#F97316", marginBottom: 10 }}>Mengupload...</div>}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
+                  {banners.map((b, i) => (
+                    <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #E2E8F0" }}>
+                      <img src={b.nilai} alt={"banner"} style={{ width: "100%", height: 110, objectFit: "cover" }} />
+                      <button onClick={() => hapusKonten(b.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
+                    </div>
+                  ))}
+                  <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 110, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
+                    <span style={{ fontSize: 28 }}>+</span>
+                    <span style={{ fontSize: 11, color: "#64748B" }}>Tambah Banner</span>
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner", "banner_" + Date.now(), banners.length); e.target.value = ""; }} />
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Logo Brand</div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Tampil di section Brand Populer. PNG transparan lebih bagus.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10 }}>
+                  {BRAND_LIST.map(brand => {
+                    const existing = brandItems.find(b => b.kunci === "brand_" + brand.toLowerCase());
+                    return (
+                      <div key={brand} style={{ border: "1px solid #E2E8F0", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                        {existing
+                          ? <img src={existing.nilai} alt={brand} style={{ height: 36, objectFit: "contain", marginBottom: 6, display: "block", margin: "0 auto 6px" }} />
+                          : <div style={{ height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, marginBottom: 6 }}>🏷️</div>}
+                        <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 8 }}>{brand}</div>
+                        <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+                          <label style={{ ...c.btn("ghost"), fontSize: 10, padding: "4px 10px", cursor: "pointer", display: "inline-block" }}>
+                            {existing ? "Ganti" : "Upload"}
+                            <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "brand", "brand_" + brand.toLowerCase(), 0); e.target.value = ""; }} />
+                          </label>
+                          {existing && <button onClick={() => hapusKonten(existing.id)} style={{ background: "none", border: "none", color: "#EF4444", fontSize: 13, cursor: "pointer" }}>🗑️</button>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Foto Cabang</div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Foto tiap cabang untuk ditampilkan di landing page.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
+                  {CABANG_LIST.map(cabang => {
+                    const existing = cabangItems.find(item => item.kunci === "cabang_" + cabang.toLowerCase());
+                    return (
+                      <div key={cabang} style={{ border: "1px solid #E2E8F0", borderRadius: 10, overflow: "hidden" }}>
+                        {existing
+                          ? <div style={{ position: "relative" }}>
+                              <img src={existing.nilai} alt={cabang} style={{ width: "100%", height: 120, objectFit: "cover" }} />
+                              <button onClick={() => hapusKonten(existing.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
+                            </div>
+                          : <div style={{ height: 120, background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>🏪</div>}
+                        <div style={{ padding: "10px 12px" }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Cabang {cabang}</div>
+                          <label style={{ ...c.btn("ghost"), fontSize: 11, padding: "5px 12px", cursor: "pointer", display: "inline-block" }}>
+                            {existing ? "Ganti Foto" : "Upload Foto"}
+                            <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "cabang", "cabang_" + cabang.toLowerCase(), 0); e.target.value = ""; }} />
+                          </label>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ===== TESTIMONI ===== */}
         {activeTab === "testimoni" && (
           <div>
