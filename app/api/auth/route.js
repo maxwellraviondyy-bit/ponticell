@@ -8,7 +8,6 @@ export async function POST(req) {
     SELECT username, role, name, branch FROM users
     WHERE username=${username.trim().toLowerCase()}
     AND password=${password}
-    AND (is_active IS NULL OR is_active = true)
     LIMIT 1
   `;
   if (rows.length === 0) {
