@@ -308,11 +308,11 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <div style={{ padding: "60px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Lokasi Cabang</div>
         <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Temukan kami di 4 lokasi di Pontianak</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, justifyItems: "center" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
           {CABANG_LIST.map(c => {
             const foto = cabangFotos[c.id];
             return (
-              <div key={c.id} style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+              <div key={c.id} style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", width: 240, flexShrink: 0 }}>
                 {foto
                   ? <div style={{ height: 140, overflow: "hidden" }}><img src={foto} alt={c.nama} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
                   : <div style={{ height: 100, background: G.grayLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>🏪</div>
