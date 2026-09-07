@@ -308,7 +308,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <div style={{ padding: "60px 24px", maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Lokasi Cabang</div>
         <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Temukan kami di 4 lokasi di Pontianak</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 14, justifyItems: "center" }}>
           {CABANG_LIST.map(c => {
             const foto = cabangFotos[c.id];
             return (
