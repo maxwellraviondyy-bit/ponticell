@@ -109,7 +109,7 @@ export default function ProductClient({ product, related }) {
 
           {/* Foto */}
           <div>
-            <div style={{ borderRadius: 16, overflow: "hidden", background: G.grayLight, border: `1px solid ${G.border}`, aspectRatio: "1", marginBottom: 10 }}
+            <div style={{ borderRadius: 16, overflow: "hidden", background: G.grayLight, border: `1px solid ${G.border}`, aspectRatio: "1", marginBottom: 10, maxHeight: 480 }}
               onMouseEnter={() => setAutoPlay(false)}
               onMouseLeave={() => setAutoPlay(true)}>
               {product.photos?.[activePhoto]
