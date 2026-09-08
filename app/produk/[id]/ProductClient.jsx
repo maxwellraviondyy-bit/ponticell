@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const WA_NUMBER = "6283808484969";
@@ -22,6 +22,16 @@ const G = {
 export default function ProductClient({ product, related }) {
   const router = useRouter();
   const [activePhoto, setActivePhoto] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  useEffect(() => {
+    if (!product.photos || product.photos.length <= 1) return;
+    if (!autoPlay) return;
+    const t = setInterval(() => {
+      setActivePhoto(i => (i + 1) % product.photos.length);
+    }, 2500);
+    return () => clearInterval(t);
+  }, [product.photos, autoPlay]);
   const [showOrder, setShowOrder] = useState(false);
   const [form, setForm] = useState({ nama: "", whatsapp: "", alamat: "", kota: "", catatan: "" });
   const [sending, setSending] = useState(false);
@@ -99,7 +109,9 @@ export default function ProductClient({ product, related }) {
 
           {/* Foto */}
           <div>
-            <div style={{ borderRadius: 16, overflow: "hidden", background: G.grayLight, border: `1px solid ${G.border}`, aspectRatio: "1", marginBottom: 10 }}>
+            <div style={{ borderRadius: 16, overflow: "hidden", background: G.grayLight, border: `1px solid ${G.border}`, aspectRatio: "1", marginBottom: 10 }}
+              onMouseEnter={() => setAutoPlay(false)}
+              onMouseLeave={() => setAutoPlay(true)}>
               {product.photos?.[activePhoto]
                 ? <img src={product.photos[activePhoto]} alt={product.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 64 }}>📱</div>
