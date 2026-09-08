@@ -617,20 +617,7 @@ const handleLogin = async () => {
     </div>
   </div>
 
-  <hr class="divider"/>
 
-  <div class="ttd-area">
-    <div class="ttd-box">
-      <div class="ttd-line"></div>
-      <div class="ttd-label">Tanda Tangan Pembeli</div>
-      <div class="ttd-label">(${p.nama})</div>
-    </div>
-    <div class="ttd-box">
-      <div class="ttd-line"></div>
-      <div class="ttd-label">Tanda Tangan Penjual</div>
-      <div class="ttd-label">PontiCell by.Max</div>
-    </div>
-  </div>
 
   <div class="footer">
     Terima kasih telah berbelanja di PontiCell 🙏<br/>
