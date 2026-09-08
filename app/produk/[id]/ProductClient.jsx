@@ -118,14 +118,24 @@ export default function ProductClient({ product, related }) {
               }
             </div>
             {product.photos?.length > 1 && (
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {product.photos.map((p, i) => (
-                  <div key={i} onClick={() => setActivePhoto(i)}
-                    style={{ width: 58, height: 58, borderRadius: 8, overflow: "hidden", cursor: "pointer", border: `2px solid ${activePhoto === i ? G.blue : G.border}` }}>
-                    <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
-                ))}
-              </div>
+              <>
+                {/* Dots indicator */}
+                <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 10 }}>
+                  {product.photos.map((_, i) => (
+                    <div key={i} onClick={() => { setActivePhoto(i); setAutoPlay(false); }}
+                      style={{ width: activePhoto === i ? 20 : 7, height: 7, borderRadius: 4, background: activePhoto === i ? G.blue : G.border, cursor: "pointer", transition: "all 0.3s" }} />
+                  ))}
+                </div>
+                {/* Thumbnail strip */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {product.photos.map((p, i) => (
+                    <div key={i} onClick={() => { setActivePhoto(i); setAutoPlay(false); }}
+                      style={{ width: 58, height: 58, borderRadius: 8, overflow: "hidden", cursor: "pointer", border: `2px solid ${activePhoto === i ? G.blue : G.border}` }}>
+                      <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
