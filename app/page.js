@@ -3,6 +3,12 @@ import LandingClient from "./LandingClient";
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: "PontiCell - Toko HP & Tablet Terpercaya di Pontianak",
+  description: "Beli HP dan Tablet original berkualitas di PontiCell Pontianak. Stok lengkap Samsung, Xiaomi, Oppo, Vivo, iPhone. Garansi toko, 4 cabang di Pontianak.",
+  alternates: { canonical: "https://ponticell.vercel.app" },
+};
+
 export default async function HomePage() {
   const sql = getDb();
 
@@ -22,18 +28,11 @@ export default async function HomePage() {
   const hpList = hp.map(parseItem).filter(i => Object.values(i.stocks).reduce((s,v)=>s+v,0) > 0);
   const tabletList = tablet.map(parseItem).filter(i => Object.values(i.stocks).reduce((s,v)=>s+v,0) > 0);
 
-  // Parse konten
   const banners = konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan).map(k => k.nilai);
   const brandLogos = {};
-  konten.filter(k => k.kategori === "brand").forEach(k => {
-    const brand = k.kunci.replace("brand_", "");
-    brandLogos[brand] = k.nilai;
-  });
+  konten.filter(k => k.kategori === "brand").forEach(k => { brandLogos[k.kunci.replace("brand_", "")] = k.nilai; });
   const cabangFotos = {};
-  konten.filter(k => k.kategori === "cabang").forEach(k => {
-    const cabang = k.kunci.replace("cabang_", "");
-    cabangFotos[cabang] = k.nilai;
-  });
+  konten.filter(k => k.kategori === "cabang").forEach(k => { cabangFotos[k.kunci.replace("cabang_", "")] = k.nilai; });
   const getInfo = (kunci) => konten.find(k => k.kunci === kunci)?.nilai || "";
 
   return (
