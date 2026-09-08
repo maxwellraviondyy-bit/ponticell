@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
@@ -95,8 +96,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           {showSuggest && navSuggestions.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: G.white, borderRadius: 12, border: `1px solid ${G.border}`, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 100 }}>
               {navSuggestions.map(p => (
-                <div key={p.id} onClick={() => router.push(`/produk/${p.id}`)}
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", cursor: "pointer", borderBottom: `1px solid ${G.border}` }}
+                <Link key={p.id} href={`/produk/${p.id}`}
+                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", cursor: "pointer", borderBottom: `1px solid ${G.border}`, textDecoration: "none", color: "inherit" }}
                   onMouseEnter={e => e.currentTarget.style.background = G.grayLight}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                   <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", background: G.grayLight, flexShrink: 0 }}>
@@ -106,7 +107,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
                     <div style={{ fontSize: 13, fontWeight: 700 }}>{p.brand} {p.model}</div>
                     <div style={{ fontSize: 11, color: G.blue, fontWeight: 700 }}>{formatRp(p.sell_price)}</div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -256,8 +257,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 14 }}>
               {filtered.map(p => (
-                <div key={p.id} onClick={() => router.push(`/produk/${p.id}`)}
-                  style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", transition: "all 0.2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+                <Link key={p.id} href={`/produk/${p.id}`}
+                  style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", transition: "all 0.2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textDecoration: "none", display: "block" }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = G.blue; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 24px rgba(21,101,192,0.12)`; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = G.border; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; }}>
                   <div style={{ width: "100%", aspectRatio: "1", background: "#F8F9FA", overflow: "hidden", position: "relative" }}>
@@ -275,7 +276,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
                     <div style={{ fontSize: 11, color: G.gray, marginBottom: 8 }}>{p.ram !== "-" ? `${p.ram} / ` : ""}{p.storage}</div>
                     <div style={{ fontSize: 15, fontWeight: 800, color: G.blue }}>{formatRp(p.sell_price)}</div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
