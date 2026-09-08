@@ -547,6 +547,105 @@ const handleLogin = async () => {
     e.target.value = "";
   };
 
+
+
+  const cetakNota = (p) => {
+    const noNota = "PCL-" + String(p.id).slice(-6);
+    const tgl = new Date(p.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    const jam = new Date(p.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+    const harga = "Rp " + Number(p.produk_harga).toLocaleString("id-ID");
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Nota ${noNota}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 13px; color: #1E293B; background: #fff; }
+    .page { width: 148mm; min-height: 210mm; padding: 12mm; margin: 0 auto; }
+    .header { text-align: center; border-bottom: 2px solid #1565C0; padding-bottom: 10px; margin-bottom: 12px; }
+    .logo { font-size: 22px; font-weight: 900; color: #1565C0; letter-spacing: -0.5px; }
+    .tagline { font-size: 10px; color: #64748B; margin-top: 2px; }
+    .nota-info { display: flex; justify-content: space-between; background: #F1F5F9; padding: 8px 10px; border-radius: 6px; margin-bottom: 14px; font-size: 11px; }
+    .section-title { font-size: 10px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; margin-top: 12px; }
+    .info-row { display: flex; margin-bottom: 4px; }
+    .info-label { width: 80px; color: #64748B; flex-shrink: 0; }
+    .info-value { font-weight: 600; }
+    .produk-box { border: 1.5px solid #1565C0; border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .produk-nama { font-size: 15px; font-weight: 800; color: #1565C0; margin-bottom: 6px; }
+    .produk-spek { font-size: 11px; color: #64748B; }
+    .harga-box { text-align: right; margin: 10px 0; }
+    .harga-label { font-size: 11px; color: #64748B; }
+    .harga-value { font-size: 22px; font-weight: 900; color: #1565C0; }
+    .divider { border: none; border-top: 1px dashed #CBD5E1; margin: 12px 0; }
+    .ttd-area { display: flex; justify-content: space-between; margin-top: 20px; }
+    .ttd-box { text-align: center; width: 45%; }
+    .ttd-line { border-bottom: 1px solid #1E293B; margin: 30px 0 6px; }
+    .ttd-label { font-size: 10px; color: #64748B; }
+    .footer { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #E2E8F0; font-size: 10px; color: #94A3B8; }
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #E3F2FD; color: #1565C0; }
+    @media print { body { print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo">PontiCell</div>
+    <div class="tagline">by.Max · Toko HP & Tablet Terpercaya · Pontianak</div>
+  </div>
+
+  <div class="nota-info">
+    <div><b>No. Nota:</b> ${noNota}</div>
+    <div><b>Tanggal:</b> ${tgl}, ${jam}</div>
+    <div class="status-badge">${p.status?.toUpperCase() || "PENDING"}</div>
+  </div>
+
+  <div class="section-title">Data Pembeli</div>
+  <div class="info-row"><div class="info-label">Nama</div><div class="info-value">${p.nama}</div></div>
+  <div class="info-row"><div class="info-label">WhatsApp</div><div class="info-value">${p.whatsapp}</div></div>
+  <div class="info-row"><div class="info-label">Alamat</div><div class="info-value">${p.alamat}</div></div>
+  <div class="info-row"><div class="info-label">Kota</div><div class="info-value">${p.kota}</div></div>
+  ${p.catatan ? '<div class="info-row"><div class="info-label">Catatan</div><div class="info-value">' + p.catatan + '</div></div>' : ''}
+
+  <div class="produk-box">
+    <div class="section-title" style="margin-top:0">Detail Produk</div>
+    <div class="produk-nama">${p.produk_nama}</div>
+    <div class="harga-box">
+      <div class="harga-label">Harga Jual</div>
+      <div class="harga-value">${harga}</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <div class="ttd-area">
+    <div class="ttd-box">
+      <div class="ttd-line"></div>
+      <div class="ttd-label">Tanda Tangan Pembeli</div>
+      <div class="ttd-label">(${p.nama})</div>
+    </div>
+    <div class="ttd-box">
+      <div class="ttd-line"></div>
+      <div class="ttd-label">Tanda Tangan Penjual</div>
+      <div class="ttd-label">PontiCell by.Max</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Terima kasih telah berbelanja di PontiCell 🙏<br/>
+    Simpan nota ini sebagai bukti pembelian yang sah.
+  </div>
+</div>
+<script>window.onload = () => { window.print(); }</script>
+</body>
+</html>`;
+
+    const win = window.open("", "_blank", "width=600,height=800");
+    win.document.write(html);
+    win.document.close();
+  };
+
   const c = {
     app: { fontFamily: "'Sora', sans-serif", background: "#F8FAFC", minHeight: "100vh", color: "#1E293B" },
     header: { background: "#FFFFFF", borderBottom: "1px solid #E2E8F0", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
@@ -906,6 +1005,7 @@ const handleLogin = async () => {
           </>
         )}
 
+
         {/* ===== PESANAN ===== */}
         {activeTab === "pesanan" && (() => {
           const statusColor = { pending: "#F97316", diproses: "#3B82F6", selesai: "#10B981", dibatalkan: "#EF4444" };
@@ -976,6 +1076,10 @@ const handleLogin = async () => {
                           style={{ ...c.btn("primary"), textDecoration: "none", textAlign: "center", fontSize: 12, padding: "8px 12px" }}>
                           💬 Hubungi WA
                         </a>
+                        <button onClick={() => cetakNota(p)}
+                          style={{ ...c.btn("ghost"), fontSize: 12, padding: "8px 12px", cursor: "pointer", width: "100%" }}>
+                          🖨️ Cetak Nota
+                        </button>
                         <select
                           style={{ ...c.input, marginBottom: 0, fontSize: 12, padding: "8px 10px" }}
                           value={p.status}
