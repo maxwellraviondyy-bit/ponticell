@@ -161,6 +161,7 @@ export default function App() {
   const testiFileRef = useRef(null);
   const [konten, setKonten] = useState([]);
   const [kontenUploading, setKontenUploading] = useState(false);
+  const [pesanan, setPesanan] = useState([]);
 
   // DB helpers
   const dbToItem = (r) => ({ id: r.id, type: r.type, brand: r.brand, model: r.model, ram: r.ram, storage: r.storage, color: r.color, condition: r.condition, imei: r.imei, buyPrice: r.buy_price, sellPrice: r.sell_price, notes: r.notes, photos: r.photos || [], stocks: r.stocks || emptyStocks(), createdAt: r.created_at });
@@ -169,19 +170,21 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting, kontenData] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
         api.get("/api/testimoni"),
         api.get("/api/settings?key=finance_pin"),
         api.get("/api/konten"),
+        api.get("/api/pesanan"),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
       setActivities(acts.map(dbToActivity));
       setTestimoni(testis);
       if (kontenData) setKonten(kontenData);
+      if (pesananData) setPesanan(pesananData);
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
     } catch(e) {
       console.error("Load error:", e);
@@ -746,6 +749,7 @@ const handleLogin = async () => {
           ["tablet", <Tablet size={16} />, "Tablet"],
           ["testimoni", <Star size={16} />, "Testimoni"],
           ...(currentUser ? [
+            ["pesanan", <span style={{fontSize:14}}>📋</span>, "Pesanan"],
             ["terjual", <Tag size={16} />, "Terjual"],
             ...(currentUser.role === "admin" ? [
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
@@ -901,6 +905,94 @@ const handleLogin = async () => {
             )}
           </>
         )}
+
+        {/* ===== PESANAN ===== */}
+        {activeTab === "pesanan" && (() => {
+          const statusColor = { pending: "#F97316", diproses: "#3B82F6", selesai: "#10B981", dibatalkan: "#EF4444" };
+          const statusLabel = { pending: "⏳ Pending", diproses: "🔄 Diproses", selesai: "✅ Selesai", dibatalkan: "❌ Dibatalkan" };
+
+          const updateStatus = async (id, status) => {
+            setSyncing(true);
+            try {
+              await api.put("/api/pesanan", { id, status });
+              await loadAllData();
+            } catch(e) { alert("Gagal update: " + e.message); }
+            setSyncing(false);
+          };
+
+          const pendingCount = pesanan.filter(p => p.status === "pending").length;
+
+          return (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <div style={c.sectionTitle}>Pesanan Masuk</div>
+                  <div style={{ fontSize: 13, color: "#64748B" }}>{pesanan.length} total · {pendingCount} pending</div>
+                </div>
+                {pendingCount > 0 && (
+                  <div style={{ background: "#FFF7ED", border: "1px solid #F97316", borderRadius: 10, padding: "8px 16px", fontSize: 13, color: "#F97316", fontWeight: 700 }}>
+                    🔔 {pendingCount} pesanan baru!
+                  </div>
+                )}
+              </div>
+
+              {pesanan.length === 0 && (
+                <div style={{ ...c.card(), textAlign: "center", padding: 60, color: "#CBD5E1" }}>
+                  <div style={{ fontSize: 40, marginBottom: 10 }}>📋</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#94A3B8" }}>Belum ada pesanan</div>
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {pesanan.map(p => (
+                  <div key={p.id} style={{ ...c.card(), borderLeft: "4px solid " + (statusColor[p.status] || "#E2E8F0") }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                          <span style={{ background: statusColor[p.status] + "20", color: statusColor[p.status], borderRadius: 6, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
+                            {statusLabel[p.status] || p.status}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#94A3B8" }}>
+                            {p.created_at ? new Date(p.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: 15, fontWeight: 800, color: "#1E293B", marginBottom: 4 }}>{p.produk_nama}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#FF6B35", marginBottom: 10 }}>
+                          Rp {Number(p.produk_harga).toLocaleString("id-ID")}
+                        </div>
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4, fontSize: 12, color: "#64748B" }}>
+                          <div>👤 <b>{p.nama}</b></div>
+                          <div>📱 {p.whatsapp}</div>
+                          <div style={{ gridColumn: "1/-1" }}>📍 {p.alamat}, {p.kota}</div>
+                          {p.catatan && <div style={{ gridColumn: "1/-1" }}>📝 {p.catatan}</div>}
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8, minWidth: 140 }}>
+                        <a href={"https://wa.me/" + p.whatsapp.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent("Halo " + p.nama + ", pesanan " + p.produk_nama + " sudah kami terima!")}
+                          target="_blank" rel="noopener noreferrer"
+                          style={{ ...c.btn("primary"), textDecoration: "none", textAlign: "center", fontSize: 12, padding: "8px 12px" }}>
+                          💬 Hubungi WA
+                        </a>
+                        <select
+                          style={{ ...c.input, marginBottom: 0, fontSize: 12, padding: "8px 10px" }}
+                          value={p.status}
+                          onChange={e => updateStatus(p.id, e.target.value)}>
+                          <option value="pending">⏳ Pending</option>
+                          <option value="diproses">🔄 Diproses</option>
+                          <option value="selesai">✅ Selesai</option>
+                          <option value="dibatalkan">❌ Dibatalkan</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ===== TERJUAL ===== */}
         {activeTab === "terjual" && (
