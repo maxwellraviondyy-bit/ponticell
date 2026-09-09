@@ -118,10 +118,25 @@ export default function ProductClient({ product, related }) {
             <h1 style={{ fontSize: "clamp(20px, 2.5vw, 28px)", fontWeight: 900, color: G.text, margin: "0 0 6px", lineHeight: 1.2 }}>{product.model}</h1>
 
             {/* Spek chips */}
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
-              {product.ram !== "-" && <span style={{ background: G.blueAccent, color: G.blue, borderRadius: 6, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>💾 {product.ram} GB</span>}
-              <span style={{ background: G.grayLight, color: G.gray, borderRadius: 6, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>📦 {product.storage}</span>
-              <span style={{ background: G.grayLight, color: G.gray, borderRadius: 6, padding: "4px 12px", fontSize: 12, fontWeight: 700 }}>🎨 {product.color}</span>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+              {product.ram !== "-" && (
+                <div style={{ background: G.blueAccent, border: `1px solid ${G.blue}33`, borderRadius: 12, padding: "10px 18px" }}>
+                  <div style={{ fontSize: 10, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>RAM</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: G.blue }}>{product.ram} GB</div>
+                </div>
+              )}
+              <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, padding: "10px 18px" }}>
+                <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Storage</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: G.text }}>{product.storage}</div>
+              </div>
+              <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, padding: "10px 18px" }}>
+                <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Warna</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: G.text }}>{product.color}</div>
+              </div>
+              <div style={{ background: product.condition === "Baru" ? "#E8F5E9" : "#FFF8E1", border: `1px solid ${product.condition === "Baru" ? "#4CAF5033" : "#FF980033"}`, borderRadius: 12, padding: "10px 18px" }}>
+                <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>Kondisi</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: product.condition === "Baru" ? "#2E7D32" : "#E65100" }}>{product.condition}</div>
+              </div>
             </div>
 
             {/* Divider */}
