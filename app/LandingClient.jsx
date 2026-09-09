@@ -82,7 +82,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
 
         {/* Search */}
-        <div style={{ flex: 1, position: "relative", maxWidth: 480 }}>
+        <div style={{ flex: 1, position: "relative", maxWidth: 480, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "0 14px", height: 40, gap: 8 }}>
             <span style={{ color: G.gray }}>🔍</span>
             <input style={{ flex: 1, background: "none", border: "none", outline: "none", fontSize: 13, color: G.text, fontFamily: "inherit" }}
@@ -154,7 +154,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
-        <div style={{ minHeight: "75vh", paddingTop: 64, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "80px 24px 60px", position: "relative", overflow: "hidden" }}>
+        <div style={{ minHeight: "75vh", paddingTop: 64, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
             {["✅ Garansi Toko", "📍 4 Cabang", "💯 Original", "🚀 Respon Cepat"].map(b => (
@@ -187,7 +187,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         <div style={{ background: G.white, padding: "40px 24px", borderBottom: `1px solid ${G.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: G.text, marginBottom: 18, textAlign: "center" }}>Brand Populer</div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", padding: "0 4px" }}>
               {popularBrands.map(brand => {
                 const logoKey = brand.toLowerCase();
                 const logo = brandLogos[logoKey];
@@ -255,7 +255,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         {filtered.length === 0
           ? <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}><div style={{ fontSize: 48, marginBottom: 12 }}>📭</div><div style={{ fontSize: 16, fontWeight: 600 }}>Produk tidak ditemukan</div></div>
           : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 14 }}>
+            <div className="product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
               {filtered.map(p => (
                 <Link key={p.id} href={`/produk/${p.id}`}
                   style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", transition: "all 0.2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textDecoration: "none", display: "block" }}
