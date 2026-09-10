@@ -96,7 +96,7 @@ export default function ProductClient({ product, related }) {
         {/* ── Foto ── */}
         <div className="foto-col">
           {/* Main Photo - full width on mobile */}
-          <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", maxHeight: 420, width: "100%" }}
+          <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", width: "100%" }}
             onMouseEnter={() => setAutoPlay(false)} onMouseLeave={() => setAutoPlay(true)}>
             {photos[activePhoto]
               ? <img src={photos[activePhoto]} alt={product.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
