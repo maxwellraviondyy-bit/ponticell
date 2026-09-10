@@ -62,9 +62,9 @@ export default function ProductClient({ product, related }) {
   return (
     <div style={{ background: G.bg, minHeight: "100vh", fontFamily: "'Plus Jakarta Sans', sans-serif", color: G.text, paddingBottom: 24 }}>
       <style>{`
-        .produk-layout { display: block; }
-        .foto-col { width: 100%; }
-        .info-col { width: 100%; padding: 20px; }
+        .produk-layout { display: block; margin: 0; padding: 0; }
+        .foto-col { width: 100%; overflow: hidden; }
+        .info-col { width: 100%; padding: 16px 20px; box-sizing: border-box; }
         .spek-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 16px 20px; border-top: 1px solid #E8EDF2; display: flex; gap: 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); safe-area-inset-bottom: env(safe-area-inset-bottom); }
         .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
