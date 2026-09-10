@@ -178,9 +178,19 @@ export default function ProductClient({ product, related }) {
             </div>
           )}
 
+          {/* Share */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 12, color: G.gray, fontWeight: 600 }}>Bagikan:</span>
+            <a href={`https://wa.me/?text=${encodeURIComponent('Cek ' + product.brand + ' ' + product.model + ' ' + formatRp(product.sell_price) + ' di PontiCell 👉 https://ponticell.vercel.app/produk/' + product.id)}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ background: "#25D366", color: "#fff", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+              🟢 WhatsApp
+            </a>
+          </div>
+
           {/* Tombol berdampingan */}
           {totalStok > 0 && !sent && (
-            <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+            <div style={{ display: "flex", gap: 10 }}>
               <a href={`https://wa.me/${WA_NUMBER}?text=Halo%20PontiCell,%20saya%20tertarik%20${encodeURIComponent(product.brand + ' ' + product.model)}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, padding: "14px 10px", background: G.white, border: `1.5px solid ${G.blue}`, borderRadius: 14, color: G.blue, fontSize: 14, fontWeight: 700, textDecoration: "none", textAlign: "center", display: "block" }}>
@@ -194,22 +204,12 @@ export default function ProductClient({ product, related }) {
           )}
 
           {sent && (
-            <div style={{ background: "#E8F5E9", border: "1px solid #4CAF50", borderRadius: 14, padding: "20px", textAlign: "center", marginBottom: 14 }}>
+            <div style={{ background: "#E8F5E9", border: "1px solid #4CAF50", borderRadius: 14, padding: "20px", textAlign: "center" }}>
               <div style={{ fontSize: 28, marginBottom: 6 }}>✅</div>
               <div style={{ fontSize: 15, fontWeight: 800, color: "#2E7D32", marginBottom: 4 }}>Pesanan Terkirim!</div>
               <div style={{ fontSize: 12, color: G.gray }}>Admin akan menghubungi via WhatsApp</div>
             </div>
           )}
-
-          {/* Share */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: G.gray, fontWeight: 600 }}>Bagikan:</span>
-            <a href={`https://wa.me/?text=${encodeURIComponent('Cek ' + product.brand + ' ' + product.model + ' ' + formatRp(product.sell_price) + ' di PontiCell 👉 https://ponticell.vercel.app/produk/' + product.id)}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{ background: "#25D366", color: "#fff", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
-              🟢 WhatsApp
-            </a>
-          </div>
         </div>
       </div>
 
