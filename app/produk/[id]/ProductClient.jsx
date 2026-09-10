@@ -54,13 +54,20 @@ export default function ProductClient({ product, related }) {
 
   return (
     <div style={{ background: G.bg, minHeight: "100vh", fontFamily: "'Plus Jakarta Sans', sans-serif", color: G.text }}>
+      <style>{`
+        .produk-grid { grid-template-columns: 1fr; }
+        @media (min-width: 768px) { .produk-grid { grid-template-columns: 1fr 1fr; } }
+        .harga-produk { font-size: clamp(22px, 6vw, 34px) !important; }
+        .nama-produk { font-size: clamp(18px, 4vw, 28px) !important; }
+        @media (min-width: 480px) { .breadcrumb-detail { display: block !important; } }
+      `}</style>
 
       {/* Navbar */}
       <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${G.border}`, padding: "0 24px", height: 56, display: "flex", alignItems: "center", gap: 10 }}>
         <button onClick={() => router.push("/")} style={{ background: "none", border: "none", color: G.gray, cursor: "pointer", fontSize: 20, padding: "4px 8px", borderRadius: 8, display: "flex", alignItems: "center" }}>←</button>
         <Link href="/" style={{ fontSize: 15, fontWeight: 900, color: G.blue, textDecoration: "none" }}>PontiCell</Link>
         <span style={{ color: G.border }}>/</span>
-        <span style={{ fontSize: 13, color: G.gray, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 200 }}>{product.brand} {product.model}</span>
+        <span style={{ fontSize: 13, color: G.gray, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150, display: "none" }} className="breadcrumb-detail">{product.brand} {product.model}</span>
       </nav>
 
       {/* Body */}
@@ -115,7 +122,7 @@ export default function ProductClient({ product, related }) {
             <div style={{ fontSize: 11, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 8 }}>{product.brand}</div>
 
             {/* Nama */}
-            <h1 style={{ fontSize: "clamp(20px, 2.5vw, 28px)", fontWeight: 900, color: G.text, margin: "0 0 6px", lineHeight: 1.2 }}>{product.model}</h1>
+            <h1 className="nama-produk" style={{ fontSize: "clamp(20px, 2.5vw, 28px)", fontWeight: 900, color: G.text, margin: "0 0 6px", lineHeight: 1.2 }}>{product.model}</h1>
 
             {/* Spek chips */}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
@@ -143,7 +150,7 @@ export default function ProductClient({ product, related }) {
             <div style={{ height: 1, background: G.border, marginBottom: 20 }} />
 
             {/* Harga */}
-            <div style={{ fontSize: 34, fontWeight: 900, color: G.blue, letterSpacing: "-0.5px", marginBottom: 6 }}>{formatRp(product.sell_price)}</div>
+            <div className="harga-produk" style={{ fontSize: 34, fontWeight: 900, color: G.blue, letterSpacing: "-0.5px", marginBottom: 6, wordBreak: "break-word" }}>{formatRp(product.sell_price)}</div>
             <div style={{ fontSize: 13, color: totalStok > 0 ? "#2E7D32" : "#C62828", fontWeight: 600, marginBottom: 24 }}>
               {totalStok > 0 ? `✅ Stok tersedia (${totalStok} unit)` : "❌ Stok habis"}
             </div>
