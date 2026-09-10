@@ -23,6 +23,8 @@ export default function ProductClient({ product, related }) {
   const [sent, setSent] = useState(false);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
+  const [mouseStart, setMouseStart] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const photos = product.photos?.filter(Boolean) || [];
   const totalStok = Object.values(product.stocks || {}).reduce((s, v) => s + v, 0);
@@ -44,6 +46,29 @@ export default function ProductClient({ product, related }) {
       if (dist > 0) setActivePhoto(i => (i + 1) % photos.length); // swipe left → next
       else setActivePhoto(i => (i - 1 + photos.length) % photos.length); // swipe right → prev
     }
+  };
+
+  const handleMouseDown = (e) => {
+    setMouseStart(e.clientX);
+    setIsDragging(true);
+    setAutoPlay(false);
+  };
+
+  const handleMouseUp = (e) => {
+    if (!isDragging || mouseStart === null) return;
+    const dist = mouseStart - e.clientX;
+    if (Math.abs(dist) > 50) {
+      if (dist > 0) setActivePhoto(i => (i + 1) % photos.length);
+      else setActivePhoto(i => (i - 1 + photos.length) % photos.length);
+    }
+    setIsDragging(false);
+    setMouseStart(null);
+  };
+
+  const handleMouseLeavePhoto = () => {
+    setIsDragging(false);
+    setMouseStart(null);
+    setAutoPlay(true);
   };
 
   useEffect(() => {
@@ -118,8 +143,9 @@ export default function ProductClient({ product, related }) {
         <div className="foto-col">
           {/* Main Photo - full width on mobile */}
           <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", width: "100%" }}
-            onMouseEnter={() => setAutoPlay(false)} onMouseLeave={() => setAutoPlay(true)}
-            onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+            onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseLeavePhoto}
+            onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+            style={{ cursor: isDragging ? "grabbing" : "grab" }}>
             {photos[activePhoto]
               ? <img src={photos[activePhoto]} alt={product.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80, background: G.grayLight }}>📱</div>}
