@@ -60,13 +60,13 @@ export default function ProductClient({ product, related }) {
   };
 
   return (
-    <div style={{ background: G.bg, minHeight: "100vh", fontFamily: "'Plus Jakarta Sans', sans-serif", color: G.text, paddingBottom: 90 }}>
+    <div style={{ background: G.bg, minHeight: "100vh", fontFamily: "'Plus Jakarta Sans', sans-serif", color: G.text, paddingBottom: 24 }}>
       <style>{`
         .produk-layout { display: block; }
         .foto-col { width: 100%; }
         .info-col { width: 100%; padding: 20px; }
         .spek-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 20px; border-top: 1px solid #E8EDF2; display: flex; gap: 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); }
+        .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 16px 20px; border-top: 1px solid #E8EDF2; display: flex; gap: 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); safe-area-inset-bottom: env(safe-area-inset-bottom); }
         .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (min-width: 768px) {
           .produk-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
@@ -77,6 +77,8 @@ export default function ProductClient({ product, related }) {
           .desktop-btn { display: flex !important; }
           .related-grid { grid-template-columns: repeat(4, 1fr); }
         }
+        .sticky-bar { display: none; }
+        @media (max-width: 767px) { .desktop-btn { display: flex !important; } }
         @media (min-width: 1024px) { .related-grid { grid-template-columns: repeat(5, 1fr); } }
       `}</style>
 
@@ -178,7 +180,7 @@ export default function ProductClient({ product, related }) {
 
           {/* Desktop buttons - hidden on mobile (sticky bar handles it) */}
           {totalStok > 0 && !sent && (
-            <div className="desktop-btn" style={{ flexDirection: "column", gap: 10, display: "none" }}>
+            <div className="desktop-btn" style={{ flexDirection: "column", gap: 10, display: "flex" }}>
               <button onClick={() => setShowOrder(true)}
                 style={{ padding: "15px", background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: 14, color: G.white, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: `0 6px 20px rgba(21,101,192,0.3)` }}>
                 🛒 Pesan Sekarang
