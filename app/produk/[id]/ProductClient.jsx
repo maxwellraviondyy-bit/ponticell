@@ -26,6 +26,14 @@ export default function ProductClient({ product, related }) {
 
   const photos = product.photos?.filter(Boolean) || [];
   const totalStok = Object.values(product.stocks || {}).reduce((s, v) => s + v, 0);
+  // Fix passive event listener - attach touchmove with useEffect
+  useEffect(() => {
+    const el = document.getElementById("photo-container");
+    if (!el) return;
+    const handler = (e) => e.preventDefault();
+    el.addEventListener("touchmove", handler, { passive: false });
+    return () => el.removeEventListener("touchmove", handler);
+  }, []);
 
   useEffect(() => {
     if (photos.length <= 1 || !autoPlay) return;
@@ -99,12 +107,12 @@ export default function ProductClient({ product, related }) {
         <div className="p-foto">
           {/* Main photo - square */}
           <div
+            id="photo-container"
             style={{ position: "relative", overflow: "hidden", aspectRatio: "1/1", width: "100%", background: G.grayLight, cursor: isDragging ? "grabbing" : "grab", userSelect: "none" }}
             onMouseDown={e => onDragStart(e.clientX)}
             onMouseUp={e => onDragEnd(e.clientX)}
             onMouseLeave={() => { setDragStart(null); setIsDragging(false); setAutoPlay(true); }}
             onTouchStart={e => onDragStart(e.targetTouches[0].clientX)}
-            onTouchMove={e => e.preventDefault()}
             onTouchEnd={e => onDragEnd(e.changedTouches[0].clientX)}
           >
             {photos[activePhoto]
