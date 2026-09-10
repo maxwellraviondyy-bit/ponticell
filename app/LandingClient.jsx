@@ -71,6 +71,13 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
 
   return (
     <div style={{ background: G.bg, minHeight: "100vh", color: G.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <style>{`
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 480px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
+        @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; } }
+        @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(6, 1fr); gap: 16px; } }
+      `}</style>
 
       {/* Navbar */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${G.border}`, padding: "0 20px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -255,7 +262,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         {filtered.length === 0
           ? <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}><div style={{ fontSize: 48, marginBottom: 12 }}>📭</div><div style={{ fontSize: 16, fontWeight: 600 }}>Produk tidak ditemukan</div></div>
           : (
-            <div className="product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+            <div className="product-grid">
               {filtered.map(p => (
                 <Link key={p.id} href={`/produk/${p.id}`}
                   style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", transition: "all 0.2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textDecoration: "none", display: "block" }}
