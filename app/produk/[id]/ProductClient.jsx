@@ -64,7 +64,7 @@ export default function ProductClient({ product, related }) {
       <style>{`
         .produk-layout { display: block; margin: 0; padding: 0; }
         .foto-col { width: 100%; overflow: hidden; }
-        .info-col { width: 100%; padding: 16px 20px; box-sizing: border-box; }
+        .info-col { width: 100%; padding: 12px 16px; box-sizing: border-box; }
         .spek-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 16px 20px; border-top: 1px solid #E8EDF2; display: flex; gap: 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); safe-area-inset-bottom: env(safe-area-inset-bottom); }
         .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -96,7 +96,7 @@ export default function ProductClient({ product, related }) {
         {/* ── Foto ── */}
         <div className="foto-col">
           {/* Main Photo - full width on mobile */}
-          <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", maxHeight: 340, width: "100%" }}
+          <div style={{ background: G.white, position: "relative", overflow: "hidden", width: "100%", height: "min(55vw, 300px)" }}
             onMouseEnter={() => setAutoPlay(false)} onMouseLeave={() => setAutoPlay(true)}>
             {photos[activePhoto]
               ? <img src={photos[activePhoto]} alt={product.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -114,7 +114,7 @@ export default function ProductClient({ product, related }) {
 
           {/* Dots */}
           {photos.length > 1 && (
-            <div style={{ display: "flex", gap: 6, justifyContent: "center", padding: "10px 0" }}>
+            <div style={{ display: "flex", gap: 6, justifyContent: "center", padding: "6px 0" }}>
               {photos.map((_, i) => (
                 <div key={i} onClick={() => { setActivePhoto(i); setAutoPlay(false); }}
                   style={{ width: activePhoto === i ? 22 : 7, height: 7, borderRadius: 4, background: activePhoto === i ? G.blue : G.border, cursor: "pointer", transition: "all 0.3s" }} />
@@ -124,10 +124,10 @@ export default function ProductClient({ product, related }) {
 
           {/* Thumbnails */}
           {photos.length > 1 && (
-            <div style={{ display: "flex", gap: 8, padding: "8px 16px 16px" }}>
+            <div style={{ display: "flex", gap: 6, padding: "6px 16px 10px" }}>
               {photos.map((p, i) => (
                 <div key={i} onClick={() => { setActivePhoto(i); setAutoPlay(false); }}
-                  style={{ width: 60, height: 60, borderRadius: 10, overflow: "hidden", cursor: "pointer", border: `2.5px solid ${activePhoto === i ? G.blue : "transparent"}`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", background: G.white, flexShrink: 0 }}>
+                  style={{ width: 50, height: 50, borderRadius: 8, overflow: "hidden", cursor: "pointer", border: `2.5px solid ${activePhoto === i ? G.blue : "transparent"}`, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", background: G.white, flexShrink: 0 }}>
                   <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
               ))}
@@ -138,34 +138,34 @@ export default function ProductClient({ product, related }) {
         {/* ── Info ── */}
         <div className="info-col">
           {/* Brand */}
-          <div style={{ fontSize: 11, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 6 }}>{product.brand}</div>
+          <div style={{ fontSize: 11, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>{product.brand}</div>
 
           {/* Nama */}
-          <h1 style={{ fontSize: "clamp(20px, 5vw, 28px)", fontWeight: 900, color: G.text, margin: "0 0 14px", lineHeight: 1.2 }}>{product.model}</h1>
+          <h1 style={{ fontSize: "clamp(18px, 5vw, 26px)", fontWeight: 900, color: G.text, margin: "0 0 8px", lineHeight: 1.2 }}>{product.model}</h1>
 
           {/* Harga */}
-          <div style={{ fontSize: "clamp(24px, 6vw, 32px)", fontWeight: 900, color: G.blue, marginBottom: 6 }}>{formatRp(product.sell_price)}</div>
-          <div style={{ fontSize: 13, color: totalStok > 0 ? "#2E7D32" : "#C62828", fontWeight: 600, marginBottom: 20 }}>
+          <div style={{ fontSize: "clamp(22px, 6vw, 30px)", fontWeight: 900, color: G.blue, marginBottom: 4 }}>{formatRp(product.sell_price)}</div>
+          <div style={{ fontSize: 12, color: totalStok > 0 ? "#2E7D32" : "#C62828", fontWeight: 600, marginBottom: 12 }}>
             {totalStok > 0 ? `✅ Stok tersedia (${totalStok} unit)` : "❌ Stok habis"}
           </div>
 
           {/* Spek */}
-          <div className="spek-grid" style={{ marginBottom: 20 }}>
+          <div className="spek-grid" style={{ marginBottom: 12 }}>
             {product.ram !== "-" && (
-              <div style={{ background: G.blueAccent, border: `1px solid ${G.blue}22`, borderRadius: 12, padding: "12px 14px" }}>
-                <div style={{ fontSize: 10, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>RAM</div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: G.blue }}>{product.ram} GB</div>
+              <div style={{ background: G.blueAccent, border: `1px solid ${G.blue}22`, borderRadius: 10, padding: "8px 12px" }}>
+                <div style={{ fontSize: 9, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>RAM</div>
+                <div style={{ fontSize: 14, fontWeight: 900, color: G.blue }}>{product.ram} GB</div>
               </div>
             )}
-            <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "8px 12px" }}>
               <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Storage</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: G.text }}>{product.storage}</div>
             </div>
-            <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "8px 12px" }}>
               <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Warna</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: G.text }}>{product.color}</div>
             </div>
-            <div style={{ background: product.condition === "Baru" ? "#E8F5E9" : "#FFF8E1", border: `1px solid ${product.condition === "Baru" ? "#4CAF5033" : "#FF980033"}`, borderRadius: 12, padding: "12px 14px" }}>
+            <div style={{ background: product.condition === "Baru" ? "#E8F5E9" : "#FFF8E1", border: `1px solid ${product.condition === "Baru" ? "#4CAF5033" : "#FF980033"}`, borderRadius: 10, padding: "8px 12px" }}>
               <div style={{ fontSize: 10, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Kondisi</div>
               <div style={{ fontSize: 16, fontWeight: 900, color: product.condition === "Baru" ? "#2E7D32" : "#E65100" }}>{product.condition}</div>
             </div>
@@ -179,7 +179,7 @@ export default function ProductClient({ product, related }) {
           )}
 
           {/* Share */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
             <span style={{ fontSize: 12, color: G.gray, fontWeight: 600 }}>Bagikan:</span>
             <a href={`https://wa.me/?text=${encodeURIComponent('Cek ' + product.brand + ' ' + product.model + ' ' + formatRp(product.sell_price) + ' di PontiCell 👉 https://ponticell.vercel.app/produk/' + product.id)}`}
               target="_blank" rel="noopener noreferrer"
