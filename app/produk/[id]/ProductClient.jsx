@@ -21,9 +21,30 @@ export default function ProductClient({ product, related }) {
   const [form, setForm] = useState({ nama: "", whatsapp: "", alamat: "", kota: "", catatan: "" });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
 
   const photos = product.photos?.filter(Boolean) || [];
   const totalStok = Object.values(product.stocks || {}).reduce((s, v) => s + v, 0);
+
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setTouchEnd(null);
+    setAutoPlay(false);
+  };
+
+  const handleTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const dist = touchStart - touchEnd;
+    if (Math.abs(dist) > 50) {
+      if (dist > 0) setActivePhoto(i => (i + 1) % photos.length); // swipe left → next
+      else setActivePhoto(i => (i - 1 + photos.length) % photos.length); // swipe right → prev
+    }
+  };
 
   useEffect(() => {
     if (photos.length <= 1 || !autoPlay) return;
@@ -97,7 +118,8 @@ export default function ProductClient({ product, related }) {
         <div className="foto-col">
           {/* Main Photo - full width on mobile */}
           <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", width: "100%" }}
-            onMouseEnter={() => setAutoPlay(false)} onMouseLeave={() => setAutoPlay(true)}>
+            onMouseEnter={() => setAutoPlay(false)} onMouseLeave={() => setAutoPlay(true)}
+            onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
             {photos[activePhoto]
               ? <img src={photos[activePhoto]} alt={product.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80, background: G.grayLight }}>📱</div>}
