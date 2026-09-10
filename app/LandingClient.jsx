@@ -73,10 +73,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
     <div style={{ background: G.bg, minHeight: "100vh", color: G.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (min-width: 480px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
-        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; } }
-        @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 16px; } }
-        @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(6, 1fr); gap: 16px; } }
+        @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+        @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+        @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; } }
       `}</style>
 
       {/* Navbar */}
