@@ -115,8 +115,8 @@ export default function ProductClient({ product, related }) {
         .sticky-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 12px 16px 20px; border-top: 1px solid #E8EDF2; display: flex; gap: 10px; z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); safe-area-inset-bottom: env(safe-area-inset-bottom); }
         .related-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (min-width: 768px) {
-          .produk-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
-          .foto-col { }
+          .produk-layout { display: grid; grid-template-columns: minmax(0, 480px) 1fr; gap: 40px; max-width: 1100px; margin: 0 auto; padding: 32px 24px; align-items: start; }
+          .foto-col { min-width: 0; }
           .info-col { padding: 0; }
           .spek-grid { grid-template-columns: repeat(4, 1fr); }
           .sticky-bar { display: none; }
@@ -142,7 +142,7 @@ export default function ProductClient({ product, related }) {
         {/* ── Foto ── */}
         <div className="foto-col">
           {/* Main Photo - full width on mobile */}
-          <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", width: "100%" }}
+          <div style={{ background: G.white, position: "relative", overflow: "hidden", aspectRatio: "1", width: "100%", borderRadius: 16 }}
             onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseLeave={handleMouseLeavePhoto}
             onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
             style={{ cursor: isDragging ? "grabbing" : "grab" }}>
