@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toggleWishlist, isWishlisted } from "@/lib/wishlist";
 
 const WA_NUMBER = "6283808484969";
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
@@ -23,9 +24,15 @@ export default function ProductClient({ product, related }) {
   const [sent, setSent] = useState(false);
   const [dragStart, setDragStart] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   const photos = product.photos?.filter(Boolean) || [];
   const totalStok = Object.values(product.stocks || {}).reduce((s, v) => s + v, 0);
+  // Init wishlist state
+  useEffect(() => {
+    try { setWishlisted(isWishlisted(product.id)); } catch {}
+  }, [product.id]);
+
   // Fix passive event listener - attach touchmove with useEffect
   useEffect(() => {
     const el = document.getElementById("photo-container");
@@ -51,6 +58,16 @@ export default function ProductClient({ product, related }) {
       else setActivePhoto(i => (i - 1 + photos.length) % photos.length);
     }
     setDragStart(null); setIsDragging(false);
+  };
+
+  const handleWishlistToggle = () => {
+    const updated = toggleWishlist({
+      id: product.id, brand: product.brand, model: product.model,
+      ram: product.ram, storage: product.storage, color: product.color,
+      condition: product.condition, sell_price: product.sell_price,
+      photos: product.photos,
+    });
+    setWishlisted(updated.some(i => i.id === product.id));
   };
 
   const handleOrder = async () => {
@@ -188,8 +205,12 @@ export default function ProductClient({ product, related }) {
             </div>
           )}
 
-          {/* Share */}
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
+          {/* Share + Wishlist */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+            <button onClick={handleWishlistToggle}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", background: wishlisted ? "#FEE2E2" : G.grayLight, border: `1px solid ${wishlisted ? "#EF4444" : G.border}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", color: wishlisted ? "#EF4444" : G.gray, transition: "all 0.2s" }}>
+              {wishlisted ? "❤️ Disimpan" : "🤍 Simpan"}
+            </button>
             <span style={{ fontSize: 12, color: G.gray, fontWeight: 600 }}>Bagikan:</span>
             <a href={`https://wa.me/?text=${encodeURIComponent("Cek " + product.brand + " " + product.model + " " + formatRp(product.sell_price) + " di PontiCell 👉 https://ponticell.vercel.app/produk/" + product.id)}`}
               target="_blank" rel="noopener noreferrer"

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toggleWishlist, isWishlisted, getWishlistCount } from "@/lib/wishlist";
 
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
@@ -23,6 +24,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const [navSuggestions, setNavSuggestions] = useState([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [wishlisted, setWishlisted] = useState({});
 
   const allProducts = [...hp, ...tablet];
   const products = activeTab === "hp" ? hp : tablet;
@@ -34,6 +37,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const brandCounts = {};
   allProducts.forEach(p => { brandCounts[p.brand] = (brandCounts[p.brand]||0)+1; });
   const popularBrands = Object.entries(brandCounts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([b])=>b);
+
+  // Init wishlist
+  useEffect(() => {
+    try {
+      const count = getWishlistCount();
+      setWishlistCount(count);
+      const list = JSON.parse(localStorage.getItem("ponticell_wishlist") || "[]");
+      const map = {};
+      list.forEach(i => { map[i.id] = true; });
+      setWishlisted(map);
+    } catch {}
+  }, []);
 
   // Banner slideshow
   useEffect(() => {
@@ -55,6 +70,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       && (selectedBrand === "Semua" || p.brand === selectedBrand)
       && (selectedRam === "Semua" || p.ram === selectedRam);
   });
+
+  const handleWishlist = (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const updated = toggleWishlist(product);
+    const map = {};
+    updated.forEach(i => { map[i.id] = true; });
+    setWishlisted(map);
+    setWishlistCount(updated.length);
+  };
 
   const handleBrandClick = (brand) => {
     setSelectedBrand(brand);
@@ -119,10 +144,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           )}
         </div>
 
-        <a href={`https://wa.me/${WA}?text=Halo%20${infoNama}`} target="_blank" rel="noopener noreferrer"
-          style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>
-          💬 WA
-        </a>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <Link href="/wishlist" style={{ position: "relative", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 8, padding: "8px 12px", fontSize: 18, textDecoration: "none", display: "flex", alignItems: "center" }}>
+            🤍
+            {wishlistCount > 0 && (
+              <span style={{ position: "absolute", top: -6, right: -6, background: "#EF4444", color: "#fff", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>{wishlistCount}</span>
+            )}
+          </Link>
+          <a href={`https://wa.me/${WA}?text=Halo%20${infoNama}`} target="_blank" rel="noopener noreferrer"
+            style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>
+            💬 WA
+          </a>
+        </div>
       </nav>
 
       {/* Hero - Banner atau gradient */}
@@ -352,7 +385,11 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{infoNama || "PontiCell"}</div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>by.Max · {infoTagline}</div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>© 2026 {infoNama}. All rights reserved.</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginBottom: 12 }}>© 2026 {infoNama}. All rights reserved.</div>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+          <Link href="/cek-pesanan" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>📦 Cek Pesanan</Link>
+          <Link href="/wishlist" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>❤️ Wishlist</Link>
+        </div>
       </div>
     </div>
   );
