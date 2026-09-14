@@ -26,6 +26,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const [bannerIdx, setBannerIdx] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [wishlisted, setWishlisted] = useState({});
+  const [priceRange, setPriceRange] = useState([0, 0]);
+  const [priceFilter, setPriceFilter] = useState([0, 0]);
 
   const allProducts = [...hp, ...tablet];
   const products = activeTab === "hp" ? hp : tablet;
@@ -37,6 +39,27 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const brandCounts = {};
   allProducts.forEach(p => { brandCounts[p.brand] = (brandCounts[p.brand]||0)+1; });
   const popularBrands = Object.entries(brandCounts).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([b])=>b);
+
+  // Init price range
+  useEffect(() => {
+    if (allProducts.length === 0) return;
+    const prices = allProducts.map(p => Number(p.sell_price));
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    setPriceRange([min, max]);
+    setPriceFilter([min, max]);
+  }, [hp.length, tablet.length]);
+
+  // Init price range from products
+  useEffect(() => {
+    const prods = [...hp, ...tablet];
+    if (prods.length === 0) return;
+    const prices = prods.map(p => Number(p.sell_price));
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    setPriceRange([min, max]);
+    setPriceFilter([min, max]);
+  }, [hp.length, tablet.length]);
 
   // Init wishlist
   useEffect(() => {
@@ -66,9 +89,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
 
   const filtered = products.filter(p => {
     const q = search.toLowerCase();
+    const price = Number(p.sell_price);
+    const inPriceRange = priceFilter[1] === 0 || (price >= priceFilter[0] && price <= priceFilter[1]);
     return (!q || p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q))
       && (selectedBrand === "Semua" || p.brand === selectedBrand)
-      && (selectedRam === "Semua" || p.ram === selectedRam);
+      && (selectedRam === "Semua" || p.ram === selectedRam)
+      && inPriceRange;
   });
 
   const handleWishlist = (e, product) => {
@@ -79,6 +105,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
     updated.forEach(i => { map[i.id] = true; });
     setWishlisted(map);
     setWishlistCount(updated.length);
+  };
+
+  const formatRpShort = (n) => {
+    if (n >= 1000000) return "Rp " + (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + " jt";
+    if (n >= 1000) return "Rp " + Math.round(n / 1000) + " rb";
+    return "Rp " + n;
   };
 
   const handleBrandClick = (brand) => {
@@ -280,7 +312,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
 
         {rams.length > 2 && (
-          <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
             <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>RAM:</span>
             {rams.map(r => (
               <button key={r} onClick={() => setSelectedRam(r)}
@@ -288,6 +320,47 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
                 {r === "Semua" ? "Semua" : `${r} GB`}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Filter Harga */}
+        {priceRange[1] > priceRange[0] && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>HARGA</span>
+              <span style={{ fontSize: 12, color: G.blue, fontWeight: 800 }}>
+                {formatRpShort(priceFilter[0])} — {formatRpShort(priceFilter[1])}
+              </span>
+            </div>
+            <div style={{ position: "relative", height: 36, display: "flex", alignItems: "center" }}>
+              <div style={{ position: "absolute", left: 0, right: 0, height: 4, background: G.border, borderRadius: 2 }} />
+              <div style={{
+                position: "absolute",
+                left: `${((priceFilter[0]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`,
+                right: `${100-((priceFilter[1]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`,
+                height: 4, background: G.blue, borderRadius: 2
+              }} />
+              <input type="range" min={priceRange[0]} max={priceRange[1]}
+                step={Math.round((priceRange[1]-priceRange[0])/100)}
+                value={priceFilter[0]}
+                onChange={e => { const v = Number(e.target.value); if (v < priceFilter[1] - 500000) setPriceFilter([v, priceFilter[1]]); }}
+                style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
+              <input type="range" min={priceRange[0]} max={priceRange[1]}
+                step={Math.round((priceRange[1]-priceRange[0])/100)}
+                value={priceFilter[1]}
+                onChange={e => { const v = Number(e.target.value); if (v > priceFilter[0] + 500000) setPriceFilter([priceFilter[0], v]); }}
+                style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: G.gray }}>
+              <span>{formatRpShort(priceRange[0])}</span>
+              <span>{formatRpShort(priceRange[1])}</span>
+            </div>
+            {(priceFilter[0] > priceRange[0] || priceFilter[1] < priceRange[1]) && (
+              <button onClick={() => setPriceFilter([priceRange[0], priceRange[1]])}
+                style={{ background: "none", border: "none", color: G.blue, fontSize: 11, cursor: "pointer", fontFamily: "inherit", marginTop: 4, padding: 0, fontWeight: 600 }}>
+                ✕ Reset harga
+              </button>
+            )}
           </div>
         )}
 

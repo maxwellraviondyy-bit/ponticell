@@ -835,7 +835,16 @@ const handleLogin = async () => {
           ["tablet", <Tablet size={16} />, "Tablet"],
           ["testimoni", <Star size={16} />, "Testimoni"],
           ...(currentUser ? [
-            ["pesanan", <span style={{fontSize:14}}>📋</span>, "Pesanan"],
+            ["pesanan", (
+              <span style={{position:"relative", display:"inline-flex", alignItems:"center"}}>
+                <span style={{fontSize:14}}>📋</span>
+                {pesanan.filter(p => p.status === "pending").length > 0 && (
+                  <span style={{position:"absolute", top:-6, right:-8, background:"#EF4444", color:"#fff", borderRadius:"50%", width:16, height:16, display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:800}}>
+                    {pesanan.filter(p => p.status === "pending").length}
+                  </span>
+                )}
+              </span>
+            ), "Pesanan"],
             ["terjual", <Tag size={16} />, "Terjual"],
             ...(currentUser.role === "admin" ? [
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
