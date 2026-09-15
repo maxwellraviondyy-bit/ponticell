@@ -18,30 +18,29 @@ export async function POST(req) {
     `${i.brand} ${i.model} ${i.ram}/${i.storage} - Rp ${Number(i.sell_price).toLocaleString("id-ID")}`
   ).join("\n");
 
-  const prompt = `Kamu adalah analis bisnis untuk toko PontiCell di Pontianak.
+  const messages = [
+    {
+      role: "system",
+      content: `Kamu adalah analis bisnis untuk toko PontiCell di Pontianak. Jawab dengan analisis jelas dan rekomendasi actionable dalam Bahasa Indonesia. Maksimal 200 kata.\n\nDATA PENJUALAN:\n${salesSummary || "Belum ada data."}\n\nSTOK:\n${invSummary || "Kosong."}`
+    },
+    { role: "user", content: question }
+  ];
 
-DATA PENJUALAN (100 transaksi terakhir):
-${salesSummary || "Belum ada data penjualan."}
-
-STOK SAAT INI:
-${invSummary || "Stok kosong."}
-
-Pertanyaan dari pemilik toko: "${question}"
-
-Jawab dengan analisis yang jelas, pakai poin-poin jika perlu, dan berikan rekomendasi actionable. Gunakan Bahasa Indonesia. Maksimal 200 kata.`;
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
+      model: "llama-3.3-70b-versatile",
+      messages,
       max_tokens: 400,
-      messages: [{ role: "user", content: prompt }],
+      temperature: 0.5,
     }),
   });
 
   const data = await response.json();
-  const analysis = data.content?.[0]?.text || "Gagal menganalisis data.";
-
+  const analysis = data.choices?.[0]?.message?.content || "Gagal menganalisis.";
   return NextResponse.json({ analysis });
 }

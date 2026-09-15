@@ -3,31 +3,32 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   const { brand, model, ram, storage, color, condition, sell_price, type } = await req.json();
 
-  const prompt = `Buatkan deskripsi produk singkat untuk toko HP di Pontianak.
+  const messages = [
+    {
+      role: "system",
+      content: "Kamu adalah copywriter toko HP. Buat deskripsi produk singkat 2-3 kalimat dalam Bahasa Indonesia yang menarik dan persuasif. Jangan cantumkan harga."
+    },
+    {
+      role: "user",
+      content: `Buat deskripsi untuk: ${brand} ${model}, Tipe: ${type === "hp" ? "Smartphone" : "Tablet"}, RAM: ${ram}, Storage: ${storage}, Warna: ${color}, Kondisi: ${condition}`
+    }
+  ];
 
-Produk: ${brand} ${model}
-Tipe: ${type === "hp" ? "Smartphone" : "Tablet"}
-RAM: ${ram}
-Storage: ${storage}
-Warna: ${color}
-Kondisi: ${condition}
-Harga: Rp ${Number(sell_price).toLocaleString("id-ID")}
-
-Buat deskripsi 2-3 kalimat yang menarik, informatif, dan persuasif dalam Bahasa Indonesia. 
-Fokus pada keunggulan produk dan cocok untuk siapa. Jangan tambahkan harga dalam deskripsi.`;
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
+      model: "llama-3.3-70b-versatile",
+      messages,
       max_tokens: 200,
-      messages: [{ role: "user", content: prompt }],
+      temperature: 0.8,
     }),
   });
 
   const data = await response.json();
-  const description = data.content?.[0]?.text || "";
-
+  const description = data.choices?.[0]?.message?.content || "";
   return NextResponse.json({ description });
 }

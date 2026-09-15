@@ -5,11 +5,9 @@ export async function POST(req) {
   const { message, history = [] } = await req.json();
   const sql = getDb();
 
-  // Ambil semua produk dari database
   const products = await sql`
     SELECT brand, model, ram, storage, color, condition, sell_price, stocks, type
-    FROM inventory
-    ORDER BY created_at DESC
+    FROM inventory ORDER BY created_at DESC
   `;
 
   const parseStocks = (s) => typeof s === "string" ? JSON.parse(s) : (s || {});
@@ -23,36 +21,40 @@ export async function POST(req) {
 
   const systemPrompt = `Kamu adalah asisten toko PontiCell, toko HP dan Tablet terpercaya di Pontianak. Tugasmu membantu pembeli memilih produk yang tepat.
 
-STOK PRODUK TERSEDIA SAAT INI:
+STOK PRODUK TERSEDIA:
 ${productList || "Stok sedang kosong."}
 
 PANDUAN:
 - Jawab dalam Bahasa Indonesia yang ramah dan santai
-- Rekomendasikan produk berdasarkan kebutuhan pembeli (budget, kegunaan, preferensi)
-- Jika ditanya harga, sebutkan dengan format "Rp XX.XXX.XXX"
-- Jika tidak ada produk yang cocok, sarankan produk terdekat
-- Selalu akhiri dengan ajakan untuk chat WhatsApp ke 6283808484969 jika ingin pesan
-- Jawaban singkat, padat, dan to the point (maksimal 150 kata)
+- Rekomendasikan produk berdasarkan kebutuhan pembeli
+- Format harga: Rp XX.XXX.XXX
+- Jika tidak ada yang cocok, sarankan yang terdekat
+- Selalu akhiri dengan ajakan chat WhatsApp ke 6283808484969
+- Jawaban singkat maksimal 150 kata
 - Jangan sebut produk yang tidak ada di stok`;
 
   const messages = [
+    { role: "system", content: systemPrompt },
     ...history.map(h => ({ role: h.role, content: h.content })),
     { role: "user", content: message }
   ];
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+    },
     body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 500,
-      system: systemPrompt,
+      model: "llama-3.3-70b-versatile",
       messages,
+      max_tokens: 500,
+      temperature: 0.7,
     }),
   });
 
   const data = await response.json();
-  const reply = data.content?.[0]?.text || "Maaf, saya tidak bisa menjawab saat ini. Silakan chat langsung ke WhatsApp kami.";
+  const reply = data.choices?.[0]?.message?.content || "Maaf, saya tidak bisa menjawab saat ini. Silakan chat ke WhatsApp kami di 6283808484969.";
 
   return NextResponse.json({ reply });
 }
