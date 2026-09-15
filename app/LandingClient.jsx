@@ -25,6 +25,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const [navSuggestions, setNavSuggestions] = useState([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [showAllTesti, setShowAllTesti] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [wishlisted, setWishlisted] = useState({});
   const [priceRange, setPriceRange] = useState([0, 0]);
@@ -158,7 +159,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
             {navSearch && <span style={{ cursor: "pointer", color: G.gray }} onClick={() => setNavSearch("")}>✕</span>}
           </div>
           {showSuggest && navSuggestions.length > 0 && (
-            <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: G.white, borderRadius: 12, border: `1px solid ${G.border}`, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 100 }}>
+            <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, minWidth: 240, background: G.white, borderRadius: 12, border: `1px solid ${G.border}`, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 100 }}>
               {navSuggestions.map(p => (
                 <Link key={p.id} href={`/produk/${p.id}`}
                   style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", cursor: "pointer", borderBottom: `1px solid ${G.border}`, textDecoration: "none", color: "inherit" }}
@@ -167,8 +168,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
                   <div style={{ width: 36, height: 36, borderRadius: 8, overflow: "hidden", background: G.grayLight, flexShrink: 0 }}>
                     {p.photos?.[0] ? <img src={p.photos[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>📱</div>}
                   </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{p.brand} {p.model}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.brand} {p.model}</div>
                     <div style={{ fontSize: 11, color: G.blue, fontWeight: 700 }}>{formatRp(p.sell_price)}</div>
                   </div>
                 </Link>
@@ -180,9 +181,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <Link href="/wishlist" style={{ position: "relative", background: wishlistCount > 0 ? "#FEE2E2" : G.grayLight, border: `1px solid ${wishlistCount > 0 ? "#EF4444" : G.border}`, borderRadius: 8, padding: "7px 12px", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ fontSize: 16 }}>❤️</span>
-            {wishlistCount > 0 && (
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#EF4444" }}>{wishlistCount}</span>
-            )}
+            {wishlistCount > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: "#EF4444" }}>{wishlistCount}</span>}
           </Link>
           <a href={`https://wa.me/${WA}?text=Halo%20${infoNama}`} target="_blank" rel="noopener noreferrer"
             style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>
@@ -402,7 +401,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
             <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
             <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Apa kata mereka setelah belanja di {infoNama}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
-              {testimoni.map(t => (
+              {(showAllTesti ? testimoni : testimoni.slice(0, 5)).map(t => (
                 <div key={t.id} style={{ background: G.bg, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden" }}>
                   <div style={{ height: 190, overflow: "hidden" }}>
                     <img src={t.foto} alt="testimoni" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -414,6 +413,14 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
                 </div>
               ))}
             </div>
+            {testimoni.length > 5 && (
+              <div style={{ textAlign: "center", marginTop: 24 }}>
+                <button onClick={() => setShowAllTesti(v => !v)}
+                  style={{ padding: "12px 28px", background: showAllTesti ? G.grayLight : `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: 12, color: showAllTesti ? G.gray : G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: showAllTesti ? "none" : "0 4px 14px rgba(21,101,192,0.3)" }}>
+                  {showAllTesti ? "⬆️ Sembunyikan" : `👁️ Lihat Semua ${testimoni.length} Testimoni`}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -454,8 +461,6 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           💬 Chat WhatsApp Sekarang
         </a>
       </div>
-
-      <Chatbot />
 
       {/* Footer */}
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
