@@ -178,10 +178,10 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
 
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Link href="/wishlist" style={{ position: "relative", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 8, padding: "8px 12px", fontSize: 18, textDecoration: "none", display: "flex", alignItems: "center" }}>
-            🤍
+          <Link href="/wishlist" style={{ position: "relative", background: wishlistCount > 0 ? "#FEE2E2" : G.grayLight, border: `1px solid ${wishlistCount > 0 ? "#EF4444" : G.border}`, borderRadius: 8, padding: "7px 12px", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 16 }}>❤️</span>
             {wishlistCount > 0 && (
-              <span style={{ position: "absolute", top: -6, right: -6, background: "#EF4444", color: "#fff", borderRadius: "50%", width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>{wishlistCount}</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#EF4444" }}>{wishlistCount}</span>
             )}
           </Link>
           <a href={`https://wa.me/${WA}?text=Halo%20${infoNama}`} target="_blank" rel="noopener noreferrer"
@@ -454,6 +454,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           💬 Chat WhatsApp Sekarang
         </a>
       </div>
+
+      <Chatbot />
 
       {/* Footer */}
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
