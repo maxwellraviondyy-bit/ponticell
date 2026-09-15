@@ -55,25 +55,20 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
     setPriceFilter([min, max]);
   }, [hp.length, tablet.length]);
 
-  // Counter animation
+  // Counter animation - start after short delay on mount
   useEffect(() => {
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !countersStarted) {
-        setCountersStarted(true);
-        // Animate terjual: 0 -> 1000
-        let t = 0;
-        const iv1 = setInterval(() => { t += 50; setCounterVals(v => ({ ...v, terjual: Math.min(t, 1000) })); if (t >= 1000) clearInterval(iv1); }, 20);
-        // Animate rating: 0 -> 4.9
-        let r = 0;
-        const iv2 = setInterval(() => { r += 0.1; setCounterVals(v => ({ ...v, rating: Math.min(parseFloat(r.toFixed(1)), 4.9) })); if (r >= 4.9) clearInterval(iv2); }, 30);
-        // Animate cabang: 0 -> 5
-        let c = 0;
-        const iv3 = setInterval(() => { c += 1; setCounterVals(v => ({ ...v, cabang: Math.min(c, 5) })); if (c >= 5) clearInterval(iv3); }, 150);
-      }
-    }, { threshold: 0.3 });
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, [countersStarted]);
+    const timer = setTimeout(() => {
+      if (countersStarted) return;
+      setCountersStarted(true);
+      let t = 0;
+      const iv1 = setInterval(() => { t += 40; setCounterVals(v => ({ ...v, terjual: Math.min(t, 1000) })); if (t >= 1000) clearInterval(iv1); }, 15);
+      let r = 0;
+      const iv2 = setInterval(() => { r = parseFloat((r + 0.1).toFixed(1)); setCounterVals(v => ({ ...v, rating: Math.min(r, 4.9) })); if (r >= 4.9) clearInterval(iv2); }, 25);
+      let c = 0;
+      const iv3 = setInterval(() => { c += 1; setCounterVals(v => ({ ...v, cabang: Math.min(c, 5) })); if (c >= 5) clearInterval(iv3); }, 120);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Init price range from products
   useEffect(() => {
