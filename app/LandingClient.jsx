@@ -249,7 +249,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         <div style={{ minHeight: "75vh", paddingTop: 64, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
-            {["✅ Garansi Toko", "📍 4 Cabang", "💯 Original", "🚀 Respon Cepat"].map(b => (
+            {["🛡️ Garansi 14 Hari", "🏪 5+ Cabang Resmi", "📦 1.000+ Terjual", "⚡ Respon < 5 Menit"].map(b => (
               <span key={b} style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: "rgba(255,255,255,0.9)" }}>{b}</span>
             ))}
           </div>
@@ -561,6 +561,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
           💬 Chat WhatsApp Sekarang
         </a>
       </div>
+
+      <Chatbot />
 
       {/* Footer */}
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
