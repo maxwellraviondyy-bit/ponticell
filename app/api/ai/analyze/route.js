@@ -33,7 +33,7 @@ export async function POST(req) {
       "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: "openai/gpt-oss-20b",
       messages,
       max_tokens: 400,
       temperature: 0.5,
