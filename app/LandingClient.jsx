@@ -243,10 +243,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
               style={{ background: "rgba(255,255,255,0.15)", color: G.white, border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "14px 32px", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>💬 WhatsApp</a>
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 52, flexWrap: "wrap", justifyContent: "center" }}>
-            {[{ l: "Produk", v: allProducts.length+"+" }, { l: "Cabang", v: "4" }, { l: "Garansi", v: "✓" }, { l: "Respon", v: "<5 Mnt" }].map(s => (
-              <div key={s.l} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "18px 22px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)" }}>
-                <div style={{ fontSize: 24, fontWeight: 900, color: G.white, marginBottom: 3 }}>{s.v}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{s.l}</div>
+            {[
+              { icon: "📦", v: "1.000+", l: "Unit Terjual" },
+              { icon: "⭐", v: "4.9/5", l: "Rating Pembeli" },
+              { icon: "🏪", v: "5+", l: "Cabang Resmi" },
+              { icon: "🛡️", v: "14 Hari", l: "Garansi Toko" },
+            ].map(s => (
+              <div key={s.l} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "16px 20px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)", minWidth: 90 }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 2 }}>{s.v}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{s.l}</div>
               </div>
             ))}
           </div>
