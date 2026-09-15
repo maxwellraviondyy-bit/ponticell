@@ -150,7 +150,7 @@ export default function Chatbot() {
 
       {/* Floating Button */}
       <button onClick={() => setOpen(o => !o)}
-        style={{ position: "fixed", bottom: 24, right: 20, width: 56, height: 56, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: "50%", cursor: "pointer", boxShadow: "0 8px 24px rgba(21,101,192,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, zIndex: 1000, transition: "transform 0.2s" }}
+        style={{ position: "fixed", bottom: 24, right: 20, width: 56, height: 56, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: "50%", cursor: "pointer", boxShadow: "0 8px 24px rgba(21,101,192,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, zIndex: 1000, transition: "transform 0.2s", animation: open ? "none" : "chatPulse 2s infinite" }}
         onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
         onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
         {open ? "✕" : "🤖"}
@@ -160,6 +160,11 @@ export default function Chatbot() {
       </button>
 
       <style>{`
+        @keyframes chatPulse {
+          0% { box-shadow: 0 0 0 0 rgba(21,101,192,0.5), 0 8px 24px rgba(21,101,192,0.4); }
+          50% { box-shadow: 0 0 0 12px rgba(21,101,192,0), 0 8px 24px rgba(21,101,192,0.4); transform: scale(1.05); }
+          100% { box-shadow: 0 0 0 0 rgba(21,101,192,0), 0 8px 24px rgba(21,101,192,0.4); }
+        }
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(-6px); }
