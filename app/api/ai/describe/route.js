@@ -21,7 +21,7 @@ export async function POST(req) {
       "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       messages,
       max_tokens: 200,
       temperature: 0.8,
