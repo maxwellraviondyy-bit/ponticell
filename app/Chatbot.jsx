@@ -22,6 +22,8 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [botName, setBotName] = useState("Asisten PontiCell");
+  const [initialized, setInitialized] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -30,6 +32,21 @@ export default function Chatbot() {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [open, messages]);
+
+  // Load bot greeting on mount
+  useEffect(() => {
+    if (initialized) return;
+    setInitialized(true);
+    fetch("/api/ai/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "__init__", history: [] }),
+    }).then(r => r.json()).then(data => {
+      if (data.botName) setBotName(data.botName);
+      const greeting = data.greeting || `Halo! 👋 Saya ${data.botName || "Asisten PontiCell"}. Tanya saya soal HP atau Tablet yang kamu cari!`;
+      setMessages([{ role: "assistant", content: greeting }]);
+    }).catch(() => {});
+  }, []);
 
   const sendMessage = async (text) => {
     const msg = text || input.trim();
@@ -48,6 +65,7 @@ export default function Chatbot() {
         body: JSON.stringify({ message: msg, history: history.slice(0, -1) }),
       });
       const data = await res.json();
+      if (data.botName) setBotName(data.botName);
       setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
       if (!open) setUnread(n => n + 1);
     } catch {
@@ -67,7 +85,7 @@ export default function Chatbot() {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 36, height: 36, background: "rgba(255,255,255,0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🤖</div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: G.white }}>Asisten PontiCell</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: G.white }}>{botName}</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", gap: 4 }}>
                   <span style={{ width: 6, height: 6, background: "#4ADE80", borderRadius: "50%", display: "inline-block" }} />
                   Online sekarang

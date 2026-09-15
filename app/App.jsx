@@ -106,6 +106,8 @@ export default function App() {
   const [aiAnalysis, setAiAnalysis] = useState("");
   const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
   const [aiQuestion, setAiQuestion] = useState("");
+  const [robotSettings, setRobotSettings] = useState({});
+  const [robotSaving, setRobotSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => {
     try { const s = sessionStorage.getItem("stokhp-user"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -174,7 +176,7 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData, robotData] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
@@ -182,6 +184,7 @@ export default function App() {
         api.get("/api/settings?key=finance_pin"),
         api.get("/api/konten"),
         api.get("/api/pesanan"),
+        api.get("/api/robot"),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
@@ -189,6 +192,7 @@ export default function App() {
       setTestimoni(testis);
       if (kontenData) setKonten(kontenData);
       if (pesananData) setPesanan(pesananData);
+      if (robotData) { const map = {}; robotData.forEach(r => { map[r.kunci] = r.nilai; }); setRobotSettings(map); }
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
     } catch(e) {
       console.error("Load error:", e);
@@ -890,6 +894,7 @@ const handleLogin = async () => {
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
               ["finance", <Wallet size={16} />, "Finance"],
               ["konten", <span style={{fontSize:14}}>🖼️</span>, "Konten"],
+              ["robot", <span style={{fontSize:14}}>🤖</span>, "Robot"],
             ] : []),
           ] : []),
         ].map(([tab, icon, label]) => (
@@ -1678,6 +1683,95 @@ const handleLogin = async () => {
             </>
           );
         })()}
+        {/* ===== ROBOT SETTINGS ===== */}
+        {activeTab === "robot" && currentUser?.role === "admin" && (() => {
+
+          const saveRobot = async (kunci, nilai) => {
+            setRobotSaving(true);
+            try {
+              await api.post("/api/robot", { kunci, nilai });
+              await loadAllData();
+            } catch(e) { alert("Gagal simpan: " + e.message); }
+            setRobotSaving(false);
+          };
+
+          const fields = [
+            { kunci: "robot_nama", label: "Nama Chatbot", placeholder: "Contoh: Andi, Sari, CS PontiCell", desc: "Nama yang muncul di header chatbot" },
+            { kunci: "robot_salam", label: "Pesan Pembuka", placeholder: "Halo! Selamat datang di PontiCell...", desc: "Pesan pertama yang dikirim chatbot saat chat dibuka", textarea: true },
+            { kunci: "robot_promo", label: "Promo & Keunggulan Toko", placeholder: "Contoh: Gratis ongkir untuk pembelian di atas 2 juta. Garansi 30 hari...", desc: "Info yang selalu disebutkan chatbot saat relevan", textarea: true },
+            { kunci: "robot_instruksi", label: "Instruksi Khusus", placeholder: "Contoh: Selalu tanyakan budget dulu sebelum rekomendasikan produk...", desc: "Perilaku khusus yang harus diikuti chatbot", textarea: true },
+            { kunci: "robot_larangan", label: "Larangan / Batasan", placeholder: "Contoh: Jangan bahas kompetitor. Jangan berikan diskon tanpa konfirmasi admin...", desc: "Hal yang tidak boleh dilakukan atau dijawab chatbot", textarea: true },
+          ];
+
+          return (
+            <div>
+              <div style={c.sectionTitle}>🤖 Pengaturan Robot / Chatbot</div>
+              <div style={{ fontSize: 13, color: "#64748B", marginBottom: 24 }}>Atur kepribadian dan perilaku chatbot yang muncul di landing page</div>
+
+              {/* Gaya Bahasa */}
+              <div style={{ ...c.card(), marginBottom: 16 }}>
+                <label style={c.label}>Gaya Bahasa</label>
+                <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 10 }}>Pilih gaya bicara chatbot ke pembeli</div>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {[
+                    { id: "santai", label: "😊 Santai", desc: "Ramah dan bersahabat" },
+                    { id: "formal", label: "👔 Formal", desc: "Profesional dan sopan" },
+                    { id: "gaul", label: "🔥 Gaul", desc: "Kekinian dan fun" },
+                  ].map(g => (
+                    <div key={g.id} onClick={() => saveRobot("robot_gaya", g.id)}
+                      style={{ padding: "12px 18px", borderRadius: 12, border: `2px solid ${(robotSettings.robot_gaya || "santai") === g.id ? "#1565C0" : "#E2E8F0"}`, background: (robotSettings.robot_gaya || "santai") === g.id ? "#EBF3FF" : "#F8FAFC", cursor: "pointer", textAlign: "center", minWidth: 100 }}>
+                      <div style={{ fontSize: 16, marginBottom: 4 }}>{g.label}</div>
+                      <div style={{ fontSize: 11, color: "#64748B" }}>{g.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Other fields */}
+              {fields.map(f => (
+                <div key={f.kunci} style={{ ...c.card(), marginBottom: 16 }}>
+                  <label style={c.label}>{f.label}</label>
+                  <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 8 }}>{f.desc}</div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    {f.textarea
+                      ? <textarea style={{ ...c.input, flex: 1, marginBottom: 0, height: 90, resize: "vertical" }} placeholder={f.placeholder}
+                          defaultValue={robotSettings[f.kunci] || ""}
+                          id={"robot_field_" + f.kunci} />
+                      : <input style={{ ...c.input, flex: 1, marginBottom: 0 }} placeholder={f.placeholder}
+                          defaultValue={robotSettings[f.kunci] || ""}
+                          id={"robot_field_" + f.kunci} />
+                    }
+                    <button style={{ ...c.btn("primary"), padding: "10px 16px", flexShrink: 0 }} disabled={robotSaving}
+                      onClick={() => { const v = document.getElementById("robot_field_" + f.kunci).value; saveRobot(f.kunci, v); }}>
+                      {robotSaving ? "⏳" : "Simpan"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Preview */}
+              <div style={{ ...c.card(), background: "#F0F9FF", border: "1px solid #BAE6FD" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#0EA5E9", marginBottom: 10 }}>👁️ Preview Chatbot</div>
+                <div style={{ background: "#1565C0", borderRadius: "12px 12px 0 0", padding: "12px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ width: 32, height: 32, background: "rgba(255,255,255,0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🤖</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{robotSettings.robot_nama || "Asisten PontiCell"}</div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>● Online sekarang</div>
+                  </div>
+                </div>
+                <div style={{ background: "#fff", borderRadius: "0 0 12px 12px", padding: 14 }}>
+                  <div style={{ background: "#F1F5F9", borderRadius: "16px 16px 16px 4px", padding: "10px 14px", fontSize: 13, color: "#0F172A", maxWidth: "85%" }}>
+                    {robotSettings.robot_salam || `Halo! 👋 Saya ${robotSettings.robot_nama || "Asisten PontiCell"}. Tanya saya soal HP atau Tablet yang kamu cari!`}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#94A3B8", marginTop: 6 }}>
+                    Gaya: {robotSettings.robot_gaya === "formal" ? "Formal" : robotSettings.robot_gaya === "gaul" ? "Gaul 🔥" : "Santai 😊"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* ===== KONTEN CMS ===== */}
         {activeTab === "konten" && currentUser?.role === "admin" && (() => {
           const banners = konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan);
