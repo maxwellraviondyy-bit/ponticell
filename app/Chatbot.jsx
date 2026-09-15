@@ -149,21 +149,33 @@ export default function Chatbot() {
       )}
 
       {/* Floating Button */}
-      <button onClick={() => setOpen(o => !o)}
-        style={{ position: "fixed", bottom: 24, right: 20, width: 56, height: 56, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: "50%", cursor: "pointer", boxShadow: "0 8px 24px rgba(21,101,192,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, zIndex: 1000, transition: "transform 0.2s", animation: open ? "none" : "chatPulse 2s infinite" }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
-        {open ? "✕" : "🤖"}
-        {!open && unread > 0 && (
-          <span style={{ position: "absolute", top: -4, right: -4, background: "#EF4444", color: G.white, borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>{unread}</span>
+      <div style={{ position: "fixed", bottom: 24, right: 20, display: "flex", alignItems: "center", gap: 10, zIndex: 1000, flexDirection: "row-reverse" }}>
+        <button onClick={() => setOpen(o => !o)}
+          style={{ width: 56, height: 56, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: "50%", cursor: "pointer", boxShadow: "0 8px 24px rgba(21,101,192,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0, transition: "transform 0.2s", animation: open ? "none" : "chatPulse 2s infinite", position: "relative" }}
+          onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
+          onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
+          {open ? "✕" : "🤖"}
+          {!open && unread > 0 && (
+            <span style={{ position: "absolute", top: -4, right: -4, background: "#EF4444", color: G.white, borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800 }}>{unread}</span>
+          )}
+        </button>
+        {!open && (
+          <div onClick={() => setOpen(true)} style={{ background: G.white, borderRadius: 20, padding: "10px 16px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)", cursor: "pointer", animation: "fadeInLeft 0.5s ease", border: `1px solid ${G.border}` }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: G.text, whiteSpace: "nowrap" }}>Ada pertanyaan?</div>
+            <div style={{ fontSize: 11, color: G.blue, fontWeight: 600 }}>Tanya aku aja! 👋</div>
+          </div>
         )}
-      </button>
+      </div>
 
       <style>{`
         @keyframes chatPulse {
           0% { box-shadow: 0 0 0 0 rgba(21,101,192,0.5), 0 8px 24px rgba(21,101,192,0.4); }
           50% { box-shadow: 0 0 0 12px rgba(21,101,192,0), 0 8px 24px rgba(21,101,192,0.4); transform: scale(1.05); }
           100% { box-shadow: 0 0 0 0 rgba(21,101,192,0), 0 8px 24px rgba(21,101,192,0.4); }
+        }
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(20px); }
+          to { opacity: 1; transform: translateX(0); }
         }
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
