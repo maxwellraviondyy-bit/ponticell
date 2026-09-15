@@ -425,30 +425,94 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
       )}
 
-      {/* Cabang */}
-      <div style={{ padding: "60px 24px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Lokasi Cabang</div>
-        <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Temukan kami di 4 lokasi di Pontianak</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center" }}>
-          {CABANG_LIST.map(c => {
-            const foto = cabangFotos[c.id];
-            return (
-              <div key={c.id} style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", width: 240, flexShrink: 0 }}>
-                {foto
-                  ? <div style={{ height: 140, overflow: "hidden" }}><img src={foto} alt={c.nama} style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
-                  : <div style={{ height: 100, background: G.grayLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>🏪</div>
-                }
-                <div style={{ padding: "14px 16px", textAlign: "center" }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: G.text, marginBottom: 4 }}>{c.nama}</div>
-                  <div style={{ fontSize: 12, color: G.gray, marginBottom: 12 }}>{c.lokasi}</div>
-                  <a href={`https://wa.me/${WA}?text=Halo%20${infoNama},%20saya%20ingin%20tanya%20stok%20di%20${c.nama}`} target="_blank" rel="noopener noreferrer"
-                    style={{ display: "inline-block", padding: "7px 16px", background: G.blueAccent, border: `1px solid ${G.blue}`, color: G.blue, borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
-                    💬 Tanya Stok
-                  </a>
+      {/* Trust Section */}
+      <div style={{ background: G.white, padding: "72px 24px", borderTop: `1px solid ${G.border}`, borderBottom: `1px solid ${G.border}` }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: 52 }}>
+            <div style={{ display: "inline-block", background: G.blueAccent, border: `1px solid ${G.blue}33`, borderRadius: 20, padding: "5px 16px", fontSize: 12, color: G.blue, fontWeight: 700, marginBottom: 14, letterSpacing: 1, textTransform: "uppercase" }}>
+              Dipercaya Sejak 2018
+            </div>
+            <div style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900, color: G.text, marginBottom: 12, lineHeight: 1.2 }}>
+              Mengapa Ribuan Orang<br />Percaya <span style={{ color: G.blue }}>PontiCell</span>?
+            </div>
+            <div style={{ fontSize: 15, color: G.gray, maxWidth: 520, margin: "0 auto", lineHeight: 1.7 }}>
+              Kami bukan sekadar toko HP biasa. PontiCell hadir dengan jaringan cabang terluas di Pontianak, memastikan setiap produk yang kami jual adalah <strong style={{ color: G.text }}>100% original dan bergaransi</strong>.
+            </div>
+          </div>
+
+          {/* Trust Cards */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20, marginBottom: 52 }}>
+            {[
+              {
+                icon: "🏪",
+                title: "5+ Cabang Resmi",
+                desc: "Hadir di lebih dari 5 titik strategis di Pontianak. Mudah dijangkau dari mana saja.",
+                color: G.blue,
+                bg: G.blueAccent,
+              },
+              {
+                icon: "✅",
+                title: "100% Produk Original",
+                desc: "Setiap produk yang kami jual dijamin keasliannya. Bukan refurbished, bukan palsu.",
+                color: "#059669",
+                bg: "#ECFDF5",
+              },
+              {
+                icon: "🛡️",
+                title: "Garansi Toko Resmi",
+                desc: "Tidak puas? Ada garansi toko yang melindungi pembelianmu. Kami bertanggung jawab penuh.",
+                color: "#7C3AED",
+                bg: "#EDE9FE",
+              },
+              {
+                icon: "⚡",
+                title: "Respon < 5 Menit",
+                desc: "Tim kami siap melayani dengan cepat dan ramah. Tidak perlu menunggu lama.",
+                color: "#D97706",
+                bg: "#FEF3C7",
+              },
+              {
+                icon: "💰",
+                title: "Harga Transparan",
+                desc: "Harga yang tertera adalah harga jual. Tidak ada biaya tersembunyi atau markup sepihak.",
+                color: "#DC2626",
+                bg: "#FEE2E2",
+              },
+              {
+                icon: "🤝",
+                title: "Ribuan Transaksi Sukses",
+                desc: "Sudah melayani ribuan pelanggan puas di seluruh Pontianak dan sekitarnya.",
+                color: "#0891B2",
+                bg: "#E0F2FE",
+              },
+            ].map((item, i) => (
+              <div key={i} style={{ background: G.bg, borderRadius: 16, padding: "24px 20px", border: `1px solid ${G.border}`, transition: "all 0.2s" }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)"; e.currentTarget.style.borderColor = item.color + "44"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = G.border; }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: item.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 14 }}>
+                  {item.icon}
                 </div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: G.text, marginBottom: 8 }}>{item.title}</div>
+                <div style={{ fontSize: 13, color: G.gray, lineHeight: 1.6 }}>{item.desc}</div>
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* Bottom CTA */}
+          <div style={{ textAlign: "center", background: `linear-gradient(135deg, ${G.blueAccent}, #F0F9FF)`, borderRadius: 20, padding: "32px 24px", border: `1px solid ${G.blue}22` }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: G.text, marginBottom: 8 }}>
+              Masih Ragu? Chat Kami Sekarang 👇
+            </div>
+            <div style={{ fontSize: 13, color: G.gray, marginBottom: 20 }}>
+              Tim PontiCell siap membantu kamu menemukan HP terbaik sesuai kebutuhan dan budget
+            </div>
+            <a href={`https://wa.me/${WA}?text=Halo%20${infoNama},%20saya%20ingin%20tanya%20produk`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 28px", background: "#25D366", color: G.white, borderRadius: 12, fontSize: 14, fontWeight: 800, textDecoration: "none", boxShadow: "0 4px 16px rgba(37,211,102,0.35)" }}>
+              💬 Chat WhatsApp Sekarang
+            </a>
+          </div>
         </div>
       </div>
 
