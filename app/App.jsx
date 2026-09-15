@@ -102,6 +102,10 @@ export default function App() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [aiDescLoading, setAiDescLoading] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [aiAnalysisLoading, setAiAnalysisLoading] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
   const [currentUser, setCurrentUser] = useState(() => {
     try { const s = sessionStorage.getItem("stokhp-user"); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -492,6 +496,42 @@ const handleLogin = async () => {
       await loadAllData();
     } catch(e) { alert("Gagal batalkan: " + e.message); }
     setSyncing(false);
+  };
+
+  const handleAiDescribe = async (item) => {
+    setAiDescLoading(true);
+    try {
+      const res = await fetch("/api/ai/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brand: item.brand, model: item.model, ram: item.ram,
+          storage: item.storage, color: item.color, condition: item.condition,
+          sell_price: item.sell_price, type: item.type,
+        }),
+      });
+      const data = await res.json();
+      if (data.description) {
+        setModalData(prev => ({ ...prev, notes: data.description }));
+      }
+    } catch(e) { alert("Gagal generate deskripsi: " + e.message); }
+    setAiDescLoading(false);
+  };
+
+  const handleAiAnalyze = async () => {
+    if (!aiQuestion.trim()) return;
+    setAiAnalysisLoading(true);
+    setAiAnalysis("");
+    try {
+      const res = await fetch("/api/ai/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: aiQuestion }),
+      });
+      const data = await res.json();
+      setAiAnalysis(data.analysis || "Tidak ada analisis.");
+    } catch(e) { setAiAnalysis("Gagal menganalisis: " + e.message); }
+    setAiAnalysisLoading(false);
   };
 
   const handleSimpanTestimoni = async () => {
@@ -1449,6 +1489,39 @@ const handleLogin = async () => {
 
           return (
             <>
+              {/* ===== AI ANALISIS ===== */}
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                  <span>🤖</span> Analisis AI
+                </div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tanya AI tentang data penjualan dan rekomendasi bisnis</div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  <input style={{ ...c.input, marginBottom: 0, flex: 1 }}
+                    placeholder="Contoh: Produk paling laku bulan ini?"
+                    value={aiQuestion}
+                    onChange={e => setAiQuestion(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleAiAnalyze()} />
+                  <button style={{ ...c.btn("primary"), whiteSpace: "nowrap", flexShrink: 0, padding: "10px 14px" }}
+                    onClick={handleAiAnalyze} disabled={aiAnalysisLoading || !aiQuestion.trim()}>
+                    {aiAnalysisLoading ? "⏳..." : "✨ Analisis"}
+                  </button>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: aiAnalysis ? 12 : 0 }}>
+                  {["Produk paling laku?", "Brand terlaris?", "Rekomendasi stok?", "Kapan waktu ramai?"].map(q => (
+                    <button key={q} onClick={() => setAiQuestion(q)}
+                      style={{ padding: "4px 10px", background: "#F1F5F9", border: "1px solid #E2E8F0", borderRadius: 14, fontSize: 11, color: "#64748B", cursor: "pointer", fontFamily: "inherit" }}>
+                      {q}
+                    </button>
+                  ))}
+                </div>
+                {aiAnalysis && (
+                  <div style={{ background: "#F0F9FF", border: "1px solid #BAE6FD", borderRadius: 12, padding: "14px 16px", fontSize: 13, color: "#0F172A", lineHeight: 1.7, whiteSpace: "pre-wrap", marginTop: 10 }}>
+                    <div style={{ fontSize: 11, color: "#0EA5E9", fontWeight: 700, marginBottom: 8 }}>✨ ANALISIS AI</div>
+                    {aiAnalysis}
+                  </div>
+                )}
+              </div>
+
               {/* Finance header */}
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14, flexWrap:"wrap", gap:8 }}>
                 <div style={{ fontSize:15, fontWeight:800, color:"#1E293B" }}>💰 Laporan Finance</div>
@@ -2003,8 +2076,14 @@ const handleLogin = async () => {
                 </div>
               </div>
             </div>
-            <label style={c.label}>Komisi</label>
-            <input style={c.input} placeholder="Contoh: 5%" value={modalData.notes || ""} onChange={(e) => setModalData({ ...modalData, notes: e.target.value })} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <label style={{ ...c.label, marginBottom: 0 }}>Catatan / Deskripsi</label>
+              <button type="button" onClick={() => handleAiDescribe(modalData)} disabled={aiDescLoading || !modalData.brand || !modalData.model}
+                style={{ ...c.btn("ghost"), fontSize: 11, padding: "4px 10px", cursor: aiDescLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 4, opacity: (!modalData.brand || !modalData.model) ? 0.5 : 1 }}>
+                {aiDescLoading ? "⏳ Generating..." : "✨ Generate AI"}
+              </button>
+            </div>
+            <input style={c.input} placeholder="Klik Generate AI atau isi manual..." value={modalData.notes || ""} onChange={(e) => setModalData({ ...modalData, notes: e.target.value })} />
             <label style={c.label}>IMEI <span style={{ color: "#94A3B8", fontWeight: 400 }}>(opsional)</span></label>
             <input style={c.input} placeholder="Contoh: 358765012345678" value={modalData.imei || ""} onChange={(e) => setModalData({ ...modalData, imei: e.target.value })} maxLength={20} />
             <div style={{ background: "#F0F9FF", border: "1px solid #BAE6FD", borderRadius: 12, padding: 14, marginBottom: 12 }}>

@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleWishlist, isWishlisted, getWishlistCount } from "@/lib/wishlist";
+import Chatbot from "./Chatbot";
 
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 

@@ -24,6 +24,8 @@ export default function ProductClient({ product, related }) {
   const [sent, setSent] = useState(false);
   const [dragStart, setDragStart] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [aiRec, setAiRec] = useState("");
+  const [aiRecLoading, setAiRecLoading] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
 
   const photos = product.photos?.filter(Boolean) || [];
@@ -32,6 +34,27 @@ export default function ProductClient({ product, related }) {
   useEffect(() => {
     try { setWishlisted(isWishlisted(product.id)); } catch {}
   }, [product.id]);
+
+  // AI Recommendation
+  const loadAiRecommendation = async () => {
+    if (aiRec) return; // already loaded
+    setAiRecLoading(true);
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `Berikan analisis singkat (2-3 kalimat) tentang ${product.brand} ${product.model} ${product.ram}/${product.storage} kondisi ${product.condition} seharga Rp ${Number(product.sell_price).toLocaleString("id-ID")}. Cocok untuk siapa dan apa kelebihannya?`,
+          history: [],
+        }),
+      });
+      const data = await res.json();
+      setAiRec(data.reply || "");
+    } catch {}
+    setAiRecLoading(false);
+  };
+
+  useEffect(() => { if (product.id) loadAiRecommendation(); }, [product.id]);
 
   // Fix passive event listener - attach touchmove with useEffect
   useEffect(() => {
@@ -198,6 +221,18 @@ export default function ProductClient({ product, related }) {
               <div style={{ fontSize: 15, fontWeight: 900, color: product.condition === "Baru" ? "#2E7D32" : "#E65100" }}>{product.condition}</div>
             </div>
           </div>
+
+          {/* AI Insight */}
+          {(aiRec || aiRecLoading) && (
+            <div style={{ background: "linear-gradient(135deg, #F0F9FF, #EFF6FF)", border: "1px solid #BAE6FD", borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: "#0EA5E9", fontWeight: 700, marginBottom: 6, display: "flex", alignItems: "center", gap: 4 }}>
+                <span>✨</span> AI INSIGHT
+              </div>
+              {aiRecLoading
+                ? <div style={{ fontSize: 12, color: G.gray }}>Menganalisis produk...</div>
+                : <div style={{ fontSize: 13, color: G.text, lineHeight: 1.6 }}>{aiRec}</div>}
+            </div>
+          )}
 
           {product.notes && (
             <div style={{ background: G.blueAccent, borderLeft: `3px solid ${G.blue}`, borderRadius: "0 10px 10px 0", padding: "10px 14px", fontSize: 13, color: G.gray, marginBottom: 14, lineHeight: 1.5 }}>
