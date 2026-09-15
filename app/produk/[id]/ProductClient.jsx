@@ -309,7 +309,31 @@ export default function ProductClient({ product, related }) {
             onClick={e => e.stopPropagation()}>
             <div style={{ width: 40, height: 4, background: G.border, borderRadius: 2, margin: "12px auto 20px" }} />
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Form Pesanan</div>
-            <div style={{ fontSize: 13, color: G.blue, fontWeight: 600, marginBottom: 20 }}>{product.brand} {product.model} · {formatRp(product.sell_price)}</div>
+            <div style={{ fontSize: 13, color: G.blue, fontWeight: 600, marginBottom: 16 }}>{product.brand} {product.model} · {formatRp(product.sell_price)}</div>
+
+            {/* Info Pembayaran */}
+            <div style={{ background: "#F0FDF4", border: "1px solid #86EFAC", borderRadius: 14, padding: "14px 16px", marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#166534", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                🏦 Informasi Pembayaran
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: G.white, borderRadius: 10, border: "1px solid #BBF7D0" }}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#005BAC", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <span style={{ color: "white", fontSize: 11, fontWeight: 900 }}>BCA</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, color: G.gray, marginBottom: 2 }}>Transfer BCA</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: G.text, letterSpacing: 1 }}>1711050651</div>
+                  <div style={{ fontSize: 12, color: G.gray }}>a.n. Maxwell Raviondy</div>
+                </div>
+                <button onClick={() => { navigator.clipboard.writeText("1711050651"); alert("Nomor rekening disalin!"); }}
+                  style={{ background: G.blueAccent, border: `1px solid ${G.blue}`, borderRadius: 8, padding: "6px 10px", fontSize: 11, color: G.blue, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>
+                  Salin
+                </button>
+              </div>
+              <div style={{ fontSize: 11, color: "#166534", marginTop: 10, lineHeight: 1.6 }}>
+                📌 Setelah transfer, kirim bukti pembayaran ke WhatsApp admin kami untuk konfirmasi pesanan.
+              </div>
+            </div>
             {[["nama","Nama lengkap *","text"],["whatsapp","Nomor WhatsApp *","tel"],["alamat","Alamat lengkap *","text"],["kota","Kota / Kecamatan *","text"]].map(([key,ph,type]) => (
               <input key={key} type={type} style={inp} placeholder={ph} value={form[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))} />
             ))}
