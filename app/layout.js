@@ -1,7 +1,7 @@
 export const metadata = {
   title: "PontiCell - Toko HP & Tablet Terpercaya di Pontianak",
-  description: "Beli HP dan Tablet original berkualitas di PontiCell Pontianak. Stok lengkap Samsung, Xiaomi, Oppo, Vivo, iPhone dan lainnya. Garansi toko, harga terjangkau, 4 cabang di Pontianak.",
-  keywords: "toko HP Pontianak, jual HP Pontianak, toko tablet Pontianak, Samsung Pontianak, Xiaomi Pontianak, iPhone Pontianak, HP murah Pontianak, PontiCell",
+  description: "Beli HP dan Tablet original berkualitas di PontiCell Pontianak. Stok lengkap Samsung, Xiaomi, Oppo, Vivo, iPhone. Garansi 14 hari, 5+ cabang resmi, 1.000+ unit terjual. Terpercaya sejak 2018.",
+  keywords: "toko HP Pontianak, jual HP Pontianak, toko tablet Pontianak, Samsung Pontianak, Xiaomi Pontianak, iPhone Pontianak, HP murah Pontianak, HP second Pontianak, PontiCell, gadget store Pontianak",
   authors: [{ name: "PontiCell by.Max" }],
   creator: "PontiCell",
   publisher: "PontiCell",

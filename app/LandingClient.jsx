@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleWishlist, isWishlisted, getWishlistCount } from "@/lib/wishlist";
@@ -26,6 +26,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
   const [showAllTesti, setShowAllTesti] = useState(false);
+  const [countersStarted, setCountersStarted] = useState(false);
+  const [counterVals, setCounterVals] = useState({ terjual: 0, rating: 0, cabang: 0 });
+  const statsRef = useRef(null);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [wishlisted, setWishlisted] = useState({});
   const [priceRange, setPriceRange] = useState([0, 0]);
@@ -51,6 +54,26 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
     setPriceRange([min, max]);
     setPriceFilter([min, max]);
   }, [hp.length, tablet.length]);
+
+  // Counter animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !countersStarted) {
+        setCountersStarted(true);
+        // Animate terjual: 0 -> 1000
+        let t = 0;
+        const iv1 = setInterval(() => { t += 50; setCounterVals(v => ({ ...v, terjual: Math.min(t, 1000) })); if (t >= 1000) clearInterval(iv1); }, 20);
+        // Animate rating: 0 -> 4.9
+        let r = 0;
+        const iv2 = setInterval(() => { r += 0.1; setCounterVals(v => ({ ...v, rating: Math.min(parseFloat(r.toFixed(1)), 4.9) })); if (r >= 4.9) clearInterval(iv2); }, 30);
+        // Animate cabang: 0 -> 5
+        let c = 0;
+        const iv3 = setInterval(() => { c += 1; setCounterVals(v => ({ ...v, cabang: Math.min(c, 5) })); if (c >= 5) clearInterval(iv3); }, 150);
+      }
+    }, { threshold: 0.3 });
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, [countersStarted]);
 
   // Init price range from products
   useEffect(() => {
@@ -132,6 +155,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
     <div style={{ background: G.bg, minHeight: "100vh", color: G.text, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .wa-text { display: none; }
+        @media (min-width: 480px) { .wa-text { display: inline; } }
         @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
         @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
         @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; } }
@@ -184,8 +209,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
             {wishlistCount > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: "#EF4444" }}>{wishlistCount}</span>}
           </Link>
           <a href={`https://wa.me/${WA}?text=Halo%20${infoNama}`} target="_blank" rel="noopener noreferrer"
-            style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0 }}>
-            💬 WA
+            style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 700, textDecoration: "none", flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}>
+            <span>💬</span>
+            <span className="wa-text">0838-0848-4969</span>
           </a>
         </div>
       </nav>
@@ -243,18 +269,22 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
               style={{ background: "rgba(255,255,255,0.15)", color: G.white, border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "14px 32px", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>💬 WhatsApp</a>
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 52, flexWrap: "wrap", justifyContent: "center" }}>
+
+            { /* Animated counters */ }
+            <div ref={statsRef} style={{ display: "contents" }}>
             {[
-              { icon: "📦", v: "1.000+", l: "Unit Terjual" },
-              { icon: "⭐", v: "4.9/5", l: "Rating Pembeli" },
-              { icon: "🏪", v: "5+", l: "Cabang Resmi" },
+              { icon: "📦", v: counterVals.terjual >= 1000 ? "1.000+" : counterVals.terjual.toString(), l: "Unit Terjual" },
+              { icon: "⭐", v: counterVals.rating >= 4.9 ? "4.9/5" : counterVals.rating.toFixed(1) + "/5", l: "Rating Pembeli" },
+              { icon: "🏪", v: counterVals.cabang >= 5 ? "5+" : counterVals.cabang.toString(), l: "Cabang Resmi" },
               { icon: "🛡️", v: "14 Hari", l: "Garansi Toko" },
             ].map(s => (
               <div key={s.l} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "16px 20px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)", minWidth: 90 }}>
                 <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 2 }}>{s.v}</div>
+                <div style={{ fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 2, transition: "all 0.1s" }}>{s.v}</div>
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{s.l}</div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       )}
@@ -263,7 +293,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       {popularBrands.length > 0 && (
         <div style={{ background: G.white, padding: "40px 24px", borderBottom: `1px solid ${G.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: G.text, marginBottom: 18, textAlign: "center" }}>Brand Populer</div>
+            <div style={{ textAlign: "center", marginBottom: 18 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: G.text, marginBottom: 6 }}>Brand Populer</div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#ECFDF5", border: "1px solid #10B981", borderRadius: 20, padding: "4px 12px", fontSize: 11, color: "#059669", fontWeight: 700 }}>
+                ✅ Semua produk terverifikasi original
+              </div>
+            </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", padding: "0 4px" }}>
               {popularBrands.map(brand => {
                 const logoKey = brand.toLowerCase();
@@ -536,10 +571,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{infoNama || "PontiCell"}</div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>by.Max · {infoTagline}</div>
+        {/* Jam Operasional */}
+        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 20px", marginBottom: 16, display: "inline-block" }}>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Jam Operasional</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>Senin – Minggu · 08.00 – 21.00 WIB</div>
+        </div>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginBottom: 12 }}>© 2026 {infoNama}. All rights reserved.</div>
         <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
           <Link href="/cek-pesanan" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>📦 Cek Pesanan</Link>
           <Link href="/wishlist" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>❤️ Wishlist</Link>
+          <Link href="/tentang" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>ℹ️ Tentang Kami</Link>
         </div>
       </div>
     </div>
