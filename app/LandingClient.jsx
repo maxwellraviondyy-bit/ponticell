@@ -151,21 +151,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .wa-text { display: none; }
+        @keyframes tickerScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
         @media (min-width: 480px) { .wa-text { display: inline; } }
         @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
         @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
         @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; } }
       `}</style>
 
-      {/* Announcement Bar */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1001, background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, padding: "8px 16px", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        <span style={{ fontSize: 13, color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>
-          🚚 <strong style={{ color: G.white }}>GRATIS ONGKIR</strong> ke seluruh Indonesia · Pesan sekarang dan dapatkan pengiriman gratis! 🎉
-        </span>
-      </div>
-
       {/* Navbar */}
-      <nav style={{ position: "fixed", top: 36, left: 0, left: 0, right: 0, zIndex: 1000, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${G.border}`, padding: "0 20px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, left: 0, right: 0, zIndex: 1000, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${G.border}`, padding: "0 20px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: G.blue, lineHeight: 1 }}>{infoNama || "PontiCell"}</div>
@@ -253,7 +250,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
-        <div style={{ minHeight: "75vh", paddingTop: 100, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
+        <div style={{ minHeight: "75vh", paddingTop: 92, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
             {["🔒 Transaksi Aman", "✅ Produk Original & Bergaransi", "📍 Pontianak & Sekitarnya", "💬 CS Siap Membantu"].map(b => (
