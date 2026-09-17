@@ -151,6 +151,13 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .wa-text { display: none; }
+        .banner-hero { height: 100vw; max-height: 85vh; min-height: 300px; }
+        @media (min-width: 640px) { .banner-hero { height: 65vh; min-height: 400px; } }
+        @media (min-width: 1024px) { .banner-hero { height: 75vh; min-height: 500px; } }
+        .banner-title { font-size: clamp(28px, 8vw, 56px) !important; }
+        .banner-sub { font-size: clamp(14px, 3vw, 20px) !important; }
+        .banner-overlay { padding: 0 24px !important; }
+        @media (min-width: 640px) { .banner-overlay { padding: 0 48px !important; } }
         @keyframes tickerScroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -161,17 +168,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         @media (min-width: 1280px) { .product-grid { grid-template-columns: repeat(5, 1fr); gap: 18px; } }
       `}</style>
 
-      {/* Ticker Bar */}
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1001, background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 28 }}>
-        <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
-          {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Ribuan Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].concat(["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari"]).map((t, i) => (
-            <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0 28px", flexShrink: 0 }}>{t}</span>
-          ))}
-        </div>
-      </div>
-
       {/* Navbar */}
-      <nav style={{ position: "fixed", top: 28, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", borderBottom: `1px solid ${G.border}`, padding: "0 20px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", padding: "0 20px", flexDirection: "column", display: "flex" }}>
+        {/* Ticker inside navbar */}
+        <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 26 }}>
+          <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
+            {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi"].concat(["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari"]).map((t, i) => (
+              <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0 24px", flexShrink: 0 }}>{t}</span>
+            ))}
+          </div>
+        </div>
+        {/* Main nav row */}
+        <div style={{ width: "100%", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", boxSizing: "border-box", borderBottom: `1px solid ${G.border}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: G.blue, lineHeight: 1 }}>{infoNama || "PontiCell"}</div>
@@ -222,27 +230,28 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
             <span className="wa-text">0838-0848-4969</span>
           </a>
         </div>
+        </div>
       </nav>
 
       {/* Hero - Banner atau gradient */}
       {banners.length > 0 ? (
-        <div style={{ marginTop: 64, position: "relative", height: "55vh", minHeight: 320, overflow: "hidden" }}>
+        <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
           {banners.map((src, i) => (
             <img key={i} src={src} alt={`banner ${i+1}`}
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
           ))}
           {/* Overlay */}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,71,161,0.75) 0%, rgba(13,71,161,0.3) 60%, transparent 100%)" }} />
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
-            <h1 style={{ fontSize: "clamp(24px, 5vw, 52px)", fontWeight: 900, color: G.white, margin: "0 0 10px", maxWidth: 600 }}>{infoNama || "PontiCell"}</h1>
-            <p style={{ fontSize: "clamp(13px, 2vw, 18px)", color: "rgba(255,255,255,0.85)", margin: "0 0 24px", maxWidth: 480 }}>{infoTagline}</p>
+          <div className="banner-overlay" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
+            <h1 className="banner-title" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640 }}>{infoNama || "PontiCell"}</h1>
+            <p className="banner-sub" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.85)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5 }}>{infoTagline}</p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}
+              <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
                 onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>
                 🛍️ Lihat Produk
               </button>
               <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
-                style={{ background: "rgba(255,255,255,0.2)", color: G.white, border: "1px solid rgba(255,255,255,0.4)", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 800, textDecoration: "none" }}>
+                style={{ background: "rgba(255,255,255,0.2)", color: G.white, border: "1px solid rgba(255,255,255,0.5)", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, textDecoration: "none", backdropFilter: "blur(4px)" }}>
                 💬 WhatsApp
               </a>
             </div>
@@ -259,7 +268,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
         </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
-        <div style={{ minHeight: "75vh", paddingTop: 96, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
+        <div style={{ minHeight: "75vh", paddingTop: 82, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
             {["🔒 Transaksi Aman", "✅ Produk Original & Bergaransi", "📍 Pontianak & Sekitarnya", "💬 CS Siap Membantu"].map(b => (
