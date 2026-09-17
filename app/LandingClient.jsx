@@ -14,7 +14,7 @@ const G = {
   gray: "#64748B", grayLight: "#F1F5F9", text: "#0F172A",
 };
 
-export default function LandingClient({ hp, tablet, testimoni, banners = [], brandLogos = {}, cabangFotos = {}, infoNama, infoTagline, infoWa }) {
+export default function LandingClient({ hp, tablet, testimoni, banners = [], bannersMobile = [], brandLogos = {}, cabangFotos = {}, infoNama, infoTagline, infoWa }) {
   const router = useRouter();
   const WA = infoWa || "6283808484969";
   const [activeTab, setActiveTab] = useState("hp");
@@ -151,13 +151,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .wa-text { display: none; }
-        .banner-hero { height: 100vw; max-height: 85vh; min-height: 300px; }
-        @media (min-width: 640px) { .banner-hero { height: 65vh; min-height: 400px; } }
-        @media (min-width: 1024px) { .banner-hero { height: 75vh; min-height: 500px; } }
-        .banner-title { font-size: clamp(28px, 8vw, 56px) !important; }
-        .banner-sub { font-size: clamp(14px, 3vw, 20px) !important; }
+        .banner-hero { height: 100vw; max-height: 90vh; min-height: 320px; }
+        @media (min-width: 768px) { .banner-hero { height: 56vw; max-height: 80vh; min-height: 480px; } }
+        .banner-desktop { display: none !important; }
+        .banner-mobile { display: block !important; }
+        @media (min-width: 768px) { 
+          .banner-desktop { display: block !important; }
+          .banner-mobile { display: none !important; }
+        }
+        .banner-title { font-size: clamp(28px, 8vw, 60px) !important; }
+        .banner-sub { font-size: clamp(14px, 2.5vw, 20px) !important; }
         .banner-overlay { padding: 0 24px !important; }
-        @media (min-width: 640px) { .banner-overlay { padding: 0 48px !important; } }
+        @media (min-width: 768px) { .banner-overlay { padding: 0 60px !important; } }
         @keyframes tickerScroll {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
@@ -234,11 +239,17 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], bra
       </nav>
 
       {/* Hero - Banner atau gradient */}
-      {banners.length > 0 ? (
+      {(banners.length > 0 || bannersMobile.length > 0) ? (
         <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
-          {banners.map((src, i) => (
-            <img key={i} src={src} alt={`banner ${i+1}`}
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
+          {/* Desktop banners */}
+          {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
+            <img key={"d"+i} src={src} alt={`banner ${i+1}`} className="banner-desktop"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
+          ))}
+          {/* Mobile banners */}
+          {(bannersMobile.length > 0 ? bannersMobile : banners).map((src, i) => (
+            <img key={"m"+i} src={src} alt={`banner mobile ${i+1}`} className="banner-mobile"
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
           ))}
           {/* Overlay */}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,71,161,0.75) 0%, rgba(13,71,161,0.3) 60%, transparent 100%)" }} />

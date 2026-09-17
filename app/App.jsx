@@ -1835,21 +1835,54 @@ const handleLogin = async () => {
                 ))}
               </div>
 
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Banner Hero (Slideshow)</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 14 }}>Ukuran ideal 1920x600px. Bisa upload banyak banner.</div>
-                {kontenUploading && <div style={{ fontSize: 12, color: "#F97316", marginBottom: 10 }}>Mengupload...</div>}
+              {/* Banner Desktop */}
+              <div style={{ ...c.card(), marginBottom: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                  🖥️ Banner Desktop
+                  <span style={{ fontSize: 10, background: "#EBF3FF", color: "#1565C0", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>Landscape 16:9</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tampil di laptop/PC. Ukuran ideal: 1920×600px atau 1920×800px.</div>
+                {kontenUploading && <div style={{ fontSize: 12, color: "#F97316", marginBottom: 8 }}>⏳ Mengupload...</div>}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
-                  {banners.map((b, i) => (
+                  {konten.filter(k => k.kategori === "banner_desktop").sort((a,b) => a.urutan - b.urutan).map((b) => (
                     <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #E2E8F0" }}>
-                      <img src={b.nilai} alt={"banner"} style={{ width: "100%", height: 110, objectFit: "cover" }} />
+                      <img src={b.nilai} alt="banner desktop" style={{ width: "100%", height: 110, objectFit: "cover" }} />
+                      <button onClick={() => hapusKonten(b.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
+                    </div>
+                  ))}
+                  {banners.map((b) => (
+                    <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px dashed #F97316" }}>
+                      <img src={b.nilai} alt="banner lama" style={{ width: "100%", height: 110, objectFit: "cover", opacity: 0.7 }} />
+                      <div style={{ position: "absolute", top: 6, left: 6, background: "#F97316", borderRadius: 6, color: "#fff", fontSize: 9, padding: "2px 6px", fontWeight: 700 }}>LAMA</div>
                       <button onClick={() => hapusKonten(b.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
                     </div>
                   ))}
                   <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 110, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
                     <span style={{ fontSize: 28 }}>+</span>
-                    <span style={{ fontSize: 11, color: "#64748B" }}>Tambah Banner</span>
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner", "banner_" + Date.now(), banners.length); e.target.value = ""; }} />
+                    <span style={{ fontSize: 11, color: "#64748B" }}>Upload Banner Desktop</span>
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner_desktop", "banner_desktop_" + Date.now(), konten.filter(k=>k.kategori==="banner_desktop").length); e.target.value = ""; }} />
+                  </label>
+                </div>
+              </div>
+
+              {/* Banner Mobile */}
+              <div style={{ ...c.card(), marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                  📱 Banner Mobile
+                  <span style={{ fontSize: 10, background: "#F0FDF4", color: "#059669", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>Portrait 9:16</span>
+                </div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tampil di HP. Ukuran ideal: 750×1200px atau 1080×1920px.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+                  {konten.filter(k => k.kategori === "banner_mobile").sort((a,b) => a.urutan - b.urutan).map((b) => (
+                    <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #E2E8F0" }}>
+                      <img src={b.nilai} alt="banner mobile" style={{ width: "100%", height: 160, objectFit: "cover" }} />
+                      <button onClick={() => hapusKonten(b.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
+                    </div>
+                  ))}
+                  <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 160, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
+                    <span style={{ fontSize: 28 }}>+</span>
+                    <span style={{ fontSize: 11, color: "#64748B", textAlign: "center" }}>Upload Banner Mobile</span>
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner_mobile", "banner_mobile_" + Date.now(), konten.filter(k=>k.kategori==="banner_mobile").length); e.target.value = ""; }} />
                   </label>
                 </div>
               </div>
