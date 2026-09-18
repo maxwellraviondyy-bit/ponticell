@@ -189,7 +189,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: G.blue, lineHeight: 1 }}>{infoNama || "PontiCell"}</div>
-            <div style={{ fontSize: 9, color: G.gray }}>by.Max · Pontianak</div>
+            <div style={{ fontSize: 9, color: G.gray }}> · Pontianak</div>
           </div>
         </div>
 
@@ -616,7 +616,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       {/* Footer */}
       <div style={{ background: G.blueDark, padding: "36px 24px", textAlign: "center" }}>
         <div style={{ fontSize: 18, fontWeight: 900, color: G.white, marginBottom: 4 }}>{infoNama || "PontiCell"}</div>
-        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>by.Max · {infoTagline}</div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}> · {infoTagline}</div>
         {/* Jam Operasional */}
         <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 20px", marginBottom: 16, display: "inline-block" }}>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Jam Operasional</div>
