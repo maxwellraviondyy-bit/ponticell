@@ -484,7 +484,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
             <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Apa kata mereka setelah belanja di {infoNama}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
-              {(showAllTesti ? testimoni : testimoni.slice(0, 5)).map(t => (
+              {(showAllTesti ? testimoni : testimoni.slice(0, 8)).map(t => (
                 <div key={t.id} style={{ background: G.bg, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden" }}>
                   <div style={{ height: 190, overflow: "hidden" }}>
                     <img src={t.foto} alt="testimoni" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -498,7 +498,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             </div>
 
 
-            {testimoni.length > 5 && (
+            {testimoni.length > 8 && (
               <div style={{ textAlign: "center", marginTop: 24 }}>
                 <button onClick={() => setShowAllTesti(v => !v)}
                   style={{ padding: "12px 28px", background: showAllTesti ? G.grayLight : `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: 12, color: showAllTesti ? G.gray : G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: showAllTesti ? "none" : "0 4px 14px rgba(21,101,192,0.3)" }}>
