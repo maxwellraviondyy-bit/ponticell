@@ -180,7 +180,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 30 }}>
           <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
             {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi"].concat(["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari"]).map((t, i) => (
-              <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0", flexShrink: 0 }}>{t}</span>
+              <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0 0px", flexShrink: 0 }}>{t}</span>
             ))}
           </div>
         </div>
