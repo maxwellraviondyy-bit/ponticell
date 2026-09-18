@@ -177,13 +177,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       {/* Navbar */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", padding: "0 20px", flexDirection: "column", display: "flex" }}>
         {/* Ticker inside navbar */}
-        <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 26 }}>
-          <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
-            {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi"].concat(["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari"]).map((t, i) => (
-              <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0 24px", flexShrink: 0 }}>{t}</span>
-            ))}
-          </div>
-        </div>
+       
         {/* Main nav row */}
         <div style={{ width: "100%", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", boxSizing: "border-box", borderBottom: `1px solid ${G.border}` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
