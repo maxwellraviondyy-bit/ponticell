@@ -175,7 +175,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       `}</style>
 
       {/* Navbar */}
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", padding: "0 20px", flexDirection: "column", display: "flex" }}>
+      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", padding: "0px", flexDirection: "column", display: "flex" }}>
         {/* Ticker inside navbar */}
         <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 30 }}>
           <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
