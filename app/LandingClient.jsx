@@ -95,10 +95,11 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
   // Banner slideshow
   useEffect(() => {
-    if (banners.length <= 1) return;
-    const t = setInterval(() => setBannerIdx(i => (i+1) % banners.length), 4000);
+    const total = Math.max(banners.length, bannersMobile.length);
+    if (total <= 1) return;
+    const t = setInterval(() => setBannerIdx(i => (i+1) % total), 4000);
     return () => clearInterval(t);
-  }, [banners.length]);
+  }, [banners.length, bannersMobile.length]);
 
   // Nav search
   useEffect(() => {
@@ -165,7 +166,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         @media (min-width: 768px) { .banner-overlay { padding: 0 60px !important; } }
         @keyframes tickerScroll {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          100% { transform: translateX(-33.333%); }
         }
         @media (min-width: 480px) { .wa-text { display: inline; } }
         @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
@@ -239,44 +240,55 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       </nav>
 
       {/* Hero - Banner atau gradient */}
+      {/* eslint-disable-next-line */}
       {(banners.length > 0 || bannersMobile.length > 0) ? (
-        <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
-          {/* Desktop banners */}
-          {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
-            <img key={"d"+i} src={src} alt={`banner ${i+1}`} className="banner-desktop"
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
-          ))}
-          {/* Mobile banners */}
-          {(bannersMobile.length > 0 ? bannersMobile : banners).map((src, i) => (
-            <img key={"m"+i} src={src} alt={`banner mobile ${i+1}`} className="banner-mobile"
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
-          ))}
-          {/* Overlay */}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,71,161,0.75) 0%, rgba(13,71,161,0.3) 60%, transparent 100%)" }} />
-          <div className="banner-overlay" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
-            <h1 className="banner-title" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640 }}>{infoNama || "PontiCell"}</h1>
-            <p className="banner-sub" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.85)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5 }}>{infoTagline}</p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
-                onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>
-                🛍️ Lihat Produk
-              </button>
-              <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
-                style={{ background: "rgba(255,255,255,0.2)", color: G.white, border: "1px solid rgba(255,255,255,0.5)", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, textDecoration: "none", backdropFilter: "blur(4px)" }}>
-                💬 WhatsApp
-              </a>
+          <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
+
+            {/* Desktop images - shown on screen >= 768px */}
+            {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
+              <img key={"d"+i} src={src} alt={"banner "+(i+1)} className="banner-desktop"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
+            ))}
+
+            {/* Mobile images - shown on screen < 768px */}
+            {(bannersMobile.length > 0 ? bannersMobile : banners).map((src, i) => (
+              <img key={"m"+i} src={src} alt={"banner mobile "+(i+1)} className="banner-mobile"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
+            ))}
+
+            {/* Overlay gradient kiri */}
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,71,161,0.8) 0%, rgba(13,71,161,0.4) 50%, rgba(13,71,161,0.1) 100%)", pointerEvents: "none" }} />
+
+            {/* Teks overlay */}
+            <div className="banner-overlay" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
+              <h1 className="banner-title" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+                {infoNama || "PontiCell"}
+              </h1>
+              <p className="banner-sub" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.9)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+                {infoTagline}
+              </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}
+                  onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>
+                  🛍️ Lihat Produk
+                </button>
+                <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
+                  style={{ background: "rgba(255,255,255,0.15)", color: G.white, border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, textDecoration: "none", backdropFilter: "blur(8px)" }}>
+                  💬 WhatsApp
+                </a>
+              </div>
             </div>
+
+            {/* Dots indicator */}
+            {(banners.length > 0 ? banners.length : bannersMobile.length) > 1 && (
+              <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6, zIndex: 10 }}>
+                {Array.from({ length: banners.length > 0 ? banners.length : bannersMobile.length }).map((_, i) => (
+                  <div key={i} onClick={() => setBannerIdx(i)}
+                    style={{ width: i === bannerIdx ? 20 : 6, height: 6, borderRadius: 3, background: i === bannerIdx ? G.white : "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.3s" }} />
+                ))}
+              </div>
+            )}
           </div>
-          {/* Dots */}
-          {banners.length > 1 && (
-            <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6 }}>
-              {banners.map((_, i) => (
-                <div key={i} onClick={() => setBannerIdx(i)}
-                  style={{ width: i === bannerIdx ? 20 : 6, height: 6, borderRadius: 3, background: i === bannerIdx ? G.white : "rgba(255,255,255,0.4)", cursor: "pointer", transition: "all 0.3s" }} />
-              ))}
-            </div>
-          )}
-        </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
         <div style={{ minHeight: "75vh", paddingTop: 82, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
