@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleWishlist, isWishlisted, getWishlistCount } from "@/lib/wishlist";
 import Chatbot from "./Chatbot";
-import "./landing.css"
 
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
