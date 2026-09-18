@@ -342,7 +342,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", padding: "0 4px" }}>
               {popularBrands.map(brand => {
                 const logoKey = brand.toLowerCase();
-                const logo = brandLogos[logoKey];
+                // iPhone produk → cari logo apple
+                const logoAlt = brand.toLowerCase() === "iphone" ? "apple" : brand.toLowerCase() === "apple" ? "iphone" : null;
+                const logo = brandLogos[logoKey] || (logoAlt ? brandLogos[logoAlt] : null);
                 return (
                   <button key={brand} onClick={() => handleBrandClick(brand)}
                     style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 18px", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, cursor: "pointer", fontFamily: "inherit", minWidth: 76, transition: "all 0.2s" }}
