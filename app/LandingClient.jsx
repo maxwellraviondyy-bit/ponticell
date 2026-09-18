@@ -484,7 +484,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
             <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Apa kata mereka setelah belanja di {infoNama}</div>
-            {/* <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
               {(showAllTesti ? testimoni : testimoni.slice(0, 5)).map(t => (
                 <div key={t.id} style={{ background: G.bg, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden" }}>
                   <div style={{ height: 190, overflow: "hidden" }}>
@@ -496,21 +496,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
                   </div>
                 </div>
               ))}
-            </div> */}
+            </div>
 
-            <div className="testi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
-  {(showAllTesti ? testimoni : testimoni.slice(0, 8)).map(t => (
-    <div key={t.id} style={{ background: G.bg, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden" }}>
-      <div style={{ height: 190, overflow: "hidden" }}>
-        <img src={t.foto} alt="testimoni" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      </div>
-      <div style={{ padding: "12px 14px" }}>
-        <div style={{ fontSize: 13, color: G.text, lineHeight: 1.5, fontStyle: "italic" }}>"{t.keterangan}"</div>
-        <div style={{ fontSize: 10, color: G.gray, marginTop: 8 }}>{new Date(t.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</div>
-      </div>
-    </div>
-  ))}
-</div>
+
             {testimoni.length > 5 && (
               <div style={{ textAlign: "center", marginTop: 24 }}>
                 <button onClick={() => setShowAllTesti(v => !v)}
