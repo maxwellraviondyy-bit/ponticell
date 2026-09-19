@@ -266,16 +266,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           </div>
         </div>
         {/* Main nav row */}
-        <div style={{ width: "100%", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", boxSizing: "border-box", borderBottom: `1px solid ${G.border}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer" }} onClick={() => router.push("/")}>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: G.blue, lineHeight: 1 }}>{infoNama || "PontiCell"}</div>
-            <div style={{ fontSize: 9, color: G.black, textAlign: "right" }}> · Pontianak</div>
+        <div style={{ width: "100%", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px", boxSizing: "border-box", borderBottom: `1px solid ${G.border}`, gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", flexShrink: 0, cursor: "pointer", minWidth: 0 }} onClick={() => router.push("/")}>
+          <div style={{ lineHeight: 1.1 }}>
+            <div style={{ fontSize: 15, fontWeight: 900, color: G.blue, whiteSpace: "nowrap" }}>{infoNama || "PontiCell"}</div>
+            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}>by.Max · Pontianak</div>
           </div>
         </div>
 
         {/* Search */}
-        <div style={{ flex: 1, position: "relative", maxWidth: 480, minWidth: 0 }}>
+        <div className="nav-search" style={{ position: "relative", maxWidth: 480, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "0 14px", height: 40, gap: 8 }}>
             <span style={{ color: G.gray }}>🔍</span>
             <input style={{ flex: 1, background: "none", border: "none", outline: "none", fontSize: 13, color: G.text, fontFamily: "inherit" }}
