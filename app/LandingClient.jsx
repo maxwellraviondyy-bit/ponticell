@@ -563,7 +563,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
       {/* Testimoni */}
       {testimoni.length > 0 && (
-        <div style={{ background: G.white, padding: "60px 24px", borderTop: `1px solid ${G.border}` }}>
+        <div id="testimoni-section" style={{ background: G.white, padding: "60px 24px", borderTop: `1px solid ${G.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
             <div className="fade-up" style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
             <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Apa kata mereka setelah belanja di {infoNama}</div>
