@@ -242,7 +242,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
             }
-            .tk { display: inline-flex; animation: tickerMove 45s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
+            .tk { display: inline-flex; animation: tickerMove 30s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
             .tk span { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; padding: 0 22px; flex-shrink: 0; }
             .tk b { opacity: 0.3; font-size: 7px; flex-shrink: 0; font-weight: 400; }
           `}</style>
