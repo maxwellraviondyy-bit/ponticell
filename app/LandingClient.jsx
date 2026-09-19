@@ -255,7 +255,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <span>⭐ Rating 4.9/5</span><b>●</b>
             <span>📦 1.000+ Terjual</span><b>●</b>
             <span>🏪 5+ Cabang Resmi</span><b>●</b>
-            <span>🚚 Gratis Ongkir</span><b>●</b>
+            <span>🚚 Free Ongkir Seluruh Indonesia</span><b>●</b>
             <span>🔒 Transaksi Aman</span><b>●</b>
             <span>✅ Produk Original</span><b>●</b>
             <span>💬 CS Siap Bantu</span><b>●</b>
