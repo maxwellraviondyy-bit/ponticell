@@ -166,7 +166,11 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         @media (min-width: 768px) { .banner-overlay { padding: 0 60px !important; } }
         @keyframes tickerScroll {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes tickerScrollFast {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
         @media (min-width: 480px) { .wa-text { display: inline; } }
         @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
@@ -179,16 +183,79 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           .testi-btn-desktop { display: none; }
           .testi-btn-mobile { display: block; }
         }
+
+        /* Fade in animations */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.92); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .fade-up { animation: fadeInUp 0.6s ease both; }
+        .fade-up-1 { animation: fadeInUp 0.6s 0.1s ease both; }
+        .fade-up-2 { animation: fadeInUp 0.6s 0.2s ease both; }
+        .fade-up-3 { animation: fadeInUp 0.6s 0.3s ease both; }
+        .fade-up-4 { animation: fadeInUp 0.6s 0.4s ease both; }
+        .fade-scale { animation: fadeInScale 0.5s ease both; }
+
+        /* Product card hover */
+        .prod-card { transition: transform 0.2s ease, box-shadow 0.2s ease !important; }
+        .prod-card:hover { transform: translateY(-4px) !important; box-shadow: 0 12px 32px rgba(21,101,192,0.15) !important; }
+        .prod-card:active { transform: translateY(-1px) !important; }
+
+        /* Brand card hover */
+        .brand-card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important; }
+        .brand-card:hover { transform: translateY(-3px) scale(1.03) !important; box-shadow: 0 8px 24px rgba(21,101,192,0.12) !important; border-color: #1565C0 !important; }
+
+        /* Button pulse */
+        @keyframes btnPulse {
+          0%, 100% { box-shadow: 0 4px 14px rgba(21,101,192,0.3); }
+          50% { box-shadow: 0 8px 24px rgba(21,101,192,0.5); }
+        }
+        .btn-pulse { animation: btnPulse 2s infinite; }
+
+        /* Testi card hover */
+        .testi-card { transition: transform 0.2s ease, box-shadow 0.2s ease !important; }
+        .testi-card:hover { transform: translateY(-3px) !important; box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important; }
+
+        /* Stats card glow */
+        .stat-card { transition: background 0.3s, transform 0.2s !important; }
+        .stat-card:hover { transform: scale(1.05) !important; background: rgba(255,255,255,0.2) !important; }
+
+        /* Trust card hover */
+        .trust-card { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important; }
+        .trust-card:hover { transform: translateY(-6px) !important; box-shadow: 0 16px 40px rgba(0,0,0,0.1) !important; }
       `}</style>
 
       {/* Navbar */}
       <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: "#FFFFFF", padding: "0px", flexDirection: "column", display: "flex" }}>
         {/* Ticker inside navbar */}
-        <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 35 }}>
-          <div style={{ display: "flex", animation: "tickerScroll 35s linear infinite", whiteSpace: "nowrap", height: "100%", alignItems: "center" }}>
-            {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi"].concat(["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari"]).map((t, i) => (
-              <span key={i} style={{ fontSize: 11, color: "rgba(255,255,255,0.92)", fontWeight: 600, padding: "0 24px", flexShrink: 0 }}>{t}</span>
-            ))}
+        <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 30 }}>
+          <style>{`
+            .ticker-track { display: flex; animation: tickerScroll 30s linear infinite; white-space: nowrap; height: 100%; align-items: center; will-change: transform; }
+            @media (max-width: 767px) { .ticker-track { animation: tickerScrollFast 18s linear infinite; } }
+            .ticker-item { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; flex-shrink: 0; padding: 0 0; display: inline-flex; align-items: center; }
+            .ticker-dot { margin: 0 12px; opacity: 0.35; font-size: 8px; }
+          `}</style>
+          <div className="ticker-track">
+            {[...Array(2)].map((_, rep) =>
+              ["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
+                <span key={`${rep}-${i}`} className="ticker-item">
+                  <span style={{ padding: "0 18px" }}>{t}</span>
+                  <span className="ticker-dot">●</span>
+                </span>
+              ))
+            )}
           </div>
         </div>
         {/* Main nav row */}
@@ -268,14 +335,14 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
             {/* Teks overlay */}
             <div className="banner-overlay" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
-              <h1 className="banner-title" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
+              <h1 className="banner-title fade-up" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
                 {infoNama || "PontiCell"}
               </h1>
-              <p className="banner-sub" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.9)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
+              <p className="banner-sub fade-up-1" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.9)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
                 {infoTagline}
               </p>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}
+                <button className="fade-up-2 btn-pulse" style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}
                   onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>
                   🛍️ Lihat Produk
                 </button>
@@ -325,7 +392,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
               { icon: "🏪", v: counterVals.cabang >= 5 ? "5+" : counterVals.cabang.toString(), l: "Cabang Resmi" },
               { icon: "🛡️", v: "14 Hari", l: "Garansi Toko" },
             ].map(s => (
-              <div key={s.l} style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "16px 20px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)", minWidth: 90 }}>
+              <div key={s.l} className="stat-card" style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "16px 20px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)", minWidth: 90, cursor: "default" }}>
                 <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
                 <div style={{ fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 2, transition: "all 0.1s" }}>{s.v}</div>
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{s.l}</div>
@@ -354,7 +421,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
                 const logo = brandLogos[logoKey] || (logoAlt ? brandLogos[logoAlt] : null);
                 return (
                   <button key={brand} onClick={() => handleBrandClick(brand)}
-                    style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 18px", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, cursor: "pointer", fontFamily: "inherit", minWidth: 76, transition: "all 0.2s" }}
+                    className="brand-card" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "14px 18px", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 12, cursor: "pointer", fontFamily: "inherit", minWidth: 76 }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = G.blue; e.currentTarget.style.background = G.blueAccent; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = G.border; e.currentTarget.style.background = G.grayLight; }}>
                     {logo
@@ -460,7 +527,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <div className="product-grid">
               {filtered.map(p => (
                 <Link key={p.id} href={`/produk/${p.id}`}
-                  style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", transition: "all 0.2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textDecoration: "none", display: "block" }}
+                  className="prod-card" style={{ background: G.white, borderRadius: 14, border: `1px solid ${G.border}`, overflow: "hidden", cursor: "pointer", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", textDecoration: "none", display: "block" }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = G.blue; e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 24px rgba(21,101,192,0.12)`; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = G.border; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; }}>
                   <div style={{ width: "100%", aspectRatio: "1", background: "#F8F9FA", overflow: "hidden", position: "relative" }}>
@@ -484,11 +551,14 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           )}
       </div>
 
+      {/* Section divider */}
+      <div style={{ height: 3, background: `linear-gradient(to right, transparent, ${G.blue}44, transparent)` }} />
+
       {/* Testimoni */}
       {testimoni.length > 0 && (
         <div style={{ background: G.white, padding: "60px 24px", borderTop: `1px solid ${G.border}` }}>
           <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-            <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
+            <div className="fade-up" style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text, textAlign: "center", marginBottom: 6 }}>Testimoni Pelanggan</div>
             <div style={{ fontSize: 13, color: G.gray, textAlign: "center", marginBottom: 32 }}>Apa kata mereka setelah belanja di {infoNama}</div>
             <div className={`testi-grid ${showAllTesti ? "show-all" : ""}`} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
               {(showAllTesti ? testimoni : testimoni.slice(0, 8)).map(t => (
@@ -526,6 +596,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         </div>
       )}
 
+      {/* Section divider */}
+      <div style={{ height: 3, background: `linear-gradient(to right, transparent, ${G.blueLight}55, transparent)` }} />
+
       {/* Trust Section */}
       <div style={{ background: G.white, padding: "72px 24px", borderTop: `1px solid ${G.border}`, borderBottom: `1px solid ${G.border}` }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
@@ -535,7 +608,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
               Dipercaya Sejak 2018
             </div>
             <div style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 900, color: G.text, marginBottom: 12, lineHeight: 1.2 }}>
-              Mengapa Ribuan Orang<br />Percaya <span style={{ color: G.blue }}>PontiCell</span>?
+              Mengapa Ribuan Orang<br />Percaya <span style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>PontiCell</span>?
             </div>
             <div style={{ fontSize: 15, color: G.gray, maxWidth: 520, margin: "0 auto", lineHeight: 1.7 }}>
               Kami bukan sekadar toko HP biasa. PontiCell hadir dengan jaringan cabang terluas di Pontianak, memastikan setiap produk yang kami jual adalah <strong style={{ color: G.text }}>100% original dan bergaransi</strong>.
@@ -588,9 +661,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
                 bg: "#E0F2FE",
               },
             ].map((item, i) => (
-              <div key={i} style={{ background: G.bg, borderRadius: 16, padding: "24px 20px", border: `1px solid ${G.border}`, transition: "all 0.2s" }}
-                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)"; e.currentTarget.style.borderColor = item.color + "44"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.borderColor = G.border; }}>
+              <div key={i} className="trust-card" style={{ background: G.bg, borderRadius: 16, padding: "24px 20px", border: `1px solid ${G.border}` }}>
                 <div style={{ width: 48, height: 48, borderRadius: 14, background: item.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 14 }}>
                   {item.icon}
                 </div>
