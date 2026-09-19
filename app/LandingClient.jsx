@@ -168,10 +168,6 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes tickerScrollFast {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
         @media (min-width: 480px) { .wa-text { display: inline; } }
         @media (min-width: 640px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
         @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
@@ -242,20 +238,31 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         {/* Ticker inside navbar */}
         <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 30 }}>
           <style>{`
-            .ticker-track { display: flex; animation: tickerScroll 30s linear infinite; white-space: nowrap; height: 100%; align-items: center; will-change: transform; }
-            @media (max-width: 767px) { .ticker-track { animation: tickerScrollFast 18s linear infinite; } }
-            .ticker-item { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; flex-shrink: 0; padding: 0 0; display: inline-flex; align-items: center; }
-            .ticker-dot { margin: 0 12px; opacity: 0.35; font-size: 8px; }
+            .ticker-wrap { display: flex; white-space: nowrap; height: 100%; align-items: center; will-change: transform; }
+            .ticker-wrap { animation: tickerScroll 35s linear infinite; }
+            @media (max-width: 767px) { .ticker-wrap { animation: tickerScroll 20s linear infinite; } }
+            .ticker-set { display: inline-flex; align-items: center; flex-shrink: 0; }
+            .ticker-item { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; }
           `}</style>
-          <div className="ticker-track">
-            {[...Array(2)].map((_, rep) =>
-              ["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
-                <span key={`${rep}-${i}`} className="ticker-item">
-                  <span style={{ padding: "0 18px" }}>{t}</span>
-                  <span className="ticker-dot">●</span>
+          <div className="ticker-wrap">
+            {/* Set A - content */}
+            <span className="ticker-set">
+              {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
+                <span key={"a"+i} className="ticker-item">
+                  <span style={{ padding: "0 20px" }}>{t}</span>
+                  <span style={{ opacity: 0.3, fontSize: 8 }}>●</span>
                 </span>
-              ))
-            )}
+              ))}
+            </span>
+            {/* Set B - exact duplicate for seamless loop */}
+            <span className="ticker-set">
+              {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
+                <span key={"b"+i} className="ticker-item">
+                  <span style={{ padding: "0 20px" }}>{t}</span>
+                  <span style={{ opacity: 0.3, fontSize: 8 }}>●</span>
+                </span>
+              ))}
+            </span>
           </div>
         </div>
         {/* Main nav row */}
