@@ -270,7 +270,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         <div style={{ display: "flex", alignItems: "center", flexShrink: 0, cursor: "pointer", minWidth: 0 }} onClick={() => router.push("/")}>
           <div style={{ lineHeight: 1.1 }}>
             <div style={{ fontSize: 15, fontWeight: 900, color: G.blue, whiteSpace: "nowrap" }}>{infoNama || "PontiCell"}</div>
-            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}>by.Max · Pontianak</div>
+            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}> Kota · Pontianak</div>
           </div>
         </div>
 
