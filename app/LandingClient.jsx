@@ -238,31 +238,31 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         {/* Ticker inside navbar */}
         <div style={{ width: "100%", background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, overflow: "hidden", height: 30 }}>
           <style>{`
-            .ticker-wrap { display: flex; white-space: nowrap; height: 100%; align-items: center; will-change: transform; }
-            .ticker-wrap { animation: tickerScroll 35s linear infinite; }
-            @media (max-width: 767px) { .ticker-wrap { animation: tickerScroll 20s linear infinite; } }
-            .ticker-set { display: inline-flex; align-items: center; flex-shrink: 0; }
-            .ticker-item { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; }
+            @keyframes tickerMove {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .tk { display: inline-flex; animation: tickerMove 10s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
+            .tk span { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; padding: 0 22px; flex-shrink: 0; }
+            .tk b { opacity: 0.3; font-size: 7px; flex-shrink: 0; font-weight: 400; }
           `}</style>
-          <div className="ticker-wrap">
-            {/* Set A - content */}
-            <span className="ticker-set">
-              {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
-                <span key={"a"+i} className="ticker-item">
-                  <span style={{ padding: "0 20px" }}>{t}</span>
-                  <span style={{ opacity: 0.3, fontSize: 8 }}>●</span>
-                </span>
-              ))}
-            </span>
-            {/* Set B - exact duplicate for seamless loop */}
-            <span className="ticker-set">
-              {["🚚 Gratis Ongkir Seluruh Indonesia", "🔒 Transaksi Aman & Terjamin", "✅ Produk 100% Original", "💬 CS Siap Membantu 7 Hari", "🛡️ Garansi Toko 14 Hari", "⭐ Rating 4.9/5 dari Pembeli", "📦 1.000+ Unit Terjual", "🏪 5+ Cabang Resmi di Pontianak"].map((t, i) => (
-                <span key={"b"+i} className="ticker-item">
-                  <span style={{ padding: "0 20px" }}>{t}</span>
-                  <span style={{ opacity: 0.3, fontSize: 8 }}>●</span>
-                </span>
-              ))}
-            </span>
+          <div className="tk">
+            <span>🚚 Gratis Ongkir</span><b>●</b>
+            <span>🔒 Transaksi Aman</span><b>●</b>
+            <span>✅ Produk Original</span><b>●</b>
+            <span>💬 CS Siap Bantu</span><b>●</b>
+            <span>🛡️ Garansi 14 Hari</span><b>●</b>
+            <span>⭐ Rating 4.9/5</span><b>●</b>
+            <span>📦 1.000+ Terjual</span><b>●</b>
+            <span>🏪 5+ Cabang Resmi</span><b>●</b>
+            <span>🚚 Gratis Ongkir</span><b>●</b>
+            <span>🔒 Transaksi Aman</span><b>●</b>
+            <span>✅ Produk Original</span><b>●</b>
+            <span>💬 CS Siap Bantu</span><b>●</b>
+            <span>🛡️ Garansi 14 Hari</span><b>●</b>
+            <span>⭐ Rating 4.9/5</span><b>●</b>
+            <span>📦 1.000+ Terjual</span><b>●</b>
+            <span>🏪 5+ Cabang Resmi</span><b>●</b>
           </div>
         </div>
         {/* Main nav row */}
