@@ -242,7 +242,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
             }
-            .tk { display: inline-flex; animation: tickerMove 15s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
+            .tk { display: inline-flex; animation: tickerMove 45s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
             .tk span { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; padding: 0 22px; flex-shrink: 0; }
             .tk b { opacity: 0.3; font-size: 7px; flex-shrink: 0; font-weight: 400; }
           `}</style>
@@ -407,6 +407,18 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             ))}
             </div>
           </div>
+
+          {/* Tombol Lihat Testimoni */}
+          <div style={{ marginTop: 32, textAlign: "center" }}>
+            <button
+              onClick={() => document.getElementById("testimoni-section")?.scrollIntoView({ behavior: "smooth" })}
+              style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "13px 28px", background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 40, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", backdropFilter: "blur(8px)" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.transform = ""; }}>
+              ⭐ Lihat Apa Kata Pelanggan Kami &nbsp;↓
+            </button>
+          </div>
+
         </div>
       )}
 
