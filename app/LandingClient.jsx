@@ -278,7 +278,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         <div style={{ display: "flex", alignItems: "center", flexShrink: 0, cursor: "pointer", minWidth: 0 }} onClick={() => router.push("/")}>
           <div style={{ lineHeight: 1.1 }}>
             <div style={{ fontSize: 15, fontWeight: 900, color: G.blue, whiteSpace: "nowrap" }}>{infoNama || "PontiCell"}</div>
-            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}>by.Max · Pontianak</div>
+            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}>Kota Pontianak</div>
           </div>
         </div>
 
@@ -331,7 +331,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       {/* Hero - Banner atau gradient */}
       {/* eslint-disable-next-line */}
       {(banners.length > 0 || bannersMobile.length > 0) ? (
-          <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
+          <div className="banner-hero" style={{ marginTop: 86, position: "relative", overflow: "hidden" }}>
 
             {/* Desktop images - shown on screen >= 768px */}
             {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
@@ -380,7 +380,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
-        <div style={{ minHeight: "75vh", paddingTop: 82, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
+        <div style={{ minHeight: "75vh", paddingTop: 100, background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "60px 20px 40px", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
             {["🔒 Transaksi Aman", "✅ Produk Original & Bergaransi", "📍 Pontianak & Sekitarnya", "💬 CS Siap Membantu"].map(b => (
