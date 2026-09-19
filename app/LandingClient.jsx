@@ -162,7 +162,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         .wa-text { display: none; }
         .banner-hero { height: 100vw; max-height: 90vh; min-height: 320px; }
         @media (min-width: 768px) { .banner-hero { height: 56vw; max-height: 80vh; min-height: 480px; } }
-        .banner-img { display: block; }
+        .banner-desktop { display: none !important; }
+        .banner-mobile { display: block !important; }
+        @media (min-width: 768px) { 
+          .banner-desktop { display: block !important; }
+          .banner-mobile { display: none !important; }
+        }
         .banner-title { font-size: clamp(28px, 8vw, 60px) !important; }
         .banner-sub { font-size: clamp(14px, 2.5vw, 20px) !important; }
         .banner-overlay { padding: 0 24px !important; }
@@ -328,10 +333,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       {(banners.length > 0 || bannersMobile.length > 0) ? (
           <div className="banner-hero" style={{ marginTop: 82, position: "relative", overflow: "hidden" }}>
 
-            {/* Banner images */}
+            {/* Desktop images - shown on screen >= 768px */}
             {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
-              <img key={i} src={src} alt={"banner "+(i+1)}
+              <img key={"d"+i} src={src} alt={"banner "+(i+1)} className="banner-desktop"
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
+            ))}
+
+            {/* Mobile images - shown on screen < 768px */}
+            {(bannersMobile.length > 0 ? bannersMobile : banners).map((src, i) => (
+              <img key={"m"+i} src={src} alt={"banner mobile "+(i+1)} className="banner-mobile"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
             ))}
 
             {/* Overlay gradient kiri */}
