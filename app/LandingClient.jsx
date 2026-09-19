@@ -14,7 +14,7 @@ const G = {
   gray: "#64748B", grayLight: "#F1F5F9", text: "#0F172A",
 };
 
-export default function LandingClient({ hp, tablet, testimoni, banners = [], bannersMobile = [], brandLogos = {}, cabangFotos = {}, infoNama, infoTagline, infoWa }) {
+export default function LandingClient({ hp, tablet, testimoni, banners = [], bannersMobile = [], brandLogos = {}, cabangFotos = {}, topSoldIds = [], infoNama, infoTagline, infoWa }) {
   const router = useRouter();
   const WA = infoWa || "6283808484969";
   const [activeTab, setActiveTab] = useState("hp");
@@ -26,6 +26,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
   const [showAllTesti, setShowAllTesti] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [countersStarted, setCountersStarted] = useState(false);
   const [counterVals, setCounterVals] = useState({ terjual: 0, rating: 0, cabang: 0 });
   const statsRef = useRef(null);
@@ -54,6 +55,13 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
     setPriceRange([min, max]);
     setPriceFilter([min, max]);
   }, [hp.length, tablet.length]);
+
+  // Scroll to top button
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Counter animation - start after short delay on mount
   useEffect(() => {
@@ -242,12 +250,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
               0% { transform: translateX(0); }
               100% { transform: translateX(-50%); }
             }
-            .tk { display: inline-flex; animation: tickerMove 30s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
+            .tk { display: inline-flex; animation: tickerMove 45s linear infinite; white-space: nowrap; align-items: center; height: 30px; }
             .tk span { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 600; padding: 0 22px; flex-shrink: 0; }
             .tk b { opacity: 0.3; font-size: 7px; flex-shrink: 0; font-weight: 400; }
           `}</style>
           <div className="tk">
-            <span>🚚 Gratis Ongkir Seluruh Indonesia</span><b>●</b>
+            <span>🚚 Gratis Ongkir</span><b>●</b>
             <span>🔒 Transaksi Aman</span><b>●</b>
             <span>✅ Produk Original</span><b>●</b>
             <span>💬 CS Siap Bantu</span><b>●</b>
@@ -255,7 +263,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <span>⭐ Rating 4.9/5</span><b>●</b>
             <span>📦 1.000+ Terjual</span><b>●</b>
             <span>🏪 5+ Cabang Resmi</span><b>●</b>
-            <span>🚚 Gratis Ongkir Seluruh Indonesia</span><b>●</b>
+            <span>🚚 Gratis Ongkir</span><b>●</b>
             <span>🔒 Transaksi Aman</span><b>●</b>
             <span>✅ Produk Original</span><b>●</b>
             <span>💬 CS Siap Bantu</span><b>●</b>
@@ -270,7 +278,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
         <div style={{ display: "flex", alignItems: "center", flexShrink: 0, cursor: "pointer", minWidth: 0 }} onClick={() => router.push("/")}>
           <div style={{ lineHeight: 1.1 }}>
             <div style={{ fontSize: 15, fontWeight: 900, color: G.blue, whiteSpace: "nowrap" }}>{infoNama || "PontiCell"}</div>
-            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}> Kota · Pontianak</div>
+            <div style={{ fontSize: 9, color: G.gray, whiteSpace: "nowrap" }}>by.Max · Pontianak</div>
           </div>
         </div>
 
@@ -554,15 +562,32 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
                       ? <img src={p.photos[0]} alt={p.model} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>📱</div>
                     }
+                    {/* Kondisi badge */}
                     <div style={{ position: "absolute", top: 8, left: 8, background: p.condition === "Baru" ? "#E8F5E9" : "#FFF8E1", borderRadius: 6, padding: "3px 8px", fontSize: 10, color: p.condition === "Baru" ? "#2E7D32" : "#F57F17", fontWeight: 700 }}>
                       {p.condition}
                     </div>
+                    {/* Terlaris badge */}
+                    {topSoldIds.includes(p.id) && (
+                      <div style={{ position: "absolute", top: 8, right: 8, background: "linear-gradient(135deg, #FF6B35, #FF3D00)", borderRadius: 6, padding: "3px 8px", fontSize: 10, color: "#fff", fontWeight: 800, display: "flex", alignItems: "center", gap: 3 }}>
+                        🔥 Terlaris
+                      </div>
+                    )}
+                    {/* Wishlist button */}
+                    <button onClick={e => handleWishlist(e, p)}
+                      style={{ position: "absolute", bottom: 8, right: 8, background: wishlisted[p.id] ? "#FEE2E2" : "rgba(255,255,255,0.9)", border: "none", borderRadius: "50%", width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 14, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
+                      {wishlisted[p.id] ? "❤️" : "🤍"}
+                    </button>
                   </div>
-                  <div style={{ padding: "12px 12px 14px" }}>
-                    <div style={{ fontSize: 10, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{p.brand}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: G.text, marginBottom: 4, lineHeight: 1.3 }}>{p.model}</div>
-                    <div style={{ fontSize: 11, color: G.gray, marginBottom: 8 }}>{p.ram !== "-" ? `${p.ram} / ` : ""}{p.storage}</div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: G.blue }}>{formatRp(p.sell_price)}</div>
+                  <div style={{ padding: "10px 12px 12px" }}>
+                    <div style={{ fontSize: 10, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 2 }}>{p.brand}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: G.text, marginBottom: 3, lineHeight: 1.3 }}>{p.model}</div>
+                    <div style={{ fontSize: 11, color: G.gray, marginBottom: 6 }}>{p.ram !== "-" ? `${p.ram} / ` : ""}{p.storage}</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 4 }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: G.blue }}>{formatRp(p.sell_price)}</div>
+                      {p.sold_count > 0 && (
+                        <div style={{ fontSize: 10, color: G.gray, fontWeight: 600 }}>Terjual {p.sold_count}</div>
+                      )}
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -716,6 +741,16 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           💬 Chat WhatsApp Sekarang
         </a>
       </div>
+
+      {/* Scroll to top */}
+      {showScrollTop && (
+        <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          style={{ position: "fixed", bottom: 96, right: 20, width: 44, height: 44, background: G.white, border: `1.5px solid ${G.border}`, borderRadius: "50%", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", cursor: "pointer", fontSize: 18, zIndex: 998, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+          onMouseEnter={e => { e.currentTarget.style.background = G.blue; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = G.blue; }}
+          onMouseLeave={e => { e.currentTarget.style.background = G.white; e.currentTarget.style.color = "inherit"; e.currentTarget.style.borderColor = G.border; }}>
+          ↑
+        </button>
+      )}
 
       <Chatbot />
 

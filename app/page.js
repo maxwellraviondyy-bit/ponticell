@@ -28,12 +28,7 @@ export default async function HomePage() {
   const hpList = hp.map(parseItem).filter(i => Object.values(i.stocks).reduce((s,v)=>s+v,0) > 0);
   const tabletList = tablet.map(parseItem).filter(i => Object.values(i.stocks).reduce((s,v)=>s+v,0) > 0);
 
-  // Banner: prioritaskan banner_desktop, fallback ke banner lama
-  const bannersDesktop = [
-    ...konten.filter(k => k.kategori === "banner_desktop").sort((a,b) => a.urutan - b.urutan),
-    ...konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan),
-  ].map(k => k.nilai);
-  const bannersMobile = konten.filter(k => k.kategori === "banner_mobile").sort((a,b) => a.urutan - b.urutan).map(k => k.nilai);
+  const banners = konten.filter(k => k.kategori === "banner").sort((a,b) => a.urutan - b.urutan).map(k => k.nilai);
   const brandLogos = {};
   konten.filter(k => k.kategori === "brand").forEach(k => { brandLogos[k.kunci.replace("brand_", "")] = k.nilai; });
   const cabangFotos = {};
@@ -45,8 +40,7 @@ export default async function HomePage() {
       hp={hpList}
       tablet={tabletList}
       testimoni={testimoni}
-      banners={bannersDesktop}
-      bannersMobile={bannersMobile}
+      banners={banners}
       brandLogos={brandLogos}
       cabangFotos={cabangFotos}
       infoNama={getInfo("info_nama") || "PontiCell"}

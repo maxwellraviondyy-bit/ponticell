@@ -195,7 +195,17 @@ export default function ProductClient({ product, related }) {
         <div className="p-info">
           <div style={{ fontSize: 11, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 4 }}>{product.brand}</div>
           <h1 style={{ fontSize: "clamp(20px, 4vw, 26px)", fontWeight: 900, color: G.text, margin: "0 0 8px", lineHeight: 1.2 }}>{product.model}</h1>
-          <div style={{ fontSize: "clamp(22px, 5vw, 30px)", fontWeight: 900, color: G.blue, marginBottom: 4 }}>{formatRp(product.sell_price)}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 4 }}>
+            <div style={{ fontSize: "clamp(22px, 5vw, 30px)", fontWeight: 900, color: G.blue }}>{formatRp(product.sell_price)}</div>
+            {product.original_price && product.original_price > product.sell_price && (
+              <>
+                <div style={{ fontSize: 15, color: G.gray, textDecoration: "line-through", fontWeight: 500 }}>{formatRp(product.original_price)}</div>
+                <div style={{ background: "#FEE2E2", color: "#DC2626", borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 800 }}>
+                  -{Math.round((1 - product.sell_price / product.original_price) * 100)}%
+                </div>
+              </>
+            )}
+          </div>
           <div style={{ fontSize: 12, color: totalStok > 0 ? "#2E7D32" : "#C62828", fontWeight: 600, marginBottom: 14 }}>
             {totalStok > 0 ? `✅ Stok tersedia (${totalStok} unit)` : "❌ Stok habis"}
           </div>

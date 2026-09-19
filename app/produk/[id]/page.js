@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const sql = getDb();
-  const rows = await sql`SELECT brand, model, ram, storage, color, condition, sell_price, photos FROM inventory WHERE id=${id} LIMIT 1`;
+  const rows = await sql`SELECT brand, model, ram, storage, color, condition, sell_price, original_price, photos FROM inventory WHERE id=${id} LIMIT 1`;
   if (!rows.length) return {};
 
   const p = rows[0];
@@ -33,7 +33,7 @@ export default async function ProductPage({ params }) {
   const { id } = await params;
   const sql = getDb();
 
-  const rows = await sql`SELECT * FROM inventory WHERE id=${id} LIMIT 1`;
+  const rows = await sql`SELECT *, COALESCE(original_price, 0) as original_price FROM inventory WHERE id=${id} LIMIT 1`;
   if (!rows.length) return notFound();
 
   const r = rows[0];

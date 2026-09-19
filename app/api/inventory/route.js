@@ -11,8 +11,8 @@ export async function POST(req) {
   const sql = getDb();
   const b = await req.json();
   await sql`
-    INSERT INTO inventory (id,type,brand,model,ram,storage,color,imei,condition,buy_price,sell_price,notes,photos,stocks,created_at)
-    VALUES (${b.id},${b.type},${b.brand},${b.model},${b.ram},${b.storage},${b.color},${b.imei},${b.condition},${b.buy_price},${b.sell_price},${b.notes},${JSON.stringify(b.photos)},${JSON.stringify(b.stocks)},${b.created_at||new Date().toISOString()})
+    INSERT INTO inventory (id,type,brand,model,ram,storage,color,imei,condition,buy_price,sell_price,original_price,notes,photos,stocks,created_at)
+    VALUES (${b.id},${b.type},${b.brand},${b.model},${b.ram},${b.storage},${b.color},${b.imei},${b.condition},${b.buy_price},${b.sell_price},${b.original_price||0},${b.notes},${JSON.stringify(b.photos)},${JSON.stringify(b.stocks)},${b.created_at||new Date().toISOString()})
   `;
   return NextResponse.json({ ok: true });
 }
@@ -24,7 +24,7 @@ export async function PUT(req) {
     UPDATE inventory SET
       brand=${b.brand}, model=${b.model}, ram=${b.ram}, storage=${b.storage},
       color=${b.color}, imei=${b.imei}, condition=${b.condition},
-      buy_price=${b.buy_price}, sell_price=${b.sell_price},
+      buy_price=${b.buy_price}, sell_price=${b.sell_price}, original_price=${b.original_price||0},
       notes=${b.notes}, photos=${JSON.stringify(b.photos)},
       stocks=${b.stocks !== undefined ? JSON.stringify(b.stocks) : sql`stocks`}
     WHERE id=${b.id}
