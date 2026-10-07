@@ -22,7 +22,7 @@ async function fetchKasirStok(kasir) {
   try {
     const res = await fetch(`${kasir.url}/api/storefront`, {
       headers: { "x-storefront-key": kasir.key },
-      cache: "no-store", // selalu fetch fresh — kasir sudah punya cache sendiri (s-maxage=120)
+      next: { revalidate: 0 }, // selalu fresh, tidak di-cache Next.js
     });
     if (!res.ok) return [];
     const data = await res.json();
