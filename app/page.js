@@ -20,10 +20,10 @@ const KASIR_SOURCES = [
 async function fetchKasirStok(kasir) {
   if (!kasir.url || !kasir.key) return [];
   try {
-    const res = await fetch(`${kasir.url}/api/storefront`, {
+    const res = await fetch(new Request(`${kasir.url}/api/storefront`, {
       headers: { "x-storefront-key": kasir.key },
-      next: { revalidate: 0 }, // selalu fresh, tidak di-cache Next.js
-    });
+      cache: "no-store",
+    }));
     if (!res.ok) return [];
     const data = await res.json();
     return (data.produk || []).map((p) => ({
