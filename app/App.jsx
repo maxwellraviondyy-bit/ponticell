@@ -168,6 +168,8 @@ export default function App() {
   const [konten, setKonten] = useState([]);
   const [kontenUploading, setKontenUploading] = useState(false);
   const [pesanan, setPesanan] = useState([]);
+  const [produkMeta, setProdukMeta] = useState([]); // foto & deskripsi produk kasir
+  const [produkMetaLoading, setProdukMetaLoading] = useState(false);
 
   // DB helpers
   const dbToItem = (r) => ({ id: r.id, type: r.type, brand: r.brand, model: r.model, ram: r.ram, storage: r.storage, color: r.color, condition: r.condition, imei: r.imei, buyPrice: r.buy_price, sellPrice: r.sell_price, notes: r.notes, photos: r.photos || [], stocks: r.stocks || emptyStocks(), createdAt: r.created_at });
@@ -176,7 +178,7 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData, robotData] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData, robotData, metaData] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
@@ -185,6 +187,7 @@ export default function App() {
         api.get("/api/konten"),
         api.get("/api/pesanan"),
         api.get("/api/robot"),
+        api.get("/api/produk-meta"),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
@@ -194,6 +197,7 @@ export default function App() {
       if (pesananData) setPesanan(pesananData);
       if (robotData) { const map = {}; robotData.forEach(r => { map[r.kunci] = r.nilai; }); setRobotSettings(map); }
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
+      if (metaData) setProdukMeta(metaData);
     } catch(e) {
       console.error("Load error:", e);
       if (retryCount < 3) {
@@ -894,6 +898,7 @@ const handleLogin = async () => {
               ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
               ["finance", <Wallet size={16} />, "Finance"],
               ["konten", <span style={{fontSize:14}}>🖼️</span>, "Konten"],
+              ["foto-produk", <span style={{fontSize:14}}>📸</span>, "Foto Produk"],
               ["robot", <span style={{fontSize:14}}>🤖</span>, "Robot"],
             ] : []),
           ] : []),
@@ -2054,6 +2059,115 @@ const handleLogin = async () => {
             </div>
           </div>
         )}
+
+        {/* ===== FOTO & DESKRIPSI PRODUK KASIR ===== */}
+        {activeTab === "foto-produk" && currentUser?.role === "admin" && (() => {
+          const KASIR_URL = process.env.NEXT_PUBLIC_KASIR_KP_URL || "";
+
+          const saveMeta = async (kasirId, photos, deskripsi) => {
+            setProdukMetaLoading(true);
+            try {
+              await api.post("/api/produk-meta", { kasir_url: KASIR_URL, kasir_id: kasirId, photos, deskripsi });
+              const updated = await api.get("/api/produk-meta");
+              setProdukMeta(updated);
+            } catch(e) { alert("Gagal menyimpan: " + e.message); }
+            setProdukMetaLoading(false);
+          };
+
+          const generateDesc = async (produk, currentMeta) => {
+            const namaParts = (produk.nama || "").split(" ");
+            const brand = namaParts[0] || "";
+            const model = namaParts.slice(1).join(" ") || "";
+            try {
+              const { description } = await api.post("/api/ai/describe", {
+                brand, model, ram: produk.ram || "-", storage: produk.rom || "-",
+                color: "-", condition: produk.kondisi || "Bekas", type: "hp"
+              });
+              await saveMeta(produk.id, currentMeta?.photos || [], description);
+            } catch(e) { alert("Gagal generate AI: " + e.message); }
+          };
+
+          return (
+            <div>
+              <div style={c.sectionTitle}>📸 Foto & Deskripsi Produk Kasir</div>
+              <div style={{ ...c.card(), marginBottom: 16, background: "#F0F9FF", border: "1px solid #BAE6FD" }}>
+                <div style={{ fontSize: 13, color: "#0369A1" }}>
+                  💡 Stok & harga diambil otomatis dari kasir. Di sini Anda bisa menambahkan <b>foto</b> dan <b>deskripsi</b> untuk setiap produk yang tampil di etalase Ponticell. Klik <b>🤖 AI</b> untuk generate deskripsi otomatis.
+                </div>
+              </div>
+
+              {produkMetaLoading && (
+                <div style={{ textAlign: "center", padding: 20, color: "#64748B", fontSize: 13 }}>⏳ Menyimpan...</div>
+              )}
+
+              {/* Render semua meta yang ada, plus form tambah baru */}
+              {produkMeta.filter(m => m.kasir_url === KASIR_URL).length === 0 && (
+                <div style={{ ...c.card(), textAlign: "center", color: "#94A3B8", padding: 32 }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>Belum ada foto produk</div>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>Tambah produk dari kasir dulu, lalu isi foto & deskripsi di sini.</div>
+                </div>
+              )}
+
+              {produkMeta.filter(m => m.kasir_url === KASIR_URL).map((meta) => {
+                const photos = Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : []);
+                return (
+                  <div key={meta.id} style={{ ...c.card(), marginBottom: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#1E293B", marginBottom: 4 }}>
+                          ID Kasir: {meta.kasir_id}
+                        </div>
+                        <textarea
+                          style={{ ...c.input, width: "100%", minHeight: 60, fontSize: 12, resize: "vertical" }}
+                          placeholder="Deskripsi produk... (bisa diisi manual atau klik 🤖 AI)"
+                          defaultValue={meta.deskripsi || ""}
+                          onBlur={(e) => saveMeta(meta.kasir_id, photos, e.target.value)}
+                        />
+                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                          <button style={{ ...c.btn("secondary"), fontSize: 11 }}
+                            onClick={() => generateDesc({ id: meta.kasir_id, nama: `Produk ${meta.kasir_id}`, ram: "-", rom: "-", kondisi: "Bekas" }, meta)}>
+                            🤖 AI Generate
+                          </button>
+                        </div>
+                      </div>
+                      {/* Foto */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+                        {photos.slice(0, 3).map((url, i) => (
+                          <img key={i} src={url} alt="" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid #E2E8F0" }} />
+                        ))}
+                        <label style={{ ...c.btn("secondary"), fontSize: 10, cursor: "pointer", textAlign: "center" }}>
+                          📷 Foto
+                          <input type="file" accept="image/*" multiple style={{ display: "none" }}
+                            onChange={async (e) => {
+                              const files = Array.from(e.target.files);
+                              const urls = await Promise.all(files.map(uploadToCloudinary));
+                              await saveMeta(meta.kasir_id, [...photos, ...urls], meta.deskripsi || "");
+                            }} />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Form tambah produk baru (input manual kasir_id) */}
+              <div style={{ ...c.card(), border: "2px dashed #E2E8F0", marginTop: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#1E293B", marginBottom: 10 }}>➕ Tambah Produk Baru</div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 8 }}>Masukkan ID produk dari kasir (angka), lalu simpan.</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input id="new-kasir-id" type="number" style={{ ...c.input, flex: 1 }} placeholder="ID Produk Kasir (misal: 123456789)" />
+                  <button style={c.btn("primary")} onClick={() => {
+                    const val = document.getElementById("new-kasir-id").value;
+                    if (!val) return alert("Masukkan ID produk kasir.");
+                    saveMeta(parseInt(val), [], "");
+                    document.getElementById("new-kasir-id").value = "";
+                  }}>Tambah</button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
 
 

@@ -93,3 +93,16 @@ create table if not exists settings (
   key text primary key,
   value text
 );
+
+-- Meta produk kasir: foto & deskripsi tambahan untuk produk yang stoknya dari kasir.
+-- kasir_id = id item dari kasir (integer), kasir_url = URL kasir asal.
+-- Dikelola dari dashboard Ponticell. Tidak menyimpan stok/harga (itu dari kasir).
+create table if not exists kasir_produk_meta (
+  id bigserial primary key,
+  kasir_url text not null,           -- misal 'https://modernshoppontianak.vercel.app'
+  kasir_id bigint not null,          -- id item di kasir
+  photos jsonb default '[]',         -- array URL foto (Cloudinary)
+  deskripsi text default '',         -- deskripsi tambahan (bisa diisi AI)
+  updated_at text default now()::text,
+  unique (kasir_url, kasir_id)
+);
