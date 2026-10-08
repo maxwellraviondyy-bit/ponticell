@@ -6,9 +6,14 @@ export async function POST(req) {
     const { message, history = [] } = await req.json();
     const sql = getDb();
 
-    // Fetch products and robot settings in parallel
-    const [products, robotSettings] = await Promise.all([
-      sql`SELECT brand, model, ram, storage, color, condition, sell_price, stocks, type FROM inventory ORDER BY created_at DESC`,
+    // Fetch robot settings dari Ponticell DB + produk dari kasir secara paralel
+    const kasirUrl = process.env.KASIR_KP_URL || process.env.NEXT_PUBLIC_KASIR_KP_URL || "";
+    const kasirKey = process.env.KASIR_KP_KEY || process.env.NEXT_PUBLIC_KASIR_KP_KEY || "";
+
+    const [kasirRes, robotSettings] = await Promise.all([
+      kasirUrl && kasirKey
+        ? fetch(`${kasirUrl}/api/storefront`, { headers: { "x-storefront-key": kasirKey }, cache: "no-store" }).then(r => r.json()).catch(() => ({ produk: [] }))
+        : Promise.resolve({ produk: [] }),
       sql`SELECT kunci, nilai FROM konten WHERE kategori = 'robot'`,
     ]);
 
@@ -23,15 +28,14 @@ export async function POST(req) {
     const promo = settings.robot_promo || "";
     const larangan = settings.robot_larangan || "";
 
-    // Parse products
-    const parseStocks = (s) => typeof s === "string" ? JSON.parse(s) : (s || {});
-    const availableProducts = products
-      .map(p => ({ ...p, stocks: parseStocks(p.stocks) }))
-      .filter(p => Object.values(p.stocks).reduce((s, v) => s + v, 0) > 0);
-
-    const productList = availableProducts.map(p =>
-      `- ${p.brand} ${p.model} | RAM: ${p.ram} | Storage: ${p.storage} | Warna: ${p.color} | Kondisi: ${p.condition} | Harga: Rp ${Number(p.sell_price).toLocaleString("id-ID")}`
-    ).join("\n");
+    // Produk dari kasir (stok > 0 sudah difilter di storefront)
+    const kasirProduk = kasirRes.produk || [];
+    const productList = kasirProduk.map(p => {
+      const namaParts = (p.nama || "").split(" ");
+      const brand = namaParts[0] || "";
+      const model = namaParts.slice(1).join(" ") || "";
+      return `- ${brand} ${model} | RAM: ${p.ram || "-"} | Storage: ${p.rom || "-"} | Kondisi: ${p.kondisi || "-"} | Stok: ${p.stok} | Harga: Rp ${Number(p.harga_jual).toLocaleString("id-ID")}`;
+    }).join("\n");
 
     // Build system prompt from settings
     const gayaInstruksi = {
