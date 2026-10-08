@@ -85,7 +85,7 @@ ATURAN UMUM:
     if (!groqRes.ok) {
       const err = await groqRes.text();
       console.error("Groq error:", groqRes.status, err);
-      return NextResponse.json({ reply: "Maaf, saya sedang tidak bisa menjawab. Silakan chat WhatsApp kami di 6283808484969.", botName: namaBot });
+      return NextResponse.json({ reply: `[DEBUG] Groq error ${groqRes.status}: ${err.slice(0, 200)}`, botName: namaBot });
     }
 
     const data = await groqRes.json();
