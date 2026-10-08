@@ -75,7 +75,7 @@ ATURAN UMUM:
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "qwen/qwen3.8-27b",
         messages,
         max_tokens: 500,
         temperature: 0.7,
