@@ -28,14 +28,15 @@ export async function POST(req) {
     const promo = settings.robot_promo || "";
     const larangan = settings.robot_larangan || "";
 
-    // Produk dari kasir (stok > 0 sudah difilter di storefront)
+    // Produk dari kasir — format ringkas supaya tidak melebihi rate limit token
     const kasirProduk = kasirRes.produk || [];
     const productList = kasirProduk.map(p => {
-      const namaParts = (p.nama || "").split(" ");
-      const brand = namaParts[0] || "";
-      const model = namaParts.slice(1).join(" ") || "";
-      return `- ${brand} ${model} | RAM: ${p.ram || "-"} | Storage: ${p.rom || "-"} | Kondisi: ${p.kondisi || "-"} | Stok: ${p.stok} | Harga: Rp ${Number(p.harga_jual).toLocaleString("id-ID")}`;
-    }).join("\n");
+      const harga = Math.round(Number(p.harga_jual) / 1000) + "rb";
+      const ram = p.ram ? `${p.ram}` : "";
+      const rom = p.rom ? `/${p.rom}` : "";
+      const cond = p.kondisi === "Baru" ? "B" : "Bks";
+      return `${p.nama}${ram ? ` ${ram}${rom}` : ""} ${cond} ${harga}`;
+    }).join(", ");
 
     // Build system prompt from settings
     const gayaInstruksi = {
@@ -77,7 +78,7 @@ ATURAN UMUM:
       body: JSON.stringify({
         model: "qwen/qwen3.8-27b",
         messages,
-        max_tokens: 500,
+        max_tokens: 300,
         temperature: 0.7,
       }),
     });
@@ -85,7 +86,7 @@ ATURAN UMUM:
     if (!groqRes.ok) {
       const err = await groqRes.text();
       console.error("Groq error:", groqRes.status, err);
-      return NextResponse.json({ reply: `[DEBUG] Groq error ${groqRes.status}: ${err.slice(0, 200)}`, botName: namaBot });
+      return NextResponse.json({ reply: "Maaf, saya sedang tidak bisa menjawab. Silakan chat WhatsApp kami di 6283808484969.", botName: namaBot });
     }
 
     const data = await groqRes.json();
