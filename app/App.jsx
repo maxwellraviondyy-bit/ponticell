@@ -170,6 +170,9 @@ export default function App() {
   const [pesanan, setPesanan] = useState([]);
   const [produkMeta, setProdukMeta] = useState([]); // foto & deskripsi produk kasir
   const [produkMetaLoading, setProdukMetaLoading] = useState(false);
+  const [kasirProdukList, setKasirProdukList] = useState([]); // produk dari storefront kasir
+  const [kasirProdukLoading, setKasirProdukLoading] = useState(false);
+  const [fotoProdukSearch, setFotoProdukSearch] = useState(""); // filter nama produk
 
   // DB helpers
   const dbToItem = (r) => ({ id: r.id, type: r.type, brand: r.brand, model: r.model, ram: r.ram, storage: r.storage, color: r.color, condition: r.condition, imei: r.imei, buyPrice: r.buy_price, sellPrice: r.sell_price, notes: r.notes, photos: r.photos || [], stocks: r.stocks || emptyStocks(), createdAt: r.created_at });
@@ -2063,6 +2066,24 @@ const handleLogin = async () => {
         {/* ===== FOTO & DESKRIPSI PRODUK KASIR ===== */}
         {activeTab === "foto-produk" && currentUser?.role === "admin" && (() => {
           const KASIR_URL = process.env.NEXT_PUBLIC_KASIR_KP_URL || "";
+          const KASIR_KEY = process.env.NEXT_PUBLIC_KASIR_KP_KEY || "";
+
+          // Fetch produk dari storefront kasir kalau belum ada
+          const loadKasirProduk = async () => {
+            if (!KASIR_URL || !KASIR_KEY) return;
+            setKasirProdukLoading(true);
+            try {
+              const res = await fetch(`${KASIR_URL}/api/storefront`, {
+                headers: { "x-storefront-key": KASIR_KEY },
+                cache: "no-store",
+              });
+              const data = await res.json();
+              setKasirProdukList(data.produk || []);
+            } catch(e) { console.error("Gagal load kasir:", e); }
+            setKasirProdukLoading(false);
+          };
+
+          if (kasirProdukList.length === 0 && !kasirProdukLoading) loadKasirProduk();
 
           const saveMeta = async (kasirId, photos, deskripsi) => {
             setProdukMetaLoading(true);
@@ -2087,62 +2108,99 @@ const handleLogin = async () => {
             } catch(e) { alert("Gagal generate AI: " + e.message); }
           };
 
+          const metaMap = {};
+          produkMeta.filter(m => m.kasir_url === KASIR_URL).forEach(m => { metaMap[String(m.kasir_id)] = m; });
+
+          const produkFiltered = kasirProdukList.filter(p =>
+            !fotoProdukSearch || (p.nama || "").toLowerCase().includes(fotoProdukSearch.toLowerCase())
+          );
+
           return (
             <div>
-              <div style={c.sectionTitle}>📸 Foto & Deskripsi Produk Kasir</div>
+              <div style={c.sectionTitle}>📸 Foto & Deskripsi Produk</div>
               <div style={{ ...c.card(), marginBottom: 16, background: "#F0F9FF", border: "1px solid #BAE6FD" }}>
                 <div style={{ fontSize: 13, color: "#0369A1" }}>
-                  💡 Stok & harga diambil otomatis dari kasir. Di sini Anda bisa menambahkan <b>foto</b> dan <b>deskripsi</b> untuk setiap produk yang tampil di etalase Ponticell. Klik <b>🤖 AI</b> untuk generate deskripsi otomatis.
+                  💡 Semua produk dari kasir tampil otomatis di sini. Klik <b>📷 Foto</b> untuk upload foto, atau <b>🤖 AI</b> untuk generate deskripsi otomatis.
                 </div>
               </div>
 
-              {produkMetaLoading && (
-                <div style={{ textAlign: "center", padding: 20, color: "#64748B", fontSize: 13 }}>⏳ Menyimpan...</div>
+              {/* Search */}
+              <div style={{ marginBottom: 12 }}>
+                <input
+                  style={{ ...c.input, width: "100%" }}
+                  placeholder="🔍 Cari nama produk..."
+                  value={fotoProdukSearch}
+                  onChange={e => setFotoProdukSearch(e.target.value)}
+                />
+              </div>
+
+              {kasirProdukLoading && (
+                <div style={{ textAlign: "center", padding: 32, color: "#64748B", fontSize: 13 }}>⏳ Memuat produk dari kasir...</div>
               )}
 
-              {/* Render semua meta yang ada, plus form tambah baru */}
-              {produkMeta.filter(m => m.kasir_url === KASIR_URL).length === 0 && (
+              {!kasirProdukLoading && kasirProdukList.length === 0 && (
                 <div style={{ ...c.card(), textAlign: "center", color: "#94A3B8", padding: 32 }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>Belum ada foto produk</div>
-                  <div style={{ fontSize: 12, marginTop: 4 }}>Tambah produk dari kasir dulu, lalu isi foto & deskripsi di sini.</div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>Tidak bisa memuat produk kasir</div>
+                  <div style={{ fontSize: 12, marginTop: 4 }}>Pastikan env NEXT_PUBLIC_KASIR_KP_URL dan NEXT_PUBLIC_KASIR_KP_KEY sudah diset.</div>
+                  <button style={{ ...c.btn("secondary"), marginTop: 12, fontSize: 12 }} onClick={loadKasirProduk}>🔄 Coba Lagi</button>
                 </div>
               )}
 
-              {produkMeta.filter(m => m.kasir_url === KASIR_URL).map((meta) => {
-                const photos = Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : []);
+              {produkMetaLoading && (
+                <div style={{ textAlign: "center", padding: 8, color: "#64748B", fontSize: 12 }}>⏳ Menyimpan...</div>
+              )}
+
+              {produkFiltered.map((produk) => {
+                const meta = metaMap[String(produk.id)];
+                const photos = meta ? (Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : [])) : [];
+                const sudahAdaFoto = photos.length > 0;
                 return (
-                  <div key={meta.id} style={{ ...c.card(), marginBottom: 12 }}>
+                  <div key={produk.id} style={{ ...c.card(), marginBottom: 10, border: sudahAdaFoto ? "1px solid #BBF7D0" : "1px solid #E2E8F0" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "#1E293B", marginBottom: 4 }}>
-                          ID Kasir: {meta.kasir_id}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#1E293B", marginBottom: 2 }}>
+                          {produk.nama}
+                          {sudahAdaFoto && <span style={{ marginLeft: 6, fontSize: 11, color: "#16A34A", fontWeight: 500 }}>✓ {photos.length} foto</span>}
+                        </div>
+                        <div style={{ fontSize: 11, color: "#64748B", marginBottom: 8 }}>
+                          {produk.kondisi} · Stok {produk.stok} · Rp {Number(produk.harga_jual).toLocaleString("id")}
                         </div>
                         <textarea
-                          style={{ ...c.input, width: "100%", minHeight: 60, fontSize: 12, resize: "vertical" }}
-                          placeholder="Deskripsi produk... (bisa diisi manual atau klik 🤖 AI)"
-                          defaultValue={meta.deskripsi || ""}
-                          onBlur={(e) => saveMeta(meta.kasir_id, photos, e.target.value)}
+                          key={meta?.id}
+                          style={{ ...c.input, width: "100%", minHeight: 56, fontSize: 12, resize: "vertical" }}
+                          placeholder="Deskripsi produk... (opsional, bisa klik 🤖 AI)"
+                          defaultValue={meta?.deskripsi || ""}
+                          onBlur={(e) => saveMeta(produk.id, photos, e.target.value)}
                         />
-                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
                           <button style={{ ...c.btn("secondary"), fontSize: 11 }}
-                            onClick={() => generateDesc({ id: meta.kasir_id, nama: `Produk ${meta.kasir_id}`, ram: "-", rom: "-", kondisi: "Bekas" }, meta)}>
-                            🤖 AI Generate
+                            onClick={() => generateDesc(produk, meta)}>
+                            🤖 AI
                           </button>
                         </div>
                       </div>
                       {/* Foto */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-                        {photos.slice(0, 3).map((url, i) => (
-                          <img key={i} src={url} alt="" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid #E2E8F0" }} />
-                        ))}
-                        <label style={{ ...c.btn("secondary"), fontSize: 10, cursor: "pointer", textAlign: "center" }}>
-                          📷 Foto
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center", flexShrink: 0 }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center", maxWidth: 130 }}>
+                          {photos.map((url, i) => (
+                            <div key={i} style={{ position: "relative" }}>
+                              <img src={url} alt="" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: "1px solid #E2E8F0" }} />
+                              <button
+                                onClick={() => saveMeta(produk.id, photos.filter((_, j) => j !== i), meta?.deskripsi || "")}
+                                style={{ position: "absolute", top: -4, right: -4, background: "#EF4444", color: "#fff", border: "none", borderRadius: "50%", width: 16, height: 16, fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <label style={{ ...c.btn("secondary"), fontSize: 11, cursor: "pointer", textAlign: "center", marginTop: 4 }}>
+                          📷 {photos.length > 0 ? "Tambah" : "Upload Foto"}
                           <input type="file" accept="image/*" multiple style={{ display: "none" }}
                             onChange={async (e) => {
                               const files = Array.from(e.target.files);
                               const urls = await Promise.all(files.map(uploadToCloudinary));
-                              await saveMeta(meta.kasir_id, [...photos, ...urls], meta.deskripsi || "");
+                              await saveMeta(produk.id, [...photos, ...urls], meta?.deskripsi || "");
                             }} />
                         </label>
                       </div>
@@ -2151,20 +2209,11 @@ const handleLogin = async () => {
                 );
               })}
 
-              {/* Form tambah produk baru (input manual kasir_id) */}
-              <div style={{ ...c.card(), border: "2px dashed #E2E8F0", marginTop: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#1E293B", marginBottom: 10 }}>➕ Tambah Produk Baru</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 8 }}>Masukkan ID produk dari kasir (angka), lalu simpan.</div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <input id="new-kasir-id" type="number" style={{ ...c.input, flex: 1 }} placeholder="ID Produk Kasir (misal: 123456789)" />
-                  <button style={c.btn("primary")} onClick={() => {
-                    const val = document.getElementById("new-kasir-id").value;
-                    if (!val) return alert("Masukkan ID produk kasir.");
-                    saveMeta(parseInt(val), [], "");
-                    document.getElementById("new-kasir-id").value = "";
-                  }}>Tambah</button>
+              {!kasirProdukLoading && produkFiltered.length === 0 && kasirProdukList.length > 0 && (
+                <div style={{ textAlign: "center", color: "#94A3B8", fontSize: 13, padding: 20 }}>
+                  Tidak ada produk yang cocok dengan pencarian.
                 </div>
-              </div>
+              )}
             </div>
           );
         })()}
