@@ -2065,20 +2065,16 @@ const handleLogin = async () => {
 
         {/* ===== FOTO & DESKRIPSI PRODUK KASIR ===== */}
         {activeTab === "foto-produk" && currentUser?.role === "admin" && (() => {
-          const KASIR_URL = process.env.NEXT_PUBLIC_KASIR_KP_URL || "";
-          const KASIR_KEY = process.env.NEXT_PUBLIC_KASIR_KP_KEY || "";
+          const KASIR_URL = process.env.NEXT_PUBLIC_KASIR_KP_URL || ""; // dipakai untuk metaMap lookup
 
-          // Fetch produk dari storefront kasir kalau belum ada
+          // Fetch produk lewat proxy server-side (hindari CORS)
           const loadKasirProduk = async () => {
-            if (!KASIR_URL || !KASIR_KEY) return;
             setKasirProdukLoading(true);
             try {
-              const res = await fetch(`${KASIR_URL}/api/storefront`, {
-                headers: { "x-storefront-key": KASIR_KEY },
-                cache: "no-store",
-              });
+              const res = await fetch(`/api/kasir-produk`, { cache: "no-store" });
               const data = await res.json();
-              setKasirProdukList(data.produk || []);
+              if (data.ok) setKasirProdukList(data.produk || []);
+              else console.error("Kasir error:", data.error);
             } catch(e) { console.error("Gagal load kasir:", e); }
             setKasirProdukLoading(false);
           };
