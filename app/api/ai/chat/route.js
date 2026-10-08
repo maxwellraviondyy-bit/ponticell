@@ -63,9 +63,11 @@ ATURAN UMUM:
 - Selalu akhiri dengan ajakan chat WhatsApp ke 6283808484969
 - Jangan sebut produk yang tidak ada di stok`;
 
+    // Batasi history ke 4 pesan terakhir supaya tidak over token limit
+    const recentHistory = history.slice(-4);
     const messages = [
       { role: "system", content: systemPrompt },
-      ...history.map(h => ({ role: h.role, content: h.content })),
+      ...recentHistory.map(h => ({ role: h.role, content: h.content })),
       { role: "user", content: message }
     ];
 
