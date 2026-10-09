@@ -1816,7 +1816,7 @@ const handleLogin = async () => {
           };
 
           const CABANG_LIST = ["KP", "Jawi", "Kobar", "Jeruju"];
-          const BRAND_LIST = ["Samsung", "Xiaomi", "Oppo", "Vivo", "Realme", "Apple", "Infinix", "Tecno", "Itel", "Advan"];
+          const BRAND_LIST = ["Samsung", "Xiaomi", "Redmi", "Oppo", "Vivo", "Realme", "Apple", "Infinix", "Tecno", "Itel", "Advan", "Nubia", "Motorola", "Honor", "Nokia", "Poco"];
 
           return (
             <div>

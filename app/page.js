@@ -69,6 +69,9 @@ const BRAND_MAP = {
   "honor":  "Honor",
   // Infinix
   "infinix": "Infinix",
+  // Nubia / ZTE
+  "nubia": "Nubia",
+  "zte":   "Nubia",
   // Tecno
   "tecno": "Tecno",
   // Asus
