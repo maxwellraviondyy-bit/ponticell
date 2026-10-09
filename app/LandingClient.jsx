@@ -36,6 +36,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
   const [wishlisted, setWishlisted] = useState({});
   const [priceRange, setPriceRange] = useState([0, 0]);
   const [priceFilter, setPriceFilter] = useState([0, 0]);
+  const [urutan, setUrutan] = useState("stok");
 
   const allProducts = [...hp, ...tablet];
   const products = activeTab === "hp" ? hp : tablet;
@@ -127,6 +128,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       && (selectedRam === "Semua" || p.ram === selectedRam)
       && (selectedKondisi === "Semua" || p.condition === selectedKondisi)
       && inPriceRange;
+  }).sort((a, b) => {
+    if (urutan === "stok") return (Number(b.stock) || 0) - (Number(a.stock) || 0);
+    if (urutan === "harga_murah") return Number(a.sell_price) - Number(b.sell_price);
+    if (urutan === "harga_mahal") return Number(b.sell_price) - Number(a.sell_price);
+    if (urutan === "terlaris") return (Number(b.sold_count) || 0) - (Number(a.sold_count) || 0);
+    return 0;
   });
 
   const handleWishlist = (e, product) => {
@@ -444,9 +451,20 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text }}>Semua Produk</div>
             <div style={{ fontSize: 13, color: G.gray, marginTop: 2 }}>{filtered.length} produk tersedia</div>
           </div>
-          <input style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", width: 200, boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
-            placeholder="🔍 Cari produk..."
-            value={search} onChange={e => setSearch(e.target.value)} />
+          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <select
+              value={urutan}
+              onChange={e => setUrutan(e.target.value)}
+              style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>
+              <option value="stok">📦 Stok Terbanyak</option>
+              <option value="terlaris">🔥 Terlaris</option>
+              <option value="harga_murah">💰 Harga Termurah</option>
+              <option value="harga_mahal">💎 Harga Termahal</option>
+            </select>
+            <input style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", width: 180, boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
+              placeholder="🔍 Cari produk..."
+              value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
         </div>
 
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
