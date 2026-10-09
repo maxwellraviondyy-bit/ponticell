@@ -360,55 +360,45 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           </div>
         </div>
       ) : (
-        // Fallback gradient hero jika belum ada banner
-        <div style={{ minHeight: "75vh", background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "110px 20px 40px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "10%", right: "-60px", width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: "15%", left: "-40px", width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
-            {["🔒 Transaksi Aman", "✅ Produk Original & Bergaransi", "📍 Pontianak & Sekitarnya", "💬 CS Siap Membantu"].map(b => (
-              <span key={b} style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: "rgba(255,255,255,0.9)" }}>{b}</span>
-            ))}
-          </div>
-          <h1 style={{ fontSize: "clamp(28px, 6vw, 60px)", fontWeight: 900, color: G.white, lineHeight: 1.1, margin: "0 0 14px" }}>
-            {infoNama || "PontiCell"}<br /><span style={{ color: "#90CAF9" }}>Terpercaya</span> di Pontianak
-          </h1>
-          <p style={{ fontSize: "clamp(13px, 2vw, 17px)", color: "rgba(255,255,255,0.75)", marginBottom: 36, maxWidth: 480 }}>{infoTagline}</p>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 32px", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}
-              onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>🛍️ Lihat Produk</button>
-            <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
-              style={{ background: "rgba(255,255,255,0.15)", color: G.white, border: "1px solid rgba(255,255,255,0.3)", borderRadius: 12, padding: "14px 32px", fontSize: 15, fontWeight: 800, textDecoration: "none" }}>💬 WhatsApp</a>
-          </div>
-          <div style={{ display: "flex", gap: 14, marginTop: 52, flexWrap: "wrap", justifyContent: "center" }}>
-
-            { /* Animated counters */ }
-            <div ref={statsRef} style={{ display: "contents" }}>
-            {[
-              { icon: "📦", v: counterVals.terjual >= 1000 ? "1.000+" : counterVals.terjual.toString(), l: "Unit Terjual" },
-              { icon: "⭐", v: counterVals.rating >= 4.9 ? "4.9/5" : counterVals.rating.toFixed(1) + "/5", l: "Rating Pembeli" },
-              { icon: "🏪", v: counterVals.cabang >= 5 ? "5+" : counterVals.cabang.toString(), l: "Cabang Resmi" },
-              { icon: "🛡️", v: "14 Hari", l: "Garansi Toko" },
-            ].map(s => (
-              <div key={s.l} className="stat-card" style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "16px 20px", textAlign: "center", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.2)", minWidth: 90, cursor: "default" }}>
-                <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: G.white, marginBottom: 2, transition: "all 0.1s" }}>{s.v}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{s.l}</div>
+        // Fallback compact hero jika belum ada banner
+        <div style={{ background: `linear-gradient(135deg, ${G.blueDark} 0%, ${G.blue} 100%)`, padding: "100px 20px 32px", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "-30px", right: "-40px", width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: "-20px", left: "-30px", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+            {/* Kiri: nama + tagline + CTA */}
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                {["🔒 Aman", "✅ Original", "🛡️ Garansi 14 Hari"].map(b => (
+                  <span key={b} style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "4px 12px", fontSize: 11, color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>{b}</span>
+                ))}
               </div>
-            ))}
+              <h1 style={{ fontSize: "clamp(22px, 5vw, 42px)", fontWeight: 900, color: G.white, lineHeight: 1.15, margin: "0 0 8px" }}>
+                {infoNama || "PontiCell"}<br /><span style={{ color: "#90CAF9" }}>Terpercaya</span> di Pontianak
+              </h1>
+              <p style={{ fontSize: "clamp(12px, 1.8vw, 15px)", color: "rgba(255,255,255,0.75)", marginBottom: 20, maxWidth: 400 }}>{infoTagline || "Gadget Store Terbaik Pontianak"}</p>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button style={{ background: G.white, color: G.blue, border: "none", borderRadius: 10, padding: "11px 24px", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}
+                  onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>🛍️ Lihat Produk</button>
+                <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
+                  style={{ background: "#25D366", color: G.white, border: "none", borderRadius: 10, padding: "11px 24px", fontSize: 14, fontWeight: 800, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}>💬 WhatsApp</a>
+              </div>
+            </div>
+            {/* Kanan: stats compact */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
+              {[
+                { icon: "📦", v: counterVals.terjual >= 1000 ? "1.000+" : counterVals.terjual.toString(), l: "Terjual" },
+                { icon: "⭐", v: counterVals.rating >= 4.9 ? "4.9/5" : counterVals.rating.toFixed(1), l: "Rating" },
+                { icon: "🏪", v: counterVals.cabang >= 5 ? "5+" : counterVals.cabang.toString(), l: "Cabang" },
+                { icon: "🛡️", v: "14hr", l: "Garansi" },
+              ].map(s => (
+                <div key={s.l} className="stat-card" style={{ background: "rgba(255,255,255,0.12)", borderRadius: 12, padding: "12px 16px", textAlign: "center", border: "1px solid rgba(255,255,255,0.2)", minWidth: 70 }}>
+                  <div style={{ fontSize: 18, marginBottom: 2 }}>{s.icon}</div>
+                  <div style={{ fontSize: 17, fontWeight: 900, color: G.white }}>{s.v}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>{s.l}</div>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Tombol Lihat Testimoni */}
-          <div style={{ marginTop: 32, textAlign: "center" }}>
-            <button
-              onClick={() => document.getElementById("testimoni-section")?.scrollIntoView({ behavior: "smooth" })}
-              style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "13px 28px", background: "rgba(255,255,255,0.12)", border: "1.5px solid rgba(255,255,255,0.4)", borderRadius: 40, color: G.white, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", backdropFilter: "blur(8px)" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.transform = ""; }}>
-              ⭐ Lihat Apa Kata Pelanggan Kami &nbsp;↓
-            </button>
-          </div>
-
         </div>
       )}
 
