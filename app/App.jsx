@@ -1872,7 +1872,7 @@ const handleLogin = async () => {
                   ))}
                   <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 110, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
                     <span style={{ fontSize: 28 }}>+</span>
-                    <span style={{ fontSize: 11, color: "#64748B" }}>Upload Banner Desktop</span>
+                    <span style={{ fontSize: 11, color: "#64748B" }}>Upload Banner</span>
                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner_desktop", "banner_desktop_" + Date.now(), konten.filter(k=>k.kategori==="banner_desktop").length); e.target.value = ""; }} />
                   </label>
                 </div>

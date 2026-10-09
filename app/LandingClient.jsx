@@ -329,33 +329,36 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
       {/* Hero - Banner atau gradient */}
       {/* eslint-disable-next-line */}
-      {(banners.length > 0 || bannersMobile.length > 0) ? (
+      {banners.length > 0 ? (
+        <div>
           <div className="banner-hero" style={{ marginTop: 86, position: "relative", overflow: "hidden" }}>
-
-            {/* Desktop images - shown on screen >= 768px */}
-            {(banners.length > 0 ? banners : bannersMobile).map((src, i) => (
-              <img key={"d"+i} src={src} alt={"banner "+(i+1)} className="banner-desktop"
+            {banners.map((src, i) => (
+              <img key={i} src={src} alt={"banner "+(i+1)}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
             ))}
-
-            {/* Mobile images - shown on screen < 768px */}
-            {(bannersMobile.length > 0 ? bannersMobile : banners).map((src, i) => (
-              <img key={"m"+i} src={src} alt={"banner mobile "+(i+1)} className="banner-mobile"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
-            ))}
-
-            {/* Dots indicator only - no overlay, no text on banner */}
-
-            {/* Dots indicator */}
-            {(banners.length > 0 ? banners.length : bannersMobile.length) > 1 && (
-              <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6, zIndex: 10 }}>
-                {Array.from({ length: banners.length > 0 ? banners.length : bannersMobile.length }).map((_, i) => (
+            {banners.length > 1 && (
+              <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6, zIndex: 10 }}>
+                {banners.map((_, i) => (
                   <div key={i} onClick={() => setBannerIdx(i)}
                     style={{ width: i === bannerIdx ? 20 : 6, height: 6, borderRadius: 3, background: i === bannerIdx ? G.white : "rgba(255,255,255,0.5)", cursor: "pointer", transition: "all 0.3s" }} />
                 ))}
               </div>
             )}
           </div>
+          {/* Info toko di bawah banner */}
+          <div style={{ background: G.white, borderBottom: `1px solid ${G.border}`, padding: "18px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: G.text }}>{infoNama || "PontiCell"}</div>
+              <div style={{ fontSize: 13, color: G.gray, marginTop: 2 }}>{infoTagline}</div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: G.white, border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}
+                onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>🛍️ Lihat Produk</button>
+              <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
+                style={{ background: "#25D366", color: G.white, borderRadius: 10, padding: "10px 20px", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>💬 WhatsApp</a>
+            </div>
+          </div>
+        </div>
       ) : (
         // Fallback gradient hero jika belum ada banner
         <div style={{ minHeight: "75vh", background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "110px 20px 40px", position: "relative", overflow: "hidden" }}>
