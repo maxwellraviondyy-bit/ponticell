@@ -882,8 +882,7 @@ const handleLogin = async () => {
       <div style={c.nav}>
         {[
           ...(currentUser ? [["dashboard", <BarChart3 size={16} />, "Dashboard"]] : []),
-          ["hp", <Smartphone size={16} />, "HP"],
-          ["tablet", <Tablet size={16} />, "Tablet"],
+          // Tab HP, Tablet, Terjual, Aktivitas disembunyikan — stok dikelola dari kasir
           ["testimoni", <Star size={16} />, "Testimoni"],
           ...(currentUser ? [
             ["pesanan", (
@@ -896,9 +895,7 @@ const handleLogin = async () => {
                 )}
               </span>
             ), "Pesanan"],
-            ["terjual", <Tag size={16} />, "Terjual"],
             ...(currentUser.role === "admin" ? [
-              ["aktivitas", <ClipboardList size={16} />, "Aktivitas"],
               ["finance", <Wallet size={16} />, "Finance"],
               ["konten", <span style={{fontSize:14}}>🖼️</span>, "Konten"],
               ["foto-produk", <span style={{fontSize:14}}>📸</span>, "Foto Produk"],
