@@ -686,10 +686,10 @@ const handleLogin = async () => {
 
   const c = {
     app: { fontFamily: "'Sora', sans-serif", background: "#F8FAFC", minHeight: "100vh", color: "#1E293B" },
-    header: { background: "#1E293B", borderBottom: "1px solid #334155", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" },
+    header: { background: "#111827", borderBottom: "1px solid #1F2937", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 0 rgba(255,255,255,0.05)" },
     liveDot: { width: 7, height: 7, borderRadius: "50%", background: pulse ? "#C9A227" : "#E8C158", boxShadow: pulse ? "0 0 10px #C9A227" : "none", transition: "all 0.3s" },
-    nav: { display: "flex", gap: 2, padding: "8px 12px", background: "#FFFFFF", borderBottom: "1px solid #E2E8F0", overflowX: "auto" },
-    navBtn: (active) => ({ padding: "10px 18px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Sora', sans-serif", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, background: active ? "#C9A227" : "transparent", color: active ? "#fff" : "#64748B" }),
+    nav: { display: "flex", gap: 2, padding: "6px 12px", background: "#1F2937", borderBottom: "1px solid #374151", overflowX: "auto" },
+    navBtn: (active) => ({ padding: "9px 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Sora', sans-serif", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, background: active ? "#C9A227" : "transparent", color: active ? "#fff" : "#9CA3AF" }),
     main: { padding: "14px", maxWidth: 1100, margin: "0 auto" },
     sectionTitle: { fontSize: 11, fontWeight: 700, color: "#94A3B8", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 },
     card: () => ({ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }),
@@ -856,7 +856,7 @@ const handleLogin = async () => {
 
       {/* LIVE indicator - pojok kanan atas */}
       <div
-        style={{ position: "fixed", top: 10, right: 12, zIndex: 200, display:"flex", alignItems:"center", gap:5, background:"#FBF3DD", padding:"4px 10px", borderRadius:20, border:"1px solid #EAD9A8", cursor:"default", userSelect:"none", boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}
+        style={{ position: "fixed", top: 10, right: 12, zIndex: 200, display:"flex", alignItems:"center", gap:5, background:"rgba(201,162,39,0.15)", padding:"4px 10px", borderRadius:20, border:"1px solid rgba(201,162,39,0.3)", cursor:"default", userSelect:"none" }}
         onClick={() => {
           if (currentUser) return;
           const newCount = liveTapCount + 1;
