@@ -45,9 +45,9 @@ const BRAND_MAP = {
   "moto":     "Motorola",
   "motopad":  "Motorola",
   // Apple
-  "apple":  "Apple",
-  "iphone": "Apple",
-  "ipad":   "Apple",
+  "apple":  "iPhone",
+  "iphone": "iPhone",
+  "ipad":   "iPhone",
   // Xiaomi / Redmi / Poco
   "xiaomi": "Xiaomi",
   "redmi":  "Redmi",
