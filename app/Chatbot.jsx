@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 const G = {
   blue: "#1565C0", blueLight: "#1E88E5", blueDark: "#0D47A1",
   white: "#FFFFFF", gray: "#64748B", grayLight: "#F1F5F9",
-  border: "#E2E8F0", text: "#0F172A",
+  border: "#E2E8F0", text: "#0F172A", green: "#16A34A",
 };
 
 const SUGGESTIONS = [
@@ -13,6 +13,64 @@ const SUGGESTIONS = [
   "Ada iPhone second murah?",
   "HP kamera bagus harga terjangkau?",
 ];
+
+// Ekstrak link WA dari teks pesan
+function extractWaLink(text) {
+  const match = text.match(/wa\.me\/(\d+)(\?text=[^\s)]+)?/);
+  if (!match) return null;
+  return "https://" + match[0];
+}
+
+// Render pesan dengan tombol WA jika ada link
+function MessageBubble({ content, isUser, waNumber }) {
+  const waLink = !isUser ? extractWaLink(content) : null;
+  // Bersihkan teks dari URL wa.me agar tidak dobel tampil
+  const cleanText = content.replace(/👉\s*https?:\/\/wa\.me\/\S+/g, "").replace(/https?:\/\/wa\.me\/\S+/g, "").trim();
+
+  return (
+    <div style={{ maxWidth: "82%", display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{
+        padding: "10px 14px",
+        borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+        background: isUser ? `linear-gradient(135deg, ${G.blue}, ${G.blueLight})` : G.grayLight,
+        color: isUser ? G.white : G.text,
+        fontSize: 13,
+        lineHeight: 1.6,
+        whiteSpace: "pre-wrap",
+      }}>
+        {cleanText}
+      </div>
+      {waLink && (
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#25D366",
+            color: G.white,
+            padding: "9px 14px",
+            borderRadius: 12,
+            fontSize: 12,
+            fontWeight: 700,
+            textDecoration: "none",
+            fontFamily: "inherit",
+            boxShadow: "0 2px 8px rgba(37,211,102,0.35)",
+            transition: "opacity 0.15s",
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = "0.9"}
+          onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+        >
+          <span style={{ fontSize: 16 }}>💬</span>
+          Chat WhatsApp Sekarang
+          <span style={{ marginLeft: "auto", fontSize: 11, opacity: 0.85 }}>→</span>
+        </a>
+      )}
+    </div>
+  );
+}
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -23,13 +81,14 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [unread, setUnread] = useState(0);
   const [botName, setBotName] = useState("Asisten PontiCell");
+  const [waNumber, setWaNumber] = useState("6283808484969");
   const [initialized, setInitialized] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (open) {
       setUnread(0);
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     }
   }, [open, messages]);
 
@@ -43,7 +102,8 @@ export default function Chatbot() {
       body: JSON.stringify({ message: "__init__", history: [] }),
     }).then(r => r.json()).then(data => {
       if (data.botName) setBotName(data.botName);
-      const greeting = data.greeting || `Halo! 👋 Saya ${data.botName || "Asisten PontiCell"}. Tanya saya soal HP atau Tablet yang kamu cari!`;
+      if (data.waNumber) setWaNumber(data.waNumber);
+      const greeting = data.greeting || `Halo! 👋 Saya ${data.botName || "Asisten PontiCell"}. Mau cari HP apa hari ini?`;
       setMessages([{ role: "assistant", content: greeting }]);
     }).catch(() => {});
   }, []);
@@ -66,6 +126,7 @@ export default function Chatbot() {
       });
       const data = await res.json();
       if (data.botName) setBotName(data.botName);
+      if (data.waNumber) setWaNumber(data.waNumber);
       setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
       if (!open) setUnread(n => n + 1);
     } catch {
@@ -78,33 +139,38 @@ export default function Chatbot() {
     <>
       {/* Chat Window */}
       {open && (
-        <div style={{ position: "fixed", bottom: 88, right: 20, width: 340, maxWidth: "calc(100vw - 40px)", height: 480, background: G.white, borderRadius: 20, boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: `1px solid ${G.border}`, display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
-          
+        <div style={{ position: "fixed", bottom: 88, right: 20, width: 345, maxWidth: "calc(100vw - 32px)", height: 500, background: G.white, borderRadius: 20, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: `1px solid ${G.border}`, display: "flex", flexDirection: "column", zIndex: 999, overflow: "hidden" }}>
+
           {/* Header */}
-          <div style={{ background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ background: `linear-gradient(135deg, ${G.blueDark}, ${G.blue})`, padding: "13px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 36, height: 36, background: "rgba(255,255,255,0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🤖</div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: G.white }}>{botName}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", display: "flex", alignItems: "center", gap: 4 }}>
                   <span style={{ width: 6, height: 6, background: "#4ADE80", borderRadius: "50%", display: "inline-block" }} />
-                  Online sekarang
+                  Siap bantu closing 24/7
                 </div>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: G.white, borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                title="Chat WA Langsung"
+                style={{ background: "#25D366", border: "none", color: G.white, borderRadius: 20, padding: "5px 10px", cursor: "pointer", fontSize: 11, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
+                💬 WA
+              </a>
+              <button onClick={() => setOpen(false)} style={{ background: "rgba(255,255,255,0.2)", border: "none", color: G.white, borderRadius: "50%", width: 28, height: 28, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ flex: 1, overflowY: "auto", padding: "14px 12px 8px", display: "flex", flexDirection: "column", gap: 12 }}>
             {messages.map((m, i) => (
               <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start", gap: 8, alignItems: "flex-end" }}>
                 {m.role === "assistant" && (
                   <div style={{ width: 28, height: 28, background: G.blueLight, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>🤖</div>
                 )}
-                <div style={{ maxWidth: "80%", padding: "10px 14px", borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px", background: m.role === "user" ? `linear-gradient(135deg, ${G.blue}, ${G.blueLight})` : G.grayLight, color: m.role === "user" ? G.white : G.text, fontSize: 13, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                  {m.content}
-                </div>
+                <MessageBubble content={m.content} isUser={m.role === "user"} waNumber={waNumber} />
               </div>
             ))}
             {loading && (
@@ -120,7 +186,7 @@ export default function Chatbot() {
 
           {/* Quick suggestions - show only at start */}
           {messages.length === 1 && (
-            <div style={{ padding: "0 12px 8px", display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <div style={{ padding: "0 10px 6px", display: "flex", gap: 6, flexWrap: "wrap", flexShrink: 0 }}>
               {SUGGESTIONS.map(s => (
                 <button key={s} onClick={() => sendMessage(s)}
                   style={{ padding: "5px 10px", background: G.white, border: `1px solid ${G.blue}`, borderRadius: 14, fontSize: 11, color: G.blue, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
@@ -131,12 +197,12 @@ export default function Chatbot() {
           )}
 
           {/* Input */}
-          <div style={{ padding: "8px 12px 12px", borderTop: `1px solid ${G.border}`, display: "flex", gap: 8 }}>
+          <div style={{ padding: "8px 10px 10px", borderTop: `1px solid ${G.border}`, display: "flex", gap: 6, flexShrink: 0 }}>
             <input
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              placeholder="Tanya produk..."
+              placeholder="Ketik budget atau kebutuhan HP kamu..."
               style={{ flex: 1, padding: "10px 14px", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 20, fontSize: 13, fontFamily: "inherit", outline: "none", color: G.text }}
             />
             <button onClick={() => sendMessage()}
@@ -161,8 +227,8 @@ export default function Chatbot() {
         </button>
         {!open && (
           <div onClick={() => setOpen(true)} style={{ background: G.white, borderRadius: 20, padding: "10px 16px", boxShadow: "0 4px 20px rgba(0,0,0,0.12)", cursor: "pointer", animation: "fadeInLeft 0.5s ease", border: `1px solid ${G.border}` }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: G.text, whiteSpace: "nowrap" }}>Ada pertanyaan?</div>
-            <div style={{ fontSize: 11, color: G.blue, fontWeight: 600 }}>Tanya aku aja! 👋</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: G.text, whiteSpace: "nowrap" }}>Cari HP? Tanya dulu! 🔥</div>
+            <div style={{ fontSize: 11, color: G.blue, fontWeight: 600 }}>Dapat rekomendasi langsung!</div>
           </div>
         )}
       </div>

@@ -12,7 +12,8 @@ export async function POST(req) {
 
     const [kasirRes, robotSettings] = await Promise.all([
       kasirUrl && kasirKey
-        ? fetch(`${kasirUrl}/api/storefront`, { headers: { "x-storefront-key": kasirKey }, cache: "no-store" }).then(r => r.json()).catch(() => ({ produk: [] }))
+        ? fetch(`${kasirUrl}/api/storefront`, { headers: { "x-storefront-key": kasirKey }, cache: "no-store" })
+            .then(r => r.json()).catch(() => ({ produk: [] }))
         : Promise.resolve({ produk: [] }),
       sql`SELECT kunci, nilai FROM konten WHERE kategori = 'robot'`,
     ]);
@@ -21,54 +22,95 @@ export async function POST(req) {
     const settings = {};
     robotSettings.forEach(r => { settings[r.kunci] = r.nilai; });
 
-    const namaBot = settings.robot_nama || "Asisten PontiCell";
-    const gayaBahasa = settings.robot_gaya || "santai";
-    const pesanWillcome = settings.robot_salam || "";
-    const instruksi = settings.robot_instruksi || "";
-    const promo = settings.robot_promo || "";
-    const larangan = settings.robot_larangan || "";
+    const namaBot    = settings.robot_nama      || "Asisten PontiCell";
+    const gayaBahasa = settings.robot_gaya      || "santai";
+    const pesanWillcome = settings.robot_salam  || "";
+    const instruksi  = settings.robot_instruksi || "";
+    const promo      = settings.robot_promo     || "";
+    const larangan   = settings.robot_larangan  || "";
+    const waNumber   = settings.robot_wa        || "6283808484969";
 
-    // Produk dari kasir — format ringkas supaya tidak melebihi rate limit token
+    // Produk dari kasir — format lebih kaya untuk konteks AI
     const kasirProduk = kasirRes.produk || [];
     const productList = kasirProduk.map(p => {
-      const harga = Math.round(Number(p.harga_jual) / 1000) + "rb";
-      const ram = p.ram ? `${p.ram}` : "";
+      const harga = Number(p.harga_jual || 0);
+      const hargaFmt = harga >= 1000000
+        ? (harga / 1000000).toFixed(1).replace(".0","") + " juta"
+        : Math.round(harga / 1000) + "rb";
+      const ram = p.ram ? `RAM${p.ram}` : "";
       const rom = p.rom ? `/${p.rom}` : "";
-      const cond = p.kondisi === "Baru" ? "B" : "Bks";
-      return `${p.nama}${ram ? ` ${ram}${rom}` : ""} ${cond} ${harga}`;
-    }).join(", ");
+      const cond = p.kondisi === "Baru" ? "Baru" : "Second";
+      const stok = p.stok ? (Number(p.stok) <= 2 ? ` ⚠️STOK ${p.stok}` : "") : "";
+      return `• ${p.nama}${ram ? ` ${ram}${rom}` : ""} [${cond}] Rp${hargaFmt}${stok}`;
+    }).join("\n");
 
-    // Build system prompt from settings
     const gayaInstruksi = {
-      santai: "Gunakan bahasa Indonesia yang ramah, santai, dan bersahabat. Boleh pakai kata 'kamu', 'aku'.",
-      formal: "Gunakan bahasa Indonesia yang formal dan profesional. Pakai 'Anda' dan 'Saya'.",
-      gaul: "Gunakan bahasa gaul yang kekinian tapi tetap sopan. Boleh pakai emoji sesekali.",
-    }[gayaBahasa] || "Gunakan bahasa Indonesia yang ramah.";
+      santai: "Bahasa Indonesia ramah, santai, akrab. Boleh 'kamu/aku'. Sesekali emoji.",
+      formal: "Bahasa Indonesia formal profesional. Pakai 'Anda/Saya'.",
+      gaul:   "Bahasa gaul kekinian, energik, tapi tetap sopan. Bebas emoji.",
+    }[gayaBahasa] || "Bahasa Indonesia ramah.";
 
-    const systemPrompt = `Kamu adalah ${namaBot}, asisten toko PontiCell di Pontianak.
+    // ─── SYSTEM PROMPT SALES CLOSER ─────────────────────────────────────────
+    const systemPrompt = `Kamu adalah ${namaBot} — sales specialist handal PontiCell, toko HP & tablet di Pontianak.
+Tugasmu BUKAN hanya menjawab pertanyaan. Tugasmu adalah MENUTUP PENJUALAN (closing) setiap percakapan.
 
-GAYA BAHASA: ${gayaInstruksi}
+GAYA: ${gayaInstruksi}
 
-PRODUK TERSEDIA:
-${productList || "Stok sedang kosong."}
+═══ STOK TERSEDIA ═══
+${productList || "Hubungi kami untuk info stok terkini."}
 
-${promo ? `PROMO & KEUNGGULAN TOKO:\n${promo}\n` : ""}
-${instruksi ? `INSTRUKSI KHUSUS:\n${instruksi}\n` : ""}
-${larangan ? `YANG TIDAK BOLEH DIJAWAB/DILAKUKAN:\n${larangan}\n` : ""}
+${promo ? `═══ PROMO & KEUNGGULAN ═══\n${promo}\n` : ""}
+${instruksi ? `═══ INSTRUKSI KHUSUS ═══\n${instruksi}\n` : ""}
+${larangan ? `═══ DILARANG ═══\n${larangan}\n` : ""}
 
-ATURAN UMUM:
-- Jawab singkat dan padat (maksimal 150 kata)
-- Rekomendasikan produk yang sesuai kebutuhan dan budget pembeli
-- Jika tidak ada produk yang cocok, sarankan yang terdekat
-- Selalu akhiri dengan ajakan chat WhatsApp ke 6283808484969
-- Jangan sebut produk yang tidak ada di stok`;
+═══ PANDUAN SALES CLOSING ═══
 
-    // Batasi history ke 4 pesan terakhir supaya tidak over token limit
-    const recentHistory = history.slice(-4);
+FASE 1 — KENALI KEBUTUHAN:
+- Jika customer menyebut budget → langsung rekomendasikan 2-3 produk dari stok yang cocok
+- Jika customer menyebut kebutuhan (gaming, kamera, kerja) → rekomendasikan berdasarkan spesifikasi yang relevan
+- Jika tidak ada produk yang pas → rekomendasikan yang paling mendekati + jelaskan kenapa masih worth it
+
+FASE 2 — BANGUN KEYAKINAN:
+- Sebutkan kondisi produk (Baru/Second) dengan jelas
+- Jika stok ⚠️ → buat urgensi: "stok tinggal sedikit, bisa habis hari ini"
+- Bandingkan value: "dibanding beli online, di sini bisa cek langsung + garansi toko"
+- Jika ada promo → selalu sebut sebagai alasan untuk beli sekarang
+
+FASE 3 — TANGANI KEBERATAN:
+- Harga mahal → "Bisa nego sedikit, langsung WA aja biar bisa diskusi harga terbaik"
+- Ragu kondisi → "Second kami sudah dicek teknisi, bisa test di tempat sebelum beli"
+- Mau pikir-pikir → "Stok terbatas, sayang kalau keduluan yang lain — mau saya sisihkan dulu?"
+
+FASE 4 — CLOSING (WAJIB di setiap respons setelah fase 1):
+SELALU akhiri dengan ajakan WA yang spesifik. Format:
+"👉 Langsung chat WA sekarang: wa.me/${waNumber}?text=Halo+mau+tanya+soal+[NAMA_PRODUK]"
+Ganti [NAMA_PRODUK] dengan produk yang dibahas. Jika belum tahu produk → gunakan "HP+yang+cocok+buat+saya"
+
+ATURAN PENTING:
+- Maksimal 180 kata per respons
+- Jangan sebut produk yang tidak ada di stok
+- Selalu spesifik (sebut nama produk, harga, kondisi)
+- Jangan pernah bilang "tergantung kebutuhan" tanpa langsung memberikan rekomendasi konkret
+- Jika ditanya hal di luar produk → alihkan ke produk + WA
+- Pada pesan ke-3 customer, tingkatkan urgensi dan dorong closing lebih kuat`;
+
+    // ─── HANDLE __init__ ─────────────────────────────────────────────────────
+    if (message === "__init__") {
+      return NextResponse.json({
+        reply: pesanWillcome || `Halo! 👋 Saya ${namaBot}, siap bantu kamu dapetin HP terbaik sesuai budget!\n\nMau cari HP apa hari ini? Kasih tau budget atau kebutuhannya ya! 😊`,
+        botName: namaBot,
+        greeting: pesanWillcome || `Halo! 👋 Saya ${namaBot}, siap bantu kamu dapetin HP terbaik sesuai budget!\n\nMau cari HP apa hari ini? Kasih tau budget atau kebutuhannya ya! 😊`,
+        waNumber,
+      });
+    }
+
+    // ─── BUILD MESSAGES ──────────────────────────────────────────────────────
+    // Batasi history ke 6 pesan — lebih banyak konteks untuk closing yang lebih baik
+    const recentHistory = history.slice(-6);
     const messages = [
       { role: "system", content: systemPrompt },
       ...recentHistory.map(h => ({ role: h.role, content: h.content })),
-      { role: "user", content: message }
+      { role: "user", content: message },
     ];
 
     const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -80,23 +122,31 @@ ATURAN UMUM:
       body: JSON.stringify({
         model: "qwen/qwen3.8-27b",
         messages,
-        max_tokens: 300,
-        temperature: 0.7,
+        max_tokens: 400,
+        temperature: 0.65, // sedikit lebih rendah = lebih konsisten dan fokus
       }),
     });
 
     if (!groqRes.ok) {
       const err = await groqRes.text();
       console.error("Groq error:", groqRes.status, err);
-      return NextResponse.json({ reply: "Maaf, saya sedang tidak bisa menjawab. Silakan chat WhatsApp kami di 6283808484969.", botName: namaBot });
+      return NextResponse.json({
+        reply: `Maaf, koneksi bermasalah. Langsung aja chat WA kami ya! 👉 wa.me/${waNumber}`,
+        botName: namaBot,
+        waNumber,
+      });
     }
 
     const data = await groqRes.json();
-    const reply = data.choices?.[0]?.message?.content || "Maaf, tidak ada jawaban.";
-    return NextResponse.json({ reply, botName: namaBot, greeting: pesanWillcome });
+    let reply = data.choices?.[0]?.message?.content || "Maaf, tidak ada jawaban.";
+
+    // Hapus thinking tags dari model reasoning jika ada
+    reply = reply.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+
+    return NextResponse.json({ reply, botName: namaBot, greeting: pesanWillcome, waNumber });
 
   } catch(e) {
     console.error("Chat error:", e);
-    return NextResponse.json({ reply: "Error: " + e.message, botName: "Asisten PontiCell" });
+    return NextResponse.json({ reply: "Error: " + e.message, botName: "Asisten PontiCell", waNumber: "6283808484969" });
   }
 }
