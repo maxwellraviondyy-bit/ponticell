@@ -29,7 +29,7 @@ const api = {
   del: (path, body) => fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
 };
 const BRANCHES = [
-  { id: "KP", name: "Cabang KP", city: "Pontianak", color: "#C9A227" },
+  { id: "KP", name: "Cabang KP", city: "ModernShop · Pontianak", color: "#C9A227" },
   { id: "SJ", name: "Cabang Jawi", city: "Pontianak", color: "#0EA5E9" },
   { id: "KB", name: "Cabang Kobar", city: "Pontianak", color: "#8B5CF6" },
   { id: "JJ", name: "Cabang Jeruju", city: "Pontianak", color: "#10B981" },
@@ -937,8 +937,8 @@ const handleLogin = async () => {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 20 }}>
               {[
                 { label: "Total Semua Stok", value: `${totalAllStock} unit`, icon: "📦", color: "#0EA5E9" },
-                { label: "Produk Aktif HP", value: `${inventory.filter(i=>i.type==="hp" && Object.values(i.stocks||{}).reduce((s,v)=>s+v,0)>0).length} model`, icon: "📱", color: "#8B5CF6", onClick: () => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
-                { label: "Produk Aktif Tablet", value: `${inventory.filter(i=>i.type==="tablet" && Object.values(i.stocks||{}).reduce((s,v)=>s+v,0)>0).length} model`, icon: "📟", color: "#10B981", onClick: () => { setActiveTab("tablet"); setProductType("tablet"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
+                { label: "Total Model HP", value: `${inventory.filter(i=>i.type==="hp").length} model`, icon: "📱", color: "#8B5CF6", onClick: () => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
+                { label: "Total Model Tablet", value: `${inventory.filter(i=>i.type==="tablet").length} model`, icon: "📟", color: "#10B981", onClick: () => { setActiveTab("tablet"); setProductType("tablet"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
               ].map((item) => (
                 <div key={item.label} style={{ ...c.card(), padding: 14, cursor: item.onClick ? "pointer" : "default" }}
                   onClick={item.onClick}
@@ -1945,11 +1945,16 @@ const handleLogin = async () => {
                 {/* Tombol pilih banyak foto */}
                 <div
                   onClick={() => testiFileRef.current?.click()}
-                  style={{ width: "100%", padding: "18px", background: "#F8FAFC", border: "2px dashed #E2E8F0", borderRadius: 12, marginBottom: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 6 }}
+                  style={{ width: "100%", padding: "14px 18px", background: "#F8FAFC", border: "2px dashed #CBD5E1", borderRadius: 12, marginBottom: 14, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 10, boxSizing: "border-box" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "#1565C0"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "#CBD5E1"}
                 >
-                  <div style={{ fontSize: 28 }}>📷</div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>Tap untuk pilih foto</div>
-                  <div style={{ fontSize: 11, color: "#94A3B8" }}>Bisa pilih banyak foto sekaligus</div>
+                  <div style={{ fontSize: 22 }}>📷</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#374151" }}>Pilih foto testimoni</div>
+                    <div style={{ fontSize: 11, color: "#94A3B8" }}>Bisa pilih banyak foto sekaligus</div>
+                  </div>
+                  <div style={{ marginLeft: "auto", background: "#1565C0", color: "#fff", fontSize: 11, fontWeight: 700, padding: "6px 14px", borderRadius: 8 }}>+ Pilih</div>
                 </div>
                 <input ref={testiFileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleTestiFotoChange} />
 
