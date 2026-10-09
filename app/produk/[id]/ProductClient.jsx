@@ -291,12 +291,25 @@ export default function ProductClient({ product, related }) {
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", background: wishlisted ? "#FEE2E2" : G.grayLight, border: `1px solid ${wishlisted ? "#EF4444" : G.border}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", color: wishlisted ? "#EF4444" : G.gray, transition: "all 0.2s" }}>
               {wishlisted ? "❤️ Disimpan" : "🤍 Simpan"}
             </button>
-            <span style={{ fontSize: 12, color: G.gray, fontWeight: 600 }}>Bagikan:</span>
-            <a href={`https://wa.me/?text=${encodeURIComponent("Cek " + product.brand + " " + product.model + " " + formatRp(product.sell_price) + " di PontiCell 👉 https://ponticell.vercel.app/produk/" + product.id)}`}
-              target="_blank" rel="noopener noreferrer"
-              style={{ background: "#25D366", color: "#fff", borderRadius: 8, padding: "5px 14px", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
-              🟢 WhatsApp
-            </a>
+            <button
+              onClick={async () => {
+                const shareUrl = `https://ponticell.vercel.app/produk/${product.id}`;
+                const shareText = `Cek ${product.brand} ${product.model} – ${formatRp(product.sell_price)} di PontiCell 👉 ${shareUrl}`;
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: `${product.brand} ${product.model}`,
+                      text: `${product.brand} ${product.model} – ${formatRp(product.sell_price)}`,
+                      url: shareUrl,
+                    });
+                  } catch (e) { /* dibatalkan user */ }
+                } else {
+                  window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+                }
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, color: "#fff", borderRadius: 8, padding: "7px 16px", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+              📤 Bagikan
+            </button>
           </div>
 
           {/* Tombol */}

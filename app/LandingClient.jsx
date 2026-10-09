@@ -288,9 +288,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
         {/* Search */}
         <div className="nav-search" style={{ position: "relative", maxWidth: 480, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "0 14px", height: 40, gap: 8 }}>
-            <span style={{ color: G.gray }}>🔍</span>
-            <input style={{ flex: 1, background: "none", border: "none", outline: "none", fontSize: 13, color: G.text, fontFamily: "inherit" }}
+          <div style={{ display: "flex", alignItems: "center", background: "#FFFFFF", border: `2px solid ${G.blue}`, borderRadius: 24, padding: "0 16px", height: 44, gap: 8, boxShadow: "0 2px 12px rgba(21,101,192,0.15)" }}>
+            <span style={{ color: G.blue, fontSize: 15 }}>🔍</span>
+            <input style={{ flex: 1, background: "none", border: "none", outline: "none", fontSize: 14, color: G.text, fontFamily: "inherit", fontWeight: 500 }}
               placeholder="Cari HP, Tablet, brand..."
               value={navSearch}
               onChange={e => setNavSearch(e.target.value)}
@@ -385,7 +385,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       ) : (
         // Fallback gradient hero jika belum ada banner
         <div style={{ minHeight: "75vh", background: `linear-gradient(160deg, ${G.blueDark} 0%, ${G.blue} 50%, ${G.blueLight} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", textAlign: "center", padding: "110px 20px 40px", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "15%", left: "5%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: "10%", right: "-60px", width: 240, height: 240, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: "15%", left: "-40px", width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", marginBottom: 28 }}>
             {["🔒 Transaksi Aman", "✅ Produk Original & Bergaransi", "📍 Pontianak & Sekitarnya", "💬 CS Siap Membantu"].map(b => (
               <span key={b} style={{ background: "rgba(255,255,255,0.15)", borderRadius: 20, padding: "6px 14px", fontSize: 12, color: "rgba(255,255,255,0.9)" }}>{b}</span>
