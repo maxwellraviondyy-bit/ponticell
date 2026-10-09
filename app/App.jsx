@@ -29,7 +29,7 @@ const api = {
   del: (path, body) => fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
 };
 const BRANCHES = [
-  { id: "KP", name: "Cabang KP", city: "ModernShop · Pontianak", color: "#C9A227" },
+  { id: "KP", name: "Cabang KP", city: "ModernShop · Pontianak", color: "#64748B" },
   { id: "SJ", name: "Cabang Jawi", city: "Pontianak", color: "#0EA5E9" },
   { id: "KB", name: "Cabang Kobar", city: "Pontianak", color: "#8B5CF6" },
   { id: "JJ", name: "Cabang Jeruju", city: "Pontianak", color: "#10B981" },
@@ -689,13 +689,13 @@ const handleLogin = async () => {
     header: { background: "#111827", borderBottom: "1px solid #1F2937", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 0 rgba(255,255,255,0.05)" },
     liveDot: { width: 7, height: 7, borderRadius: "50%", background: pulse ? "#C9A227" : "#E8C158", boxShadow: pulse ? "0 0 10px #C9A227" : "none", transition: "all 0.3s" },
     nav: { display: "flex", gap: 2, padding: "6px 12px", background: "#1F2937", borderBottom: "1px solid #374151", overflowX: "auto" },
-    navBtn: (active) => ({ padding: "9px 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Sora', sans-serif", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, background: active ? "#C9A227" : "transparent", color: active ? "#fff" : "#9CA3AF" }),
+    navBtn: (active) => ({ padding: "9px 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Sora', sans-serif", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, background: active ? "#E2E8F0" : "transparent", color: active ? "#0F172A" : "#9CA3AF" }),
     main: { padding: "14px", maxWidth: 1100, margin: "0 auto" },
     sectionTitle: { fontSize: 11, fontWeight: 700, color: "#94A3B8", letterSpacing: 2, textTransform: "uppercase", marginBottom: 14 },
     card: () => ({ background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 14, padding: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }),
     input: { width: "100%", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "10px 14px", color: "#1E293B", fontSize: 13, fontFamily: "'Sora', sans-serif", outline: "none", boxSizing: "border-box", marginBottom: 12 },
     label: { fontSize: 11, color: "#64748B", marginBottom: 5, display: "block", fontWeight: 600 },
-    btn: (v) => ({ padding: "10px 16px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "'Sora', sans-serif", background: v === "primary" ? "#C9A227" : v === "success" ? "#10B981" : v === "danger" ? "#EF4444" : v === "blue" ? "#0EA5E9" : v === "purple" ? "#8B5CF6" : "#F1F5F9", color: v === "ghost" ? "#64748B" : "#fff", whiteSpace: "nowrap" }),
+    btn: (v) => ({ padding: "10px 16px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "'Sora', sans-serif", background: v === "primary" ? "#334155" : v === "success" ? "#10B981" : v === "danger" ? "#EF4444" : v === "blue" ? "#0EA5E9" : v === "purple" ? "#8B5CF6" : "#F1F5F9", color: v === "ghost" ? "#64748B" : "#fff", whiteSpace: "nowrap" }),
     modal: { position: "fixed", inset: 0, background: "rgba(15,23,42,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 },
     modalBox: { background: "#FFFFFF", border: "1px solid #E2E8F0", borderRadius: 20, padding: 24, width: "100%", maxWidth: 460, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.15)" },
     badge: (color, bg, border) => ({ display: "inline-flex", alignItems: "center", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700, color, background: bg, border: `1px solid ${border || bg}` }),
@@ -765,7 +765,7 @@ const handleLogin = async () => {
               const pesan = `Halo, saya ingin membeli HP ${nama} seharga ${formatRupiah(item.sellPrice)}`;
               window.open(`https://wa.me/6283808484969?text=${encodeURIComponent(pesan)}`, "_blank");
             }}
-            style={{ width: "100%", marginTop: 8, padding: "8px", background: "#C9A227", border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}
+            style={{ width: "100%", marginTop: 8, padding: "8px", background: "#334155", border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Sora', sans-serif" }}
           >
             Beli Sekarang
           </button>
@@ -783,7 +783,7 @@ const handleLogin = async () => {
         <div style={c.modal} onClick={() => setShowLoginModal(false)}>
           <div style={{ background: "#fff", borderRadius: 24, padding: 28, width: "100%", maxWidth: 360, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
             <div style={{ textAlign: "center", marginBottom: 22 }}>
-              <div style={{ width: 56, height: 56, background: "linear-gradient(135deg, #E8C158, #C9A227)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 12px" }}>🔐</div>
+              <div style={{ width: 56, height: 56, background: "#334155", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 12px" }}>🔐</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: "#1E293B" }}>Login Staff</div>
               <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 3 }}>Masuk untuk mengedit data</div>
             </div>
@@ -809,7 +809,7 @@ const handleLogin = async () => {
             </div>
             {loginError && <div style={{ background: "#FEE2E2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 12px", marginBottom: 12, fontSize: 12, color: "#EF4444", textAlign: "center" }}>❌ {loginError}</div>}
             <button
-              style={{ width: "100%", padding: "12px", background: loginLockedUntil && Date.now() < loginLockedUntil ? "#94A3B8" : "linear-gradient(135deg, #E8C158, #C9A227)", border: "none", borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 700, cursor: loginLockedUntil && Date.now() < loginLockedUntil ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}
+              style={{ width: "100%", padding: "12px", background: loginLockedUntil && Date.now() < loginLockedUntil ? "#94A3B8" : "#334155", border: "none", borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 700, cursor: loginLockedUntil && Date.now() < loginLockedUntil ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}
               onClick={handleLogin}>
               {loginLockedUntil && Date.now() < loginLockedUntil ? "🔒 Login Diblokir" : "Masuk"}
             </button>
@@ -1419,7 +1419,7 @@ const handleLogin = async () => {
               <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 24 }}>Masukkan PIN untuk mengakses laporan keuangan</div>
               <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 16 }}>
                 {[0,1,2,3].map(i => (
-                  <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: financePinInput.length > i ? "#C9A227" : "#E2E8F0", transition: "all 0.2s" }} />
+                  <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: financePinInput.length > i ? "#334155" : "#E2E8F0", transition: "all 0.2s" }} />
                 ))}
               </div>
               {financePinError && <div style={{ fontSize: 12, color: "#EF4444", marginBottom: 12 }}>❌ PIN salah, coba lagi</div>}
@@ -1820,7 +1820,7 @@ const handleLogin = async () => {
             <div>
               {/* Header Manajemen */}
               <div style={{ background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)", borderRadius: 16, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ width: 48, height: 48, background: "linear-gradient(135deg, #E8C158, #C9A227)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🗂️</div>
+                <div style={{ width: 48, height: 48, background: "#334155", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🗂️</div>
                 <div>
                   <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>PontiCell · Website Manajemen</div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: "#F1F5F9" }}>Manajemen Konten</div>
@@ -1968,7 +1968,7 @@ const handleLogin = async () => {
                           <img src={item.preview} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: item.uploading ? 0.4 : 1 }} />
                           {item.uploading && (
                             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                              <div style={{ width: 20, height: 20, border: "2px solid #E2E8F0", borderTop: "2px solid #C9A227", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                              <div style={{ width: 20, height: 20, border: "2px solid #E2E8F0", borderTop: "2px solid #334155", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
                             </div>
                           )}
                           {item.error && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>❌</div>}
@@ -2230,7 +2230,7 @@ const handleLogin = async () => {
                   {photos.length > 1 && (
                     <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
                       {photos.map((p, i) => (
-                        <div key={i} onClick={() => setViewPhotoIndex(i)} style={{ width: 50, height: 50, borderRadius: 8, overflow: "hidden", cursor: "pointer", border: viewPhotoIndex === i ? "2px solid #C9A227" : "2px solid #E2E8F0" }}>
+                        <div key={i} onClick={() => setViewPhotoIndex(i)} style={{ width: 50, height: 50, borderRadius: 8, overflow: "hidden", cursor: "pointer", border: viewPhotoIndex === i ? "2px solid #334155" : "2px solid #E2E8F0" }}>
                           <img src={p} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         </div>
                       ))}
