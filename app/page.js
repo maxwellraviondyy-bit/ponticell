@@ -172,12 +172,18 @@ export default async function HomePage() {
   const semuaProdukKasir = kasirResults.flat();
   const produkLanding = semuaProdukKasir.map((p) => kasirProdukToLanding(p, metaMap));
 
-  // Semua produk dari kasir adalah HP (kasir kita memang toko HP)
-  // Filter: hanya tampilkan yang stok > 0 (sudah difilter di kasir, tapi double-check)
-  const hpList = produkLanding.filter(
-    (p) => Object.values(p.stocks).reduce((s, v) => s + v, 0) > 0
-  );
-  const tabletList = []; // Tablet bisa ditambahkan nanti kalau kasir punya kategori tablet
+  // Deteksi tablet dari nama produk: kata kunci yang khas tablet
+  // Cek di brand + model karena nama asli kasir sudah diparsing
+  const TABLET_KEYWORDS = ["tab", "pad", "ipad", "fold", "flip", "mediapad"];
+  function isTablet(p) {
+    const namaLengkap = `${p.brand} ${p.model}`.toLowerCase();
+    return TABLET_KEYWORDS.some(k => namaLengkap.includes(k));
+  }
+
+  // Pisahkan HP dan Tablet, filter hanya yang stok > 0
+  const adaStok = (p) => Object.values(p.stocks).reduce((s, v) => s + v, 0) > 0;
+  const hpList = produkLanding.filter(p => adaStok(p) && !isTablet(p));
+  const tabletList = produkLanding.filter(p => adaStok(p) && isTablet(p));
 
   // Konten & banner dari Ponticell DB (tetap sama)
   const bannerDesktop = [

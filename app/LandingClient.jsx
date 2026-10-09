@@ -22,6 +22,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
   const [navSearch, setNavSearch] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("Semua");
   const [selectedRam, setSelectedRam] = useState("Semua");
+  const [selectedKondisi, setSelectedKondisi] = useState("Semua");
   const [navSuggestions, setNavSuggestions] = useState([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -123,6 +124,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
     return (!q || p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q))
       && (selectedBrand === "Semua" || p.brand === selectedBrand)
       && (selectedRam === "Semua" || p.ram === selectedRam)
+      && (selectedKondisi === "Semua" || p.condition === selectedKondisi)
       && inPriceRange;
   });
 
@@ -144,6 +146,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
   const handleBrandClick = (brand) => {
     setSelectedBrand(brand);
+    setSelectedKondisi("Semua");
     setActiveTab(hp.some(p => p.brand === brand) ? "hp" : "tablet");
     document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" });
   };
@@ -479,7 +482,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           {[["hp", `📱 HP (${hp.length})`], ["tablet", `📟 Tablet (${tablet.length})`]].map(([t, l]) => (
-            <button key={t} onClick={() => { setActiveTab(t); setSelectedBrand("Semua"); setSelectedRam("Semua"); }}
+            <button key={t} onClick={() => { setActiveTab(t); setSelectedBrand("Semua"); setSelectedRam("Semua"); setSelectedKondisi("Semua"); }}
               style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: activeTab === t ? `linear-gradient(135deg, ${G.blue}, ${G.blueLight})` : G.white, color: activeTab === t ? G.white : G.gray, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: activeTab === t ? `0 4px 14px rgba(21,101,192,0.3)` : "0 2px 6px rgba(0,0,0,0.06)", transition: "all 0.2s" }}>
               {l}
             </button>
@@ -491,6 +494,17 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             <button key={b} onClick={() => setSelectedBrand(b)}
               style={{ padding: "5px 14px", borderRadius: 20, border: `1px solid ${selectedBrand === b ? G.blue : G.border}`, background: selectedBrand === b ? G.blueAccent : G.white, color: selectedBrand === b ? G.blue : G.gray, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
               {b}
+            </button>
+          ))}
+        </div>
+
+        {/* Filter Kondisi */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>Kondisi:</span>
+          {["Semua", "Baru", "Bekas"].map(k => (
+            <button key={k} onClick={() => setSelectedKondisi(k)}
+              style={{ padding: "4px 14px", borderRadius: 16, border: `1px solid ${selectedKondisi === k ? G.blue : G.border}`, background: selectedKondisi === k ? G.blueAccent : G.white, color: selectedKondisi === k ? G.blue : G.gray, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+              {k === "Semua" ? "Semua" : k === "Baru" ? "✨ Baru" : "🔄 Bekas"}
             </button>
           ))}
         </div>
