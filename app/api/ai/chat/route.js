@@ -105,80 +105,90 @@ ATURAN PENTING:
     }
 
     // ─── BUILD MESSAGES ──────────────────────────────────────────────────────
-    // Batasi history ke 6 pesan — lebih banyak konteks untuk closing yang lebih baik
+    // Batasi history ke 6 pesan
     const recentHistory = history.slice(-6);
     const messages = [
-      { role: "system", content: systemPrompt },
       ...recentHistory.map(h => ({ role: h.role, content: h.content })),
       { role: "user", content: message },
     ];
 
-    const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages,
-        max_tokens: 400,
-        temperature: 0.65, // sedikit lebih rendah = lebih konsisten dan fokus
-      }),
-    });
-
     let reply = "";
 
-    if (!groqRes.ok) {
-      const err = await groqRes.text();
-      console.error("Groq error:", groqRes.status, err);
+    // ─── COBA ANTHROPIC CLAUDE HAIKU (PRIMARY) ───────────────────────────────
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
+    if (anthropicKey) {
+      try {
+        const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": anthropicKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 400,
+            system: systemPrompt,
+            messages,
+          }),
+        });
+        if (claudeRes.ok) {
+          const cd = await claudeRes.json();
+          reply = cd.content?.[0]?.text || "";
+        } else {
+          const errText = await claudeRes.text();
+          console.error("Anthropic error:", claudeRes.status, errText);
+        }
+      } catch (e) {
+        console.error("Anthropic fetch error:", e);
+      }
+    }
 
-      // Fallback ke Anthropic API kalau Groq gagal
-      const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
-      if (anthropicKey) {
+    // ─── FALLBACK KE GROQ KALAU ANTHROPIC GAGAL ──────────────────────────────
+    if (!reply) {
+      const groqKey = process.env.GROQ_API_KEY || "";
+      if (groqKey) {
         try {
-          const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-api-key": anthropicKey,
-              "anthropic-version": "2023-06-01",
+              "Authorization": `Bearer ${groqKey}`,
             },
             body: JSON.stringify({
-              model: "claude-haiku-4-5-20251001",
+              model: "llama-3.3-70b-versatile",
+              messages: [{ role: "system", content: systemPrompt }, ...messages],
               max_tokens: 400,
-              system: messages[0].content,
-              messages: messages.slice(1),
+              temperature: 0.65,
             }),
           });
-          if (claudeRes.ok) {
-            const cd = await claudeRes.json();
-            reply = cd.content?.[0]?.text || "";
+          if (groqRes.ok) {
+            const data = await groqRes.json();
+            reply = data.choices?.[0]?.message?.content || "";
+          } else {
+            const errText = await groqRes.text();
+            console.error("Groq error:", groqRes.status, errText);
           }
         } catch (e) {
-          console.error("Claude fallback error:", e);
+          console.error("Groq fetch error:", e);
         }
       }
+    }
 
-      if (!reply) {
-        return NextResponse.json({
-          reply: `Maaf, koneksi bermasalah. Langsung aja chat WA kami ya! 👉 wa.me/${waNumber}`,
-          botName: namaBot,
-          waNumber,
-        });
-      }
-    } else {
-      const data = await groqRes.json();
-      reply = data.choices?.[0]?.message?.content || "Maaf, tidak ada jawaban.";
+    // ─── KALAU SEMUA GAGAL ────────────────────────────────────────────────────
+    if (!reply) {
+      return NextResponse.json({
+        reply: `Halo! Saya ${namaBot} 😊 Ada yang bisa saya bantu? Untuk info stok dan harga terbaru, langsung chat WA kami ya!\n\n👉 wa.me/${waNumber}`,
+        botName: namaBot,
+        waNumber,
+      });
     }
 
     // Hapus thinking tags dari model reasoning jika ada
     reply = reply.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
     // ─── CARI PRODUK YANG RELEVAN UNTUK DITAMPILKAN DI CHAT ──────────────────
-    // Deteksi nama produk yang disebut di pesan user — harus spesifik, bukan hanya brand
     const msgLower = message.toLowerCase();
-    // Ambil semua kata dari pesan user yang panjangnya >= 3, kecuali kata umum
     const stopWords = new Set(["ada","yang","mana","apa","bisa","mau","cari","ingin","tolong","halo","hai","harga","berapa","stok","masih","untuk","sama","dengan","atau","dan","ini","itu","saja","dong","deh","kak","pak","bu"]);
     const words = msgLower.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
 
@@ -186,7 +196,7 @@ ATURAN PENTING:
     const brandSpesifik = new Set(["iphone","ipad","samsung","xiaomi","realme","oppo","vivo","infinix","tecno","redmi","poco","nubia","nokia","sony","asus","huawei","honor","motorola","itel"]);
     const adaBrandSpesifik = words.some(w => brandSpesifik.has(w));
 
-    // Hitung skor kecocokan — produk dengan lebih banyak kata yang cocok = lebih relevan
+    // Hitung skor kecocokan
     const scored = kasirProduk.map(p => {
       const namaProduk = (p.nama || "").toLowerCase();
       const matchCount = words.filter(w => namaProduk.includes(w)).length;
