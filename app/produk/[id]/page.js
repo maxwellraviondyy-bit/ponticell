@@ -4,62 +4,192 @@ import { notFound } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const sql = getDb();
-  const rows = await sql`SELECT brand, model, ram, storage, color, condition, sell_price, original_price, photos FROM inventory WHERE id=${id} LIMIT 1`;
-  if (!rows.length) return {};
+// Kasir sources — sama persis dengan page.js utama
+const KASIR_SOURCES = [
+  { url: process.env.KASIR_KP_URL || "", key: process.env.KASIR_KP_KEY || "", label: "KP" },
+];
 
-  const p = rows[0];
-  const photos = typeof p.photos === "string" ? JSON.parse(p.photos) : (p.photos || []);
-  const title = `${p.brand} ${p.model} ${p.ram}/${p.storage} - PontiCell Pontianak`;
-  const description = `Jual ${p.brand} ${p.model} ${p.ram}/${p.storage} warna ${p.color}, kondisi ${p.condition}. Harga Rp ${Number(p.sell_price).toLocaleString("id-ID")}. Beli di PontiCell Pontianak, garansi toko.`;
+// Fetch semua produk dari kasir, kembalikan flat array dengan label
+async function fetchAllKasirProduk() {
+  const results = await Promise.all(
+    KASIR_SOURCES.map(async (kasir) => {
+      if (!kasir.url || !kasir.key) return [];
+      try {
+        const res = await fetch(`${kasir.url}/api/storefront`, {
+          headers: { "x-storefront-key": kasir.key },
+          cache: "no-store",
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.produk || []).map(p => ({ ...p, _kasir_label: kasir.label, _kasir_url: kasir.url, _toko_nama: data.toko || kasir.label }));
+      } catch { return []; }
+    })
+  );
+  return results.flat();
+}
+
+// Normalisasi brand — sama dengan page.js utama
+const BRAND_MAP = {
+  "motorola": "Motorola", "moto": "Motorola", "motopad": "Motorola",
+  "apple": "Apple", "iphone": "Apple", "ipad": "Apple",
+  "xiaomi": "Xiaomi", "redmi": "Redmi", "poco": "Poco",
+  "samsung": "Samsung", "realme": "Realme",
+  "oppo": "OPPO", "reno": "OPPO", "find": "OPPO",
+  "vivo": "Vivo", "oneplus": "OnePlus",
+  "huawei": "Huawei", "honor": "Honor",
+  "infinix": "Infinix", "tecno": "Tecno",
+  "nubia": "Nubia", "zte": "Nubia",
+  "asus": "Asus", "zenfone": "Asus", "rog": "Asus",
+  "nokia": "Nokia", "sony": "Sony", "xperia": "Sony",
+  "google": "Google", "pixel": "Google",
+};
+
+function normalizeBrand(rawBrand) {
+  const normalized = BRAND_MAP[rawBrand.toLowerCase()];
+  if (normalized) return normalized;
+  if (/\d/.test(rawBrand)) return "Lainnya";
+  return rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1).toLowerCase();
+}
+
+// Konversi produk kasir ke format ProductClient
+function kasirToProduct(p, meta) {
+  const namaParts = (p.nama || "").trim().split(" ");
+  const brand = normalizeBrand(namaParts[0] || "");
+  const model = namaParts.slice(1).join(" ") || p.nama || "";
+  const photos = Array.isArray(meta?.photos) ? meta.photos : (meta?.photos ? JSON.parse(meta.photos) : []);
 
   return {
-    title,
-    description,
-    keywords: `${p.brand} ${p.model} Pontianak, jual ${p.brand} Pontianak, ${p.brand} ${p.model} second, HP ${p.brand} Pontianak`,
-    openGraph: {
+    id: `${p._kasir_label}_${p.id}`,
+    _kasir_id: p.id,
+    _kasir_url: p._kasir_url,
+    _kasir_label: p._kasir_label,
+    _toko_nama: p._toko_nama,
+    brand,
+    model,
+    ram: p.ram || "-",
+    storage: p.rom || "-",
+    color: "-",
+    condition: p.kondisi || (p.kategori === "hp_baru" ? "Baru" : "Bekas"),
+    sell_price: p.harga_jual || 0,
+    original_price: 0,
+    photos,
+    stocks: { [p._kasir_label]: p.stok || 0 },
+    notes: meta?.deskripsi || "",
+    sold_count: 0,
+    type: "hp",
+  };
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  // id format: "KP_123" — ambil label dan kasir_id
+  const [label, kasirId] = id.split("_");
+  if (!label || !kasirId) return {};
+
+  const kasir = KASIR_SOURCES.find(k => k.label === label);
+  if (!kasir || !kasir.url) return {};
+
+  try {
+    const res = await fetch(`${kasir.url}/api/storefront`, {
+      headers: { "x-storefront-key": kasir.key },
+      cache: "no-store",
+    });
+    if (!res.ok) return {};
+    const data = await res.json();
+    const p = (data.produk || []).find(p => String(p.id) === String(kasirId));
+    if (!p) return {};
+
+    const namaParts = (p.nama || "").trim().split(" ");
+    const brand = normalizeBrand(namaParts[0] || "");
+    const model = namaParts.slice(1).join(" ") || p.nama || "";
+    const ram = p.ram || "";
+    const rom = p.rom || "";
+    const kondisi = p.kondisi || "Bekas";
+
+    const sql = getDb();
+    const metaRows = await sql`SELECT photos FROM kasir_produk_meta WHERE kasir_url=${kasir.url} AND kasir_id=${kasirId} LIMIT 1`;
+    const meta = metaRows[0] || {};
+    const photos = Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : []);
+
+    const title = `${brand} ${model}${ram ? " " + ram : ""}${rom ? "/" + rom : ""} - PontiCell Pontianak`;
+    const description = `Jual ${brand} ${model}${ram ? " RAM " + ram : ""}${rom ? " Storage " + rom : ""}, kondisi ${kondisi}. Harga Rp ${Number(p.harga_jual).toLocaleString("id-ID")}. Beli di PontiCell Pontianak, garansi toko.`;
+
+    return {
       title,
       description,
-      images: photos[0] ? [{ url: photos[0], width: 800, height: 800, alt: `${p.brand} ${p.model}` }] : [],
-      type: "website",
-    },
-    alternates: { canonical: `https://ponticell.vercel.app/produk/${id}` },
-  };
+      keywords: `${brand} ${model} Pontianak, jual ${brand} Pontianak, ${brand} ${model} ${kondisi.toLowerCase()}, HP ${brand} Pontianak`,
+      openGraph: {
+        title,
+        description,
+        images: photos[0] ? [{ url: photos[0], width: 800, height: 800, alt: `${brand} ${model}` }] : [],
+        type: "website",
+      },
+      alternates: { canonical: `https://ponticell.vercel.app/produk/${id}` },
+    };
+  } catch { return {}; }
 }
 
 export default async function ProductPage({ params }) {
   const { id } = await params;
+  // id format: "KP_123"
+  const underscoreIdx = id.indexOf("_");
+  if (underscoreIdx === -1) return notFound();
+  const label = id.slice(0, underscoreIdx);
+  const kasirId = id.slice(underscoreIdx + 1);
+
+  const kasir = KASIR_SOURCES.find(k => k.label === label);
+  if (!kasir || !kasir.url) return notFound();
+
   const sql = getDb();
 
-  const rows = await sql`SELECT *, COALESCE(original_price, 0) as original_price FROM inventory WHERE id=${id} LIMIT 1`;
-  if (!rows.length) return notFound();
+  // Fetch produk kasir + meta dari DB secara paralel
+  const [kasirRes, metaRows] = await Promise.all([
+    fetch(`${kasir.url}/api/storefront`, {
+      headers: { "x-storefront-key": kasir.key },
+      cache: "no-store",
+    }).then(r => r.json()).catch(() => ({ produk: [] })),
+    sql`SELECT * FROM kasir_produk_meta WHERE kasir_url=${kasir.url} AND kasir_id=${kasirId} LIMIT 1`,
+  ]);
 
-  const r = rows[0];
-  const product = {
-    ...r,
-    photos: typeof r.photos === "string" ? JSON.parse(r.photos) : (r.photos || []),
-    stocks: typeof r.stocks === "string" ? JSON.parse(r.stocks) : (r.stocks || {}),
-  };
+  const allProduk = kasirRes.produk || [];
+  const kasirProduk = allProduk.find(p => String(p.id) === String(kasirId));
+  if (!kasirProduk) return notFound();
 
-  const related = await sql`
-    SELECT id, brand, model, ram, storage, color, condition, sell_price, photos, stocks
-    FROM inventory WHERE type=${product.type} AND id != ${id}
-    ORDER BY created_at DESC LIMIT 6
-  `;
-  const relatedList = related.map(r => ({
-    ...r,
-    photos: typeof r.photos === "string" ? JSON.parse(r.photos) : (r.photos || []),
-    stocks: typeof r.stocks === "string" ? JSON.parse(r.stocks) : (r.stocks || {}),
-  })).filter(i => Object.values(i.stocks).reduce((s,v)=>s+v,0) > 0);
+  kasirProduk._kasir_label = kasir.label;
+  kasirProduk._kasir_url = kasir.url;
+  kasirProduk._toko_nama = kasirRes.toko || kasir.label;
 
-  // JSON-LD structured data untuk produk
+  const meta = metaRows[0] || null;
+  const product = kasirToProduct(kasirProduk, meta);
+
+  // Produk serupa: brand sama, bukan produk ini, stok > 0
+  const TABLET_KEYWORDS = ["tab", "pad", "ipad", "fold", "flip", "mediapad"];
+  const isTablet = (p) => `${p.brand} ${p.model}`.toLowerCase().split(" ").some(w => TABLET_KEYWORDS.includes(w));
+  const productIsTablet = isTablet(product);
+
+  // Ambil meta untuk semua produk serupa
+  const metaAllRows = await sql`SELECT * FROM kasir_produk_meta WHERE kasir_url=${kasir.url}`;
+  const metaMap = {};
+  for (const m of metaAllRows) metaMap[String(m.kasir_id)] = m;
+
+  const related = allProduk
+    .filter(p => String(p.id) !== String(kasirId) && (p.stok || 0) > 0)
+    .map(p => {
+      p._kasir_label = kasir.label;
+      p._kasir_url = kasir.url;
+      p._toko_nama = kasirRes.toko || kasir.label;
+      return kasirToProduct(p, metaMap[String(p.id)] || null);
+    })
+    .filter(p => isTablet(p) === productIsTablet) // serupa tipe
+    .filter(p => p.brand === product.brand)        // serupa brand
+    .slice(0, 6);
+
+  // JSON-LD
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": `${product.brand} ${product.model}`,
-    "description": `${product.brand} ${product.model} RAM ${product.ram} Storage ${product.storage} warna ${product.color}, kondisi ${product.condition}`,
+    "description": `${product.brand} ${product.model} RAM ${product.ram} Storage ${product.storage}, kondisi ${product.condition}`,
     "brand": { "@type": "Brand", "name": product.brand },
     "offers": {
       "@type": "Offer",
@@ -74,7 +204,7 @@ export default async function ProductPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductClient product={product} related={relatedList} />
+      <ProductClient product={product} related={related} />
     </>
   );
 }
