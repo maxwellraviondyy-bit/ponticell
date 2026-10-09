@@ -164,8 +164,8 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .wa-text { display: none; }
-        .banner-hero { height: 100vw; max-height: 90vh; min-height: 320px; }
-        @media (min-width: 768px) { .banner-hero { height: 56vw; max-height: 80vh; min-height: 480px; } }
+        .banner-hero { height: 56vw; max-height: 320px; min-height: 200px; }
+        @media (min-width: 768px) { .banner-hero { height: 36vw; max-height: 400px; min-height: 260px; } }
         .banner-desktop { display: none !important; }
         .banner-mobile { display: block !important; }
         @media (min-width: 768px) { 
