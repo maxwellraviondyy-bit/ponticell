@@ -686,7 +686,7 @@ const handleLogin = async () => {
 
   const c = {
     app: { fontFamily: "'Sora', sans-serif", background: "#F8FAFC", minHeight: "100vh", color: "#1E293B" },
-    header: { background: "#FFFFFF", borderBottom: "1px solid #E2E8F0", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 3px rgba(0,0,0,0.06)" },
+    header: { background: "#1E293B", borderBottom: "1px solid #334155", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 8px rgba(0,0,0,0.2)" },
     liveDot: { width: 7, height: 7, borderRadius: "50%", background: pulse ? "#C9A227" : "#E8C158", boxShadow: pulse ? "0 0 10px #C9A227" : "none", transition: "all 0.3s" },
     nav: { display: "flex", gap: 2, padding: "8px 12px", background: "#FFFFFF", borderBottom: "1px solid #E2E8F0", overflowX: "auto" },
     navBtn: (active) => ({ padding: "10px 18px", borderRadius: 10, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "'Sora', sans-serif", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6, background: active ? "#C9A227" : "transparent", color: active ? "#fff" : "#64748B" }),
@@ -836,20 +836,18 @@ const handleLogin = async () => {
       {/* HEADER */}
       <div style={c.header}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img src="https://res.cloudinary.com/dom8pseei/image/upload/v1781459321/logo-ponticell_wqazo4.jpg" alt="PontiCell" style={{ width: 40, height: 40, borderRadius: 10, objectFit: "cover" }} onError={e => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }} />
-          <div style={{ width: 40, height: 40, background: "linear-gradient(135deg, #E8C158, #C9A227)", borderRadius: 10, display: "none", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📱</div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "#1E293B" }}>PontiCell <span style={{ fontSize: 11, fontWeight: 500, color: "#94A3B8" }}>by.Max</span></div>
-            <div style={{ fontSize: 10, color: "#94A3B8" }}>Pontianak</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#F1F5F9" }}>PontiCell <span style={{ fontSize: 11, fontWeight: 500, color: "#64748B" }}>by.Max</span></div>
+            <div style={{ fontSize: 10, color: "#64748B" }}>Pontianak</div>
           </div>
         </div>
         {currentUser ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 11, color: "#64748B", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ background: "#FBF3DD", color: "#C9A227", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
-              <span>{currentUser.name}</span>
+            <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ background: "rgba(201,162,39,0.2)", color: "#E8C158", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
+              <span style={{ color: "#CBD5E1" }}>{currentUser.name}</span>
             </div>
-            <button onClick={handleLogout} style={{ background: "#F1F5F9", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 600, color: "#64748B", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Keluar</button>
+            <button onClick={handleLogout} style={{ background: "#334155", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 600, color: "#94A3B8", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Keluar</button>
           </div>
         ) : (
           <div style={{ width: 32 }} />
