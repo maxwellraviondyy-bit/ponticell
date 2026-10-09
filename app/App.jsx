@@ -946,7 +946,7 @@ const handleLogin = async () => {
                 return (
                   <div key={branch.id} style={{ ...c.card(), borderTop: `3px solid ${branch.color}`, padding: 14, cursor: "pointer" }}
                     onClick={() => {
-                      if (branch.id === "KP" && kasirKpUrl) { window.open(kasirKpUrl, "_blank"); return; }
+                      if (branch.id === "KP") { window.open("https://modernshoppontianak.vercel.app/?stok=1", "_blank"); return; }
                       setActiveTab("hp"); setProductType("hp"); setSelectedBranch(branch.id); setSelectedBrand("Semua"); setSearchQuery("");
                     }}
                     onMouseEnter={e => e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.10)"}
