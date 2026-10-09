@@ -129,7 +129,12 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       && (selectedKondisi === "Semua" || p.condition === selectedKondisi)
       && inPriceRange;
   }).sort((a, b) => {
-    if (urutan === "stok") return (Number(b.stock) || 0) - (Number(a.stock) || 0);
+    if (urutan === "stok") {
+      // stocks bisa berupa object {KP: 5} atau number langsung
+      const stokA = typeof a.stocks === "object" ? Object.values(a.stocks||{}).reduce((s,v)=>s+Number(v),0) : Number(a.stocks||0);
+      const stokB = typeof b.stocks === "object" ? Object.values(b.stocks||{}).reduce((s,v)=>s+Number(v),0) : Number(b.stocks||0);
+      return stokB - stokA;
+    }
     if (urutan === "harga_murah") return Number(a.sell_price) - Number(b.sell_price);
     if (urutan === "harga_mahal") return Number(b.sell_price) - Number(a.sell_price);
     if (urutan === "terlaris") return (Number(b.sold_count) || 0) - (Number(a.sold_count) || 0);
@@ -446,24 +451,30 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
       {/* Produk Section */}
       <div id="produk-section" style={{ padding: "56px 24px", maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text }}>Semua Produk</div>
-            <div style={{ fontSize: 13, color: G.gray, marginTop: 2 }}>{filtered.length} produk tersedia</div>
-          </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <select
-              value={urutan}
-              onChange={e => setUrutan(e.target.value)}
-              style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}>
-              <option value="stok">📦 Stok Terbanyak</option>
-              <option value="terlaris">🔥 Terlaris</option>
-              <option value="harga_murah">💰 Harga Termurah</option>
-              <option value="harga_mahal">💎 Harga Termahal</option>
-            </select>
-            <input style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", width: 180, boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: "clamp(20px, 4vw, 30px)", fontWeight: 800, color: G.text }}>Semua Produk</div>
+              <div style={{ fontSize: 13, color: G.gray, marginTop: 2 }}>{filtered.length} produk tersedia</div>
+            </div>
+            <input style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", width: 200, boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
               placeholder="🔍 Cari produk..."
               value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+          {/* Urutan tampil */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12, color: G.gray, fontWeight: 700 }}>Urutkan:</span>
+            {[
+              { v: "stok", l: "📦 Stok Terbanyak" },
+              { v: "terlaris", l: "🔥 Terlaris" },
+              { v: "harga_murah", l: "💰 Harga Termurah" },
+              { v: "harga_mahal", l: "💎 Harga Termahal" },
+            ].map(o => (
+              <button key={o.v} onClick={() => setUrutan(o.v)}
+                style={{ padding: "7px 14px", borderRadius: 20, border: `1.5px solid ${urutan === o.v ? G.blue : G.border}`, background: urutan === o.v ? G.blue : G.white, color: urutan === o.v ? "#fff" : G.gray, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                {o.l}
+              </button>
+            ))}
           </div>
         </div>
 

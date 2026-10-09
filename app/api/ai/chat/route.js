@@ -120,7 +120,7 @@ ATURAN PENTING:
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "qwen/qwen3.8-27b",
+        model: "llama-3.3-70b-versatile",
         messages,
         max_tokens: 400,
         temperature: 0.65, // sedikit lebih rendah = lebih konsisten dan fokus
@@ -144,15 +144,21 @@ ATURAN PENTING:
     reply = reply.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
     // ─── CARI PRODUK YANG RELEVAN UNTUK DITAMPILKAN DI CHAT ──────────────────
-    // Deteksi nama produk/brand yang disebut di pesan user
+    // Deteksi nama produk yang disebut di pesan user — harus spesifik, bukan hanya brand
     const msgLower = message.toLowerCase();
-    const produkSorot = kasirProduk.filter(p => {
+    // Ambil semua kata dari pesan user yang panjangnya >= 3, kecuali kata umum
+    const stopWords = new Set(["ada","yang","mana","apa","bisa","mau","cari","ingin","tolong","halo","hai","harga","berapa","stok","masih","untuk","sama","dengan","atau","dan","ini","itu","saja","dong","deh","kak","pak","bu"]);
+    const words = msgLower.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
+
+    // Hitung skor kecocokan — produk dengan lebih banyak kata yang cocok = lebih relevan
+    const scored = kasirProduk.map(p => {
       const namaProduk = (p.nama || "").toLowerCase();
-      const brand = (p.brand || "").toLowerCase();
-      // Cocokkan kata kunci dari pesan user ke nama produk
-      const words = msgLower.split(/\s+/).filter(w => w.length >= 3);
-      return words.some(w => namaProduk.includes(w) || brand.includes(w));
-    }).slice(0, 3).map(p => ({
+      const matchCount = words.filter(w => namaProduk.includes(w)).length;
+      return { p, matchCount };
+    }).filter(x => x.matchCount >= 2) // minimal 2 kata cocok (misal "infinix" + "note" atau "50")
+      .sort((a, b) => b.matchCount - a.matchCount);
+
+    const produkSorot = scored.slice(0, 3).map(({ p }) => ({
       id: p.id,
       nama: p.nama,
       harga: Number(p.harga_jual || 0),
