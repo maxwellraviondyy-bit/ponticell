@@ -40,12 +40,16 @@ export default function ProductClient({ product, related }) {
     if (aiRec) return; // already loaded
     setAiRecLoading(true);
     try {
-      const res = await fetch("/api/ai/chat", {
+      const res = await fetch("/api/ai/insight", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: `Berikan analisis singkat (2-3 kalimat) tentang ${product.brand} ${product.model} ${product.ram}/${product.storage} kondisi ${product.condition} seharga Rp ${Number(product.sell_price).toLocaleString("id-ID")}. Cocok untuk siapa dan apa kelebihannya?`,
-          history: [],
+          brand: product.brand,
+          model: product.model,
+          ram: product.ram,
+          storage: product.storage,
+          condition: product.condition,
+          price: product.sell_price,
         }),
       });
       const data = await res.json();
