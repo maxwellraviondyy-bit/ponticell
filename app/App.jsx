@@ -181,7 +181,7 @@ export default function App() {
 
   const loadAllData = async (retryCount = 0) => {
     try {
-      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData, robotData, metaData] = await Promise.all([
+      const [inv, sales, acts, testis, pinSetting, kontenData, pesananData, robotData, metaData, kasirData] = await Promise.all([
         api.get("/api/inventory"),
         api.get("/api/sales"),
         api.get("/api/activities"),
@@ -191,6 +191,7 @@ export default function App() {
         api.get("/api/pesanan"),
         api.get("/api/robot"),
         api.get("/api/produk-meta"),
+        fetch("/api/kasir-produk", { cache: "no-store" }).then(r => r.json()).catch(() => ({ ok: false, produk: [] })),
       ]);
       setInventory(inv.map(dbToItem));
       setSalesLog(sales.map(dbToSalesLog));
@@ -201,6 +202,7 @@ export default function App() {
       if (robotData) { const map = {}; robotData.forEach(r => { map[r.kunci] = r.nilai; }); setRobotSettings(map); }
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
       if (metaData) setProdukMeta(metaData);
+      if (kasirData?.ok && kasirData.produk?.length > 0) setKasirProdukList(kasirData.produk);
     } catch(e) {
       console.error("Load error:", e);
       if (retryCount < 3) {
@@ -914,31 +916,46 @@ const handleLogin = async () => {
       <div style={c.main}>
 
         {/* ===== DASHBOARD ===== */}
-        {activeTab === "dashboard" && (
+        {activeTab === "dashboard" && (() => {
+          // Hitung stok KP dari kasir modernshop
+          const TABLET_KW = ["tab", "pad", "ipad", "fold", "flip", "mediapad"];
+          const isTabletKasir = (p) => TABLET_KW.some(k => (p.nama||"").toLowerCase().includes(k));
+          const kasirKP = kasirProdukList.filter(p => (p.stok||0) > 0);
+          const kasirKPStok = kasirKP.reduce((s, p) => s + (p.stok||0), 0);
+          const kasirHpCount = kasirProdukList.filter(p => !isTabletKasir(p)).length;
+          const kasirTabletCount = kasirProdukList.filter(p => isTabletKasir(p)).length;
+          // Stok cabang non-KP dari inventory Neon
+          const stokNonKP = (bid) => inventory.reduce((s, i) => s + (i.stocks?.[bid] || 0), 0);
+          const totalStokSemua = kasirKPStok + ["SJ","KB","JJ"].reduce((s,b)=>s+stokNonKP(b),0);
+          // Stok kritis dari kasir KP (stok 1-2)
+          const kasirKritis = kasirKP.filter(p => p.stok <= 2);
+          return (
           <>
             <div style={c.sectionTitle}>Ringkasan 4 Cabang</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12, marginBottom: 20 }}>
-              {BRANCHES.map((branch) => (
-                <div key={branch.id} style={{ ...c.card(), borderTop: `3px solid ${branch.color}`, padding: 14, cursor: "pointer" }}
-                  onClick={() => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch(branch.id); setSelectedBrand("Semua"); setSearchQuery(""); }}
-                  onMouseEnter={e => e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.10)"}
-                  onMouseLeave={e => e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.04)"}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{branch.name}</div>
-                  <div style={{ fontSize: 10, color: "#94A3B8", marginBottom: 10 }}>📍 {branch.city}</div>
-                  <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 2 }}>Total Stok</div>
-                  <div style={{ fontSize: 20, fontWeight: 800, color: branch.color }}>{totalStockByBranch(branch.id)}<span style={{ fontSize: 11 }}> unit</span></div>
-
-                  <div style={{ fontSize: 10, color: branch.color, marginTop: 6, opacity: 0.8 }}>Lihat stok →</div>
-                </div>
-              ))}
+              {BRANCHES.map((branch) => {
+                const stok = branch.id === "KP" ? kasirKPStok : stokNonKP(branch.id);
+                return (
+                  <div key={branch.id} style={{ ...c.card(), borderTop: `3px solid ${branch.color}`, padding: 14, cursor: "pointer" }}
+                    onClick={() => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch(branch.id); setSelectedBrand("Semua"); setSearchQuery(""); }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.10)"}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.04)"}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{branch.name}</div>
+                    <div style={{ fontSize: 10, color: "#94A3B8", marginBottom: 10 }}>📍 {branch.city}</div>
+                    <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 2 }}>Total Stok</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: branch.color }}>{stok}<span style={{ fontSize: 11 }}> unit</span></div>
+                    <div style={{ fontSize: 10, color: branch.color, marginTop: 6, opacity: 0.8 }}>Lihat stok →</div>
+                  </div>
+                );
+              })}
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 20 }}>
               {[
-                { label: "Total Semua Stok", value: `${totalAllStock} unit`, icon: "📦", color: "#0EA5E9" },
-                { label: "Total Model HP", value: `${inventory.filter(i=>i.type==="hp").length} model`, icon: "📱", color: "#8B5CF6", onClick: () => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
-                { label: "Total Model Tablet", value: `${inventory.filter(i=>i.type==="tablet").length} model`, icon: "📟", color: "#10B981", onClick: () => { setActiveTab("tablet"); setProductType("tablet"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
+                { label: "Total Semua Stok", value: `${totalStokSemua} unit`, icon: "📦", color: "#0EA5E9" },
+                { label: "Total Model HP", value: `${kasirHpCount || inventory.filter(i=>i.type==="hp").length} model`, icon: "📱", color: "#8B5CF6", onClick: () => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
+                { label: "Total Model Tablet", value: `${kasirTabletCount || inventory.filter(i=>i.type==="tablet").length} model`, icon: "📟", color: "#10B981", onClick: () => { setActiveTab("tablet"); setProductType("tablet"); setSelectedBranch("ALL"); setSelectedBrand("Semua"); setSearchQuery(""); } },
               ].map((item) => (
                 <div key={item.label} style={{ ...c.card(), padding: 14, cursor: item.onClick ? "pointer" : "default" }}
                   onClick={item.onClick}
@@ -953,14 +970,20 @@ const handleLogin = async () => {
               ))}
             </div>
 
-            {criticalItems.length > 0 && (
+            {(kasirKritis.length > 0 || criticalItems.length > 0) && (
               <div style={{ background: "#FFF5F5", border: "1px solid #FECACA", borderRadius: 12, padding: 14, marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: "#EF4444", marginBottom: 10 }}>⚠️ Stok Kritis</div>
+                {kasirKritis.map((p) => (
+                  <div key={p.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #FEE2E2", fontSize: 12 }}>
+                    <span style={{ color: "#374151" }}>📱 {p.nama}</span>
+                    <span style={{ color: "#F97316", fontWeight: 700, fontSize: 11 }}>KP:{p.stok}</span>
+                  </div>
+                ))}
                 {criticalItems.map((item) => (
                   <div key={item.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #FEE2E2", fontSize: 12 }}>
                     <span style={{ color: "#374151" }}>{item.brand} {item.model}</span>
                     <div style={{ display: "flex", gap: 6 }}>
-                      {BRANCHES.map((b) => (item.stocks?.[b.id] || 0) <= 2 && (item.stocks?.[b.id] || 0) > 0 && (
+                      {BRANCHES.filter(b=>b.id!=="KP").map((b) => (item.stocks?.[b.id] || 0) <= 2 && (item.stocks?.[b.id] || 0) > 0 && (
                         <span key={b.id} style={{ color: "#F97316", fontWeight: 700, fontSize: 11 }}>{b.id}:{item.stocks[b.id]}</span>
                       ))}
                     </div>
@@ -971,29 +994,44 @@ const handleLogin = async () => {
 
             <div style={c.sectionTitle}>Stok Per Cabang</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-              {BRANCHES.map((branch) => (
-                <div key={branch.id} style={c.card()}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid #F1F5F9" }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: branch.color }} />
-                    <span style={{ fontSize: 13, fontWeight: 700 }}>{branch.name}</span>
+              {BRANCHES.map((branch) => {
+                const isKP = branch.id === "KP";
+                const itemsKP = kasirKP.sort((a,b)=>(b.stok||0)-(a.stok||0)).slice(0,5);
+                const itemsLain = inventory.filter(i => (i.stocks?.[branch.id] || 0) > 0).sort((a, b) => (b.stocks?.[branch.id] || 0) - (a.stocks?.[branch.id] || 0)).slice(0, 5);
+                return (
+                  <div key={branch.id} style={c.card()}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid #F1F5F9" }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", background: branch.color }} />
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>{branch.name}</span>
+                    </div>
+                    {isKP ? (
+                      itemsKP.length > 0 ? itemsKP.map((p) => {
+                        const st = getStockStatus(p.stok||0);
+                        return (
+                          <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #F8FAFC" }}>
+                            <span style={{ fontSize: 11, color: "#374151" }}>📱 {(p.nama||"").split(" ").slice(0,3).join(" ")}</span>
+                            <span style={c.badge(st.color, st.bg, st.border)}>{p.stok}</span>
+                          </div>
+                        );
+                      }) : <div style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", padding: 8 }}>Stok kosong</div>
+                    ) : (
+                      itemsLain.length > 0 ? itemsLain.map((item) => {
+                        const st = getStockStatus(item.stocks?.[branch.id] || 0);
+                        return (
+                          <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #F8FAFC" }}>
+                            <span style={{ fontSize: 11, color: "#374151" }}>{item.type === "tablet" ? "📟" : "📱"} {item.brand} {item.model.split(" ").slice(-1)}</span>
+                            <span style={c.badge(st.color, st.bg, st.border)}>{item.stocks[branch.id]}</span>
+                          </div>
+                        );
+                      }) : <div style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", padding: 8 }}>Stok kosong</div>
+                    )}
                   </div>
-                  {inventory.filter(i => (i.stocks?.[branch.id] || 0) > 0).sort((a, b) => (b.stocks?.[branch.id] || 0) - (a.stocks?.[branch.id] || 0)).slice(0, 5).map((item) => {
-                    const st = getStockStatus(item.stocks?.[branch.id] || 0);
-                    return (
-                      <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: "1px solid #F8FAFC" }}>
-                        <span style={{ fontSize: 11, color: "#374151" }}>{item.type === "tablet" ? "📟" : "📱"} {item.brand} {item.model.split(" ").slice(-1)}</span>
-                        <span style={c.badge(st.color, st.bg, st.border)}>{item.stocks[branch.id]}</span>
-                      </div>
-                    );
-                  })}
-                  {inventory.filter(i => (i.stocks?.[branch.id] || 0) > 0).length === 0 && (
-                    <div style={{ fontSize: 12, color: "#94A3B8", textAlign: "center", padding: 8 }}>Stok kosong</div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
-        )}
+          );
+        })()}
 
         {/* ===== HP / TABLET TAB ===== */}
         {(activeTab === "hp" || activeTab === "tablet") && (
