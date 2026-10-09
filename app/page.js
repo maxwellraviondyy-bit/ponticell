@@ -37,14 +37,86 @@ async function fetchKasirStok(kasir) {
   }
 }
 
+// Normalisasi nama brand dari kasir ke nama brand resmi.
+// Key: lowercase kata pertama nama produk → Value: nama brand yang benar
+const BRAND_MAP = {
+  // Motorola / Motopad (Motopad adalah sub-brand tablet Motorola)
+  "motorola": "Motorola",
+  "moto":     "Motorola",
+  "motopad":  "Motorola",
+  // Apple
+  "apple":  "Apple",
+  "iphone": "Apple",
+  "ipad":   "Apple",
+  // Xiaomi / Redmi / Poco
+  "xiaomi": "Xiaomi",
+  "redmi":  "Redmi",
+  "poco":   "Poco",
+  // Samsung
+  "samsung": "Samsung",
+  // Realme
+  "realme": "Realme",
+  // OPPO
+  "oppo": "OPPO",
+  "reno": "OPPO",
+  "find": "OPPO",
+  // Vivo
+  "vivo": "Vivo",
+  // OnePlus
+  "oneplus": "OnePlus",
+  // Huawei
+  "huawei": "Huawei",
+  "honor":  "Honor",
+  // Infinix
+  "infinix": "Infinix",
+  // Tecno
+  "tecno": "Tecno",
+  // Asus
+  "asus":    "Asus",
+  "zenfone": "Asus",
+  "rog":     "Asus",
+  // Nokia
+  "nokia": "Nokia",
+  // Sony
+  "sony":   "Sony",
+  "xperia": "Sony",
+  // Google
+  "google": "Google",
+  "pixel":  "Google",
+};
+
+// Cek apakah string terlihat seperti kode model (bukan brand):
+// - mengandung angka (A15, Y19s, S24+)
+// - semua huruf kapital pendek (huruf besar semua kemungkinan kode model, bukan brand)
+function looksLikeModelCode(str) {
+  return /\d/.test(str); // ada angka = kemungkinan model, bukan brand
+}
+
 // Konversi produk dari kasir ke format yang diharapkan LandingClient.
 // LandingClient mengharapkan: id, brand, model, ram, storage, color, condition,
 // sell_price, original_price, photos, stocks, notes, sold_count.
 function kasirProdukToLanding(p, metaMap) {
   // Parsing nama kasir: "Samsung Galaxy A15 128GB" → brand="Samsung", model="Galaxy A15"
-  // Heuristik sederhana: kata pertama = brand, sisanya = model
+  // Heuristik: kata pertama = brand, tapi normalisasi dulu
   const namaParts = (p.nama || "").trim().split(" ");
-  const brand = namaParts[0] || p.nama || "";
+  const rawBrand = namaParts[0] || p.nama || "";
+
+  // Normalisasi brand — kalau ada di peta, pakai nama resmi
+  const brandNormalized = BRAND_MAP[rawBrand.toLowerCase()];
+
+  // Kalau kata pertama terlihat seperti kode model (ada angka), atau tidak ada di peta brand
+  // tapi JUGA tidak mirip brand apapun, tandai sebagai "Lainnya"
+  let brand;
+  if (brandNormalized) {
+    brand = brandNormalized;
+  } else if (looksLikeModelCode(rawBrand)) {
+    // Kata pertama ada angkanya = bukan nama brand → pakai "Lainnya"
+    brand = "Lainnya";
+  } else {
+    // Pertahankan nama asli (huruf pertama kapital)
+    brand = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1).toLowerCase();
+  }
+
   const model = namaParts.slice(1).join(" ") || p.nama || "";
 
   // Ambil foto & deskripsi dari meta Ponticell (kalau ada)
@@ -117,7 +189,10 @@ export default async function HomePage() {
 
   const brandLogos = {};
   konten.filter(k => k.kategori === "brand").forEach(k => {
-    brandLogos[k.kunci.replace("brand_", "")] = k.nilai;
+    // Simpan dengan key lowercase supaya cocok dengan lookup di LandingClient
+    // yang pakai brand.toLowerCase() sebagai key
+    const key = k.kunci.replace("brand_", "").toLowerCase();
+    brandLogos[key] = k.nilai;
   });
 
   const getInfo = (kunci) => konten.find(k => k.kunci === kunci)?.nilai || "";
