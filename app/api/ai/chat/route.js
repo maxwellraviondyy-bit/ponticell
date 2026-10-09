@@ -114,33 +114,44 @@ ATURAN PENTING:
 
     let reply = "";
 
-    // ─── GROQ (PRIMARY) ───────────────────────────────────────────────────────
-    try {
-      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [{ role: "system", content: systemPrompt }, ...messages],
-          max_tokens: 400,
-          temperature: 0.65,
-        }),
-      });
-      if (groqRes.ok) {
-        const data = await groqRes.json();
-        reply = data.choices?.[0]?.message?.content || "";
-      } else {
-        const errText = await groqRes.text();
-        console.error("Groq error:", groqRes.status, errText);
+    // ─── GROQ PRIMARY: coba 3 model berbeda sampai ada yang jalan ────────────
+    const groqKey = process.env.GROQ_API_KEY || "";
+    if (groqKey) {
+      const groqModels = [
+        "llama-3.3-70b-versatile",
+        "llama3-70b-8192",
+        "llama3-8b-8192",
+      ];
+      for (const model of groqModels) {
+        if (reply) break;
+        try {
+          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${groqKey}`,
+            },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: "system", content: systemPrompt }, ...messages],
+              max_tokens: 400,
+              temperature: 0.65,
+            }),
+          });
+          if (groqRes.ok) {
+            const data = await groqRes.json();
+            reply = data.choices?.[0]?.message?.content || "";
+          } else {
+            const errText = await groqRes.text();
+            console.error(`Groq model ${model} error:`, groqRes.status, errText);
+          }
+        } catch (e) {
+          console.error(`Groq model ${model} fetch error:`, e);
+        }
       }
-    } catch (e) {
-      console.error("Groq fetch error:", e);
     }
 
-    // ─── FALLBACK KE ANTHROPIC KALAU GROQ GAGAL ──────────────────────────────
+    // ─── FALLBACK KE ANTHROPIC KALAU SEMUA GROQ GAGAL ────────────────────────
     if (!reply) {
       const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
       if (anthropicKey) {
