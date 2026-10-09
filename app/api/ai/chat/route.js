@@ -143,7 +143,27 @@ ATURAN PENTING:
     // Hapus thinking tags dari model reasoning jika ada
     reply = reply.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
-    return NextResponse.json({ reply, botName: namaBot, greeting: pesanWillcome, waNumber });
+    // ─── CARI PRODUK YANG RELEVAN UNTUK DITAMPILKAN DI CHAT ──────────────────
+    // Deteksi nama produk/brand yang disebut di pesan user
+    const msgLower = message.toLowerCase();
+    const produkSorot = kasirProduk.filter(p => {
+      const namaProduk = (p.nama || "").toLowerCase();
+      const brand = (p.brand || "").toLowerCase();
+      // Cocokkan kata kunci dari pesan user ke nama produk
+      const words = msgLower.split(/\s+/).filter(w => w.length >= 3);
+      return words.some(w => namaProduk.includes(w) || brand.includes(w));
+    }).slice(0, 3).map(p => ({
+      id: p.id,
+      nama: p.nama,
+      harga: Number(p.harga_jual || 0),
+      kondisi: p.kondisi || "Baru",
+      stok: Number(p.stok || 0),
+      foto: p.foto || null,
+      ram: p.ram || null,
+      rom: p.rom || null,
+    }));
+
+    return NextResponse.json({ reply, botName: namaBot, greeting: pesanWillcome, waNumber, produkSorot: produkSorot.length > 0 ? produkSorot : undefined });
 
   } catch(e) {
     console.error("Chat error:", e);

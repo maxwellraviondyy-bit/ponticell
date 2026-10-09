@@ -21,8 +21,42 @@ function extractWaLink(text) {
   return "https://" + match[0];
 }
 
+const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+
+// Kartu mini produk dari etalase kasir
+function KartuProduk({ produk, waNumber }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 4 }}>
+      <div style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>📦 Produk di etalase:</div>
+      {produk.map((p, i) => {
+        const waText = encodeURIComponent(`Halo, saya tertarik dengan ${p.nama}. Apakah masih tersedia?`);
+        return (
+          <a key={i} href={`https://wa.me/${waNumber}?text=${waText}`} target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", gap: 10, background: G.white, border: `1px solid ${G.border}`, borderRadius: 12, padding: "8px 10px", textDecoration: "none", color: "inherit", alignItems: "center", boxShadow: "0 2px 6px rgba(0,0,0,0.06)" }}>
+            <div style={{ width: 44, height: 44, background: G.grayLight, borderRadius: 8, overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {p.foto
+                ? <img src={p.foto} alt={p.nama} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <span style={{ fontSize: 22 }}>📱</span>}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: G.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.nama}</div>
+              {(p.ram || p.rom) && <div style={{ fontSize: 10, color: G.gray }}>{p.ram ? `${p.ram}/` : ""}{p.rom || ""}</div>}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: G.blue }}>{formatRp(p.harga)}</span>
+                <span style={{ fontSize: 10, background: p.kondisi === "Baru" ? "#E8F5E9" : "#FFF8E1", color: p.kondisi === "Baru" ? "#2E7D32" : "#F57F17", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>{p.kondisi}</span>
+                {p.stok > 0 && p.stok <= 3 && <span style={{ fontSize: 10, color: "#EF4444", fontWeight: 700 }}>⚠️ Sisa {p.stok}</span>}
+              </div>
+            </div>
+            <div style={{ fontSize: 18, flexShrink: 0 }}>💬</div>
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
 // Render pesan dengan tombol WA jika ada link
-function MessageBubble({ content, isUser, waNumber }) {
+function MessageBubble({ content, isUser, waNumber, produkSorot }) {
   const waLink = !isUser ? extractWaLink(content) : null;
   // Bersihkan teks dari URL wa.me agar tidak dobel tampil
   const cleanText = content.replace(/👉\s*https?:\/\/wa\.me\/\S+/g, "").replace(/https?:\/\/wa\.me\/\S+/g, "").trim();
@@ -40,6 +74,9 @@ function MessageBubble({ content, isUser, waNumber }) {
       }}>
         {cleanText}
       </div>
+      {produkSorot && produkSorot.length > 0 && (
+        <KartuProduk produk={produkSorot} waNumber={waNumber} />
+      )}
       {waLink && (
         <a
           href={waLink}
@@ -127,7 +164,7 @@ export default function Chatbot() {
       const data = await res.json();
       if (data.botName) setBotName(data.botName);
       if (data.waNumber) setWaNumber(data.waNumber);
-      setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+      setMessages(prev => [...prev, { role: "assistant", content: data.reply, produkSorot: data.produkSorot }]);
       if (!open) setUnread(n => n + 1);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Maaf, terjadi kesalahan. Silakan coba lagi." }]);
@@ -170,7 +207,7 @@ export default function Chatbot() {
                 {m.role === "assistant" && (
                   <div style={{ width: 28, height: 28, background: G.blueLight, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>🤖</div>
                 )}
-                <MessageBubble content={m.content} isUser={m.role === "user"} waNumber={waNumber} />
+                <MessageBubble content={m.content} isUser={m.role === "user"} waNumber={waNumber} produkSorot={m.produkSorot} />
               </div>
             ))}
             {loading && (
