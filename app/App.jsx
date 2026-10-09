@@ -127,7 +127,7 @@ export default function App() {
   const [photoViewer, setPhotoViewer] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(1);
 
-  const [activeTab, setActiveTab] = useState("hp");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [productType, setProductType] = useState("hp");
   const [selectedBranch, setSelectedBranch] = useState("ALL");
   const [selectedBrand, setSelectedBrand] = useState("Semua");
