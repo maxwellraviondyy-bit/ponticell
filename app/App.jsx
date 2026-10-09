@@ -837,45 +837,52 @@ const handleLogin = async () => {
       )}
 
       {/* HEADER */}
-      <div style={c.header}>
+      <div style={{ ...c.header, display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
+        {/* Kiri: Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#F1F5F9" }}>PontiCell <span style={{ fontSize: 11, fontWeight: 500, color: "#64748B" }}>by.Max</span></div>
             <div style={{ fontSize: 10, color: "#64748B" }}>Pontianak</div>
           </div>
         </div>
-        {currentUser ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ background: "rgba(255,255,255,0.12)", color: "#F1F5F9", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
-              <span style={{ color: "#CBD5E1" }}>{currentUser.name}</span>
-            </div>
-            <button onClick={handleLogout} style={{ background: "#334155", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 600, color: "#94A3B8", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Keluar</button>
-          </div>
-        ) : (
-          <div style={{ width: 32 }} />
-        )}
-      </div>
 
-      {/* LIVE indicator - pojok kanan atas */}
-      <div
-        style={{ position: "fixed", top: 10, right: 12, zIndex: 200, display:"flex", alignItems:"center", gap:5, background:"rgba(255,255,255,0.08)", padding:"4px 10px", borderRadius:20, border:"1px solid rgba(255,255,255,0.15)", cursor:"default", userSelect:"none" }}
-        onClick={() => {
-          if (currentUser) return;
-          const newCount = liveTapCount + 1;
-          setLiveTapCount(newCount);
-          if (liveTapTimer.current) clearTimeout(liveTapTimer.current);
-          if (newCount >= 5) {
-            setLiveTapCount(0);
-            setShowLoginModal(true);
-            setLoginUsername(""); setLoginPassword(""); setLoginError("");
-          } else {
-            liveTapTimer.current = setTimeout(() => setLiveTapCount(0), 2000);
-          }
-        }}
-      >
-        <div style={c.liveDot} />
-        <span style={{ fontSize: 9, color: "#F1F5F9", fontWeight: 700 }}>{syncing ? "⏳" : `LIVE · ${lastUpdate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`}</span>
+        {/* Tengah: LIVE indicator */}
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.07)", padding: "6px 14px", borderRadius: 20, border: "1px solid rgba(255,255,255,0.12)", cursor: "default", userSelect: "none", justifyContent: "center" }}
+          onClick={() => {
+            if (currentUser) return;
+            const newCount = liveTapCount + 1;
+            setLiveTapCount(newCount);
+            if (liveTapTimer.current) clearTimeout(liveTapTimer.current);
+            if (newCount >= 5) {
+              setLiveTapCount(0);
+              setShowLoginModal(true);
+              setLoginUsername(""); setLoginPassword(""); setLoginError("");
+            } else {
+              liveTapTimer.current = setTimeout(() => setLiveTapCount(0), 2000);
+            }
+          }}
+        >
+          <div style={c.liveDot} />
+          <span style={{ fontSize: 10, color: "#94A3B8", fontWeight: 600, letterSpacing: "0.5px" }}>
+            {syncing ? "⏳ Sinkron..." : `LIVE · ${lastUpdate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`}
+          </span>
+        </div>
+
+        {/* Kanan: User info */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end" }}>
+          {currentUser ? (
+            <>
+              <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ background: "rgba(255,255,255,0.12)", color: "#F1F5F9", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
+                <span style={{ color: "#CBD5E1" }}>{currentUser.name}</span>
+              </div>
+              <button onClick={handleLogout} style={{ background: "#334155", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 600, color: "#94A3B8", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Keluar</button>
+            </>
+          ) : (
+            <div style={{ width: 32 }} />
+          )}
+        </div>
       </div>
       
 
