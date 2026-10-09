@@ -68,7 +68,7 @@ function kasirToProduct(p, meta) {
     model,
     ram: p.ram || "-",
     storage: p.rom || "-",
-    color: "-",
+    colors: Array.isArray(p.warna) && p.warna.length > 0 ? p.warna : [],
     condition: p.kondisi || (p.kategori === "hp_baru" ? "Baru" : "Bekas"),
     sell_price: p.harga_jual || 0,
     original_price: 0,

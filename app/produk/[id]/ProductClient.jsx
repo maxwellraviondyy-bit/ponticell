@@ -7,6 +7,24 @@ import { toggleWishlist, isWishlisted } from "@/lib/wishlist";
 const WA_NUMBER = "6283808484969";
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
+// Mapping nama warna Indonesia/Inggris → kode hex untuk dot indicator
+const COLOR_MAP = {
+  hitam: "#212121", black: "#212121",
+  putih: "#F5F5F5", white: "#F5F5F5",
+  abu: "#9E9E9E", "abu-abu": "#9E9E9E", gray: "#9E9E9E", grey: "#9E9E9E", silver: "#C0C0C0",
+  merah: "#E53935", red: "#E53935",
+  biru: "#1E88E5", blue: "#1E88E5", "biru tua": "#1565C0", navy: "#1A237E",
+  "biru muda": "#42A5F5", "biru langit": "#29B6F6", "sky blue": "#29B6F6",
+  hijau: "#43A047", green: "#43A047", "hijau tua": "#2E7D32",
+  kuning: "#FDD835", yellow: "#FDD835", gold: "#FFC107", emas: "#FFC107",
+  ungu: "#8E24AA", purple: "#8E24AA", violet: "#7B1FA2",
+  pink: "#E91E63", merahcampur: "#E91E63", "rose gold": "#B76E79", rosegold: "#B76E79",
+  oranye: "#FB8C00", orange: "#FB8C00",
+  coklat: "#6D4C41", brown: "#6D4C41",
+  "midnight": "#1A1A2E", "titanium": "#878681", "alpine": "#F2F2F2",
+  "starlight": "#FAF6F2", "midnight black": "#212121", "pearl white": "#F8F8FF",
+};
+
 const G = {
   bg: "#F8FAFC", card: "#FFFFFF", border: "#E8EDF2",
   blue: "#1565C0", blueLight: "#1E88E5",
@@ -226,15 +244,28 @@ export default function ProductClient({ product, related }) {
               <div style={{ fontSize: 9, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>Storage</div>
               <div style={{ fontSize: 15, fontWeight: 900, color: G.text }}>{product.storage}</div>
             </div>
-            <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "10px 12px" }}>
-              <div style={{ fontSize: 9, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>Warna</div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: G.text }}>{product.color}</div>
-            </div>
             <div style={{ background: product.condition === "Baru" ? "#E8F5E9" : "#FFF8E1", border: `1px solid ${product.condition === "Baru" ? "#4CAF5033" : "#FF980033"}`, borderRadius: 10, padding: "10px 12px" }}>
               <div style={{ fontSize: 9, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>Kondisi</div>
               <div style={{ fontSize: 15, fontWeight: 900, color: product.condition === "Baru" ? "#2E7D32" : "#E65100" }}>{product.condition}</div>
             </div>
           </div>
+
+          {/* Warna tersedia */}
+          {product.colors && product.colors.length > 0 && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: G.gray, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
+                Warna Tersedia
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {product.colors.map((w, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 20, padding: "5px 12px", fontSize: 13, fontWeight: 600, color: G.text }}>
+                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: COLOR_MAP[w.toLowerCase()] || "#9E9E9E", display: "inline-block", flexShrink: 0, border: "1px solid rgba(0,0,0,0.15)" }} />
+                    {w}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* AI Insight */}
           {(aiRec || aiRecLoading) && (
