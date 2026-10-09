@@ -26,7 +26,7 @@ export async function GET() {
     }
 
     const data = await res.json();
-    return NextResponse.json({ ok: true, produk: data.produk || [], toko: data.toko || "" });
+    return NextResponse.json({ ok: true, produk: data.produk || [], toko: data.toko || "", kasirUrl });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }

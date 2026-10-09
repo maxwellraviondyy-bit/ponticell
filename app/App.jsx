@@ -172,6 +172,7 @@ export default function App() {
   const [produkMetaLoading, setProdukMetaLoading] = useState(false);
   const [kasirProdukList, setKasirProdukList] = useState([]); // produk dari storefront kasir
   const [kasirProdukLoading, setKasirProdukLoading] = useState(false);
+  const [kasirKpUrl, setKasirKpUrl] = useState(""); // URL kasir KP untuk redirect
   const [fotoProdukSearch, setFotoProdukSearch] = useState(""); // filter nama produk
 
   // DB helpers
@@ -202,7 +203,7 @@ export default function App() {
       if (robotData) { const map = {}; robotData.forEach(r => { map[r.kunci] = r.nilai; }); setRobotSettings(map); }
       if (pinSetting?.value) setFinancePinHash(pinSetting.value);
       if (metaData) setProdukMeta(metaData);
-      if (kasirData?.ok && kasirData.produk?.length > 0) setKasirProdukList(kasirData.produk);
+      if (kasirData?.ok && kasirData.produk?.length > 0) { setKasirProdukList(kasirData.produk); if (kasirData.kasirUrl) setKasirKpUrl(kasirData.kasirUrl); }
     } catch(e) {
       console.error("Load error:", e);
       if (retryCount < 3) {
@@ -846,7 +847,7 @@ const handleLogin = async () => {
         {currentUser ? (
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ background: "rgba(201,162,39,0.2)", color: "#E8C158", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
+              <span style={{ background: "rgba(255,255,255,0.12)", color: "#F1F5F9", padding: "2px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700 }}>● {currentUser.role === "admin" ? "Admin" : "Staff"}</span>
               <span style={{ color: "#CBD5E1" }}>{currentUser.name}</span>
             </div>
             <button onClick={handleLogout} style={{ background: "#334155", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 11, fontWeight: 600, color: "#94A3B8", cursor: "pointer", fontFamily: "'Sora', sans-serif" }}>Keluar</button>
@@ -858,7 +859,7 @@ const handleLogin = async () => {
 
       {/* LIVE indicator - pojok kanan atas */}
       <div
-        style={{ position: "fixed", top: 10, right: 12, zIndex: 200, display:"flex", alignItems:"center", gap:5, background:"rgba(201,162,39,0.15)", padding:"4px 10px", borderRadius:20, border:"1px solid rgba(201,162,39,0.3)", cursor:"default", userSelect:"none" }}
+        style={{ position: "fixed", top: 10, right: 12, zIndex: 200, display:"flex", alignItems:"center", gap:5, background:"rgba(255,255,255,0.08)", padding:"4px 10px", borderRadius:20, border:"1px solid rgba(255,255,255,0.15)", cursor:"default", userSelect:"none" }}
         onClick={() => {
           if (currentUser) return;
           const newCount = liveTapCount + 1;
@@ -874,7 +875,7 @@ const handleLogin = async () => {
         }}
       >
         <div style={c.liveDot} />
-        <span style={{ fontSize: 9, color: "#C9A227", fontWeight: 700 }}>{syncing ? "⏳" : `LIVE · ${lastUpdate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`}</span>
+        <span style={{ fontSize: 9, color: "#F1F5F9", fontWeight: 700 }}>{syncing ? "⏳" : `LIVE · ${lastUpdate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`}</span>
       </div>
       
 
@@ -937,7 +938,10 @@ const handleLogin = async () => {
                 const stok = branch.id === "KP" ? kasirKPStok : stokNonKP(branch.id);
                 return (
                   <div key={branch.id} style={{ ...c.card(), borderTop: `3px solid ${branch.color}`, padding: 14, cursor: "pointer" }}
-                    onClick={() => { setActiveTab("hp"); setProductType("hp"); setSelectedBranch(branch.id); setSelectedBrand("Semua"); setSearchQuery(""); }}
+                    onClick={() => {
+                      if (branch.id === "KP" && kasirKpUrl) { window.open(kasirKpUrl, "_blank"); return; }
+                      setActiveTab("hp"); setProductType("hp"); setSelectedBranch(branch.id); setSelectedBrand("Semua"); setSearchQuery("");
+                    }}
                     onMouseEnter={e => e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,0.10)"}
                     onMouseLeave={e => e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.04)"}
                   >
@@ -945,7 +949,9 @@ const handleLogin = async () => {
                     <div style={{ fontSize: 10, color: "#94A3B8", marginBottom: 10 }}>📍 {branch.city}</div>
                     <div style={{ fontSize: 11, color: "#94A3B8", marginBottom: 2 }}>Total Stok</div>
                     <div style={{ fontSize: 20, fontWeight: 800, color: branch.color }}>{stok}<span style={{ fontSize: 11 }}> unit</span></div>
-                    <div style={{ fontSize: 10, color: branch.color, marginTop: 6, opacity: 0.8 }}>Lihat stok →</div>
+                    <div style={{ fontSize: 10, color: branch.color, marginTop: 6, opacity: 0.8 }}>
+                      {branch.id === "KP" && kasirProdukList.length > 0 ? "Buka Kasir KP →" : "Lihat stok →"}
+                    </div>
                   </div>
                 );
               })}
