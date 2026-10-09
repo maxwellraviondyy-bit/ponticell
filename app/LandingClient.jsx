@@ -164,14 +164,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
       <style>{`
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .wa-text { display: none; }
-        .banner-hero { height: 56vw; max-height: 320px; min-height: 200px; }
-        @media (min-width: 768px) { .banner-hero { height: 36vw; max-height: 400px; min-height: 260px; } }
-        .banner-desktop { display: none !important; }
-        .banner-mobile { display: block !important; }
-        @media (min-width: 768px) { 
-          .banner-desktop { display: block !important; }
-          .banner-mobile { display: none !important; }
-        }
+        .banner-hero { height: 42vw; max-height: 380px; min-height: 200px; }
+        .banner-desktop { display: block !important; }
+        .banner-mobile { display: none !important; }
         .banner-title { font-size: clamp(28px, 8vw, 60px) !important; }
         .banner-sub { font-size: clamp(14px, 2.5vw, 20px) !important; }
         .banner-overlay { padding: 0 24px !important; }
@@ -349,28 +344,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", opacity: i === bannerIdx ? 1 : 0, transition: "opacity 0.8s ease" }} />
             ))}
 
-            {/* Overlay gradient kiri */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,71,161,0.8) 0%, rgba(13,71,161,0.4) 50%, rgba(13,71,161,0.1) 100%)", pointerEvents: "none" }} />
-
-            {/* Teks overlay */}
-            <div className="banner-overlay" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 40px" }}>
-              <h1 className="banner-title fade-up" style={{ fontSize: "clamp(28px, 6vw, 56px)", fontWeight: 900, color: G.white, margin: "0 0 12px", maxWidth: 640, textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}>
-                {infoNama || "PontiCell"}
-              </h1>
-              <p className="banner-sub fade-up-1" style={{ fontSize: "clamp(14px, 2.5vw, 20px)", color: "rgba(255,255,255,0.9)", margin: "0 0 28px", maxWidth: 520, lineHeight: 1.5, textShadow: "0 1px 4px rgba(0,0,0,0.3)" }}>
-                {infoTagline}
-              </p>
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <button className="fade-up-2 btn-pulse" style={{ background: G.white, color: G.blue, border: "none", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}
-                  onClick={() => document.getElementById("produk-section").scrollIntoView({ behavior: "smooth" })}>
-                  🛍️ Lihat Produk
-                </button>
-                <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer"
-                  style={{ background: "rgba(255,255,255,0.15)", color: G.white, border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 12, padding: "14px 28px", fontSize: "clamp(14px, 2vw, 16px)", fontWeight: 800, textDecoration: "none", backdropFilter: "blur(8px)" }}>
-                  💬 WhatsApp
-                </a>
-              </div>
-            </div>
+            {/* Dots indicator only - no overlay, no text on banner */}
 
             {/* Dots indicator */}
             {(banners.length > 0 ? banners.length : bannersMobile.length) > 1 && (
