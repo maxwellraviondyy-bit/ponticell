@@ -1820,11 +1820,18 @@ const handleLogin = async () => {
 
           return (
             <div>
-              <div style={c.sectionTitle}>Manajemen Konten</div>
-              <div style={{ fontSize: 13, color: "#64748B", marginBottom: 24 }}>Upload dan kelola konten visual landing page</div>
+              {/* Header Manajemen */}
+              <div style={{ background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)", borderRadius: 16, padding: "20px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ width: 48, height: 48, background: "linear-gradient(135deg, #E8C158, #C9A227)", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🗂️</div>
+                <div>
+                  <div style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 2 }}>PontiCell · Website Manajemen</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#F1F5F9" }}>Manajemen Konten</div>
+                  <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>Kelola tampilan visual landing page ponticell.vercel.app</div>
+                </div>
+              </div>
 
               <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Info Toko</div>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>🏪 Info Toko</div>
                 {[
                   { label: "Nama Toko", kunci: "info_nama", ph: "PontiCell" },
                   { label: "Tagline", kunci: "info_tagline", ph: "Toko HP & Tablet Terpercaya" },
@@ -1840,13 +1847,14 @@ const handleLogin = async () => {
                 ))}
               </div>
 
-              {/* Banner Desktop */}
+              {/* Banner */}
               <div style={{ ...c.card(), marginBottom: 16 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
-                  🖥️ Banner Desktop
+                  🖼️ Banner
                   <span style={{ fontSize: 10, background: "#EBF3FF", color: "#1565C0", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>Landscape 16:9</span>
+                  <span style={{ fontSize: 10, background: "#F0FDF4", color: "#059669", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>Desktop & Mobile</span>
                 </div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tampil di laptop/PC. Ukuran ideal: 1920×600px atau 1920×800px.</div>
+                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tampil di semua device. Ukuran ideal: 1920×600px atau 1920×800px.</div>
                 {kontenUploading && <div style={{ fontSize: 12, color: "#F97316", marginBottom: 8 }}>⏳ Mengupload...</div>}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
                   {konten.filter(k => k.kategori === "banner_desktop").sort((a,b) => a.urutan - b.urutan).map((b) => (
@@ -1870,27 +1878,6 @@ const handleLogin = async () => {
                 </div>
               </div>
 
-              {/* Banner Mobile */}
-              <div style={{ ...c.card(), marginBottom: 20 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
-                  📱 Banner Mobile
-                  <span style={{ fontSize: 10, background: "#F0FDF4", color: "#059669", borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>Portrait 9:16</span>
-                </div>
-                <div style={{ fontSize: 12, color: "#64748B", marginBottom: 12 }}>Tampil di HP. Ukuran ideal: 750×1200px atau 1080×1920px.</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
-                  {konten.filter(k => k.kategori === "banner_mobile").sort((a,b) => a.urutan - b.urutan).map((b) => (
-                    <div key={b.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", border: "1px solid #E2E8F0" }}>
-                      <img src={b.nilai} alt="banner mobile" style={{ width: "100%", height: 160, objectFit: "cover" }} />
-                      <button onClick={() => hapusKonten(b.id)} style={{ position: "absolute", top: 6, right: 6, background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6, color: "#fff", fontSize: 11, padding: "3px 8px", cursor: "pointer" }}>Hapus</button>
-                    </div>
-                  ))}
-                  <label style={{ borderRadius: 10, border: "2px dashed #E2E8F0", height: 160, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: 4 }}>
-                    <span style={{ fontSize: 28 }}>+</span>
-                    <span style={{ fontSize: 11, color: "#64748B", textAlign: "center" }}>Upload Banner Mobile</span>
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => { const f = e.target.files[0]; if (f) uploadKonten(f, "banner_mobile", "banner_mobile_" + Date.now(), konten.filter(k=>k.kategori==="banner_mobile").length); e.target.value = ""; }} />
-                  </label>
-                </div>
-              </div>
 
               <div style={{ ...c.card(), marginBottom: 20 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>Logo Brand</div>
