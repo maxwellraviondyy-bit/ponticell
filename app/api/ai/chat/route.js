@@ -114,63 +114,60 @@ ATURAN PENTING:
 
     let reply = "";
 
-    // ─── COBA ANTHROPIC CLAUDE HAIKU (PRIMARY) ───────────────────────────────
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
-    if (anthropicKey) {
-      try {
-        const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-api-key": anthropicKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-haiku-4-5-20251001",
-            max_tokens: 400,
-            system: systemPrompt,
-            messages,
-          }),
-        });
-        if (claudeRes.ok) {
-          const cd = await claudeRes.json();
-          reply = cd.content?.[0]?.text || "";
-        } else {
-          const errText = await claudeRes.text();
-          console.error("Anthropic error:", claudeRes.status, errText);
-        }
-      } catch (e) {
-        console.error("Anthropic fetch error:", e);
+    // ─── GROQ (PRIMARY) ───────────────────────────────────────────────────────
+    try {
+      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "system", content: systemPrompt }, ...messages],
+          max_tokens: 400,
+          temperature: 0.65,
+        }),
+      });
+      if (groqRes.ok) {
+        const data = await groqRes.json();
+        reply = data.choices?.[0]?.message?.content || "";
+      } else {
+        const errText = await groqRes.text();
+        console.error("Groq error:", groqRes.status, errText);
       }
+    } catch (e) {
+      console.error("Groq fetch error:", e);
     }
 
-    // ─── FALLBACK KE GROQ KALAU ANTHROPIC GAGAL ──────────────────────────────
+    // ─── FALLBACK KE ANTHROPIC KALAU GROQ GAGAL ──────────────────────────────
     if (!reply) {
-      const groqKey = process.env.GROQ_API_KEY || "";
-      if (groqKey) {
+      const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
+      if (anthropicKey) {
         try {
-          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${groqKey}`,
+              "x-api-key": anthropicKey,
+              "anthropic-version": "2023-06-01",
             },
             body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
-              messages: [{ role: "system", content: systemPrompt }, ...messages],
+              model: "claude-haiku-4-5-20251001",
               max_tokens: 400,
-              temperature: 0.65,
+              system: systemPrompt,
+              messages,
             }),
           });
-          if (groqRes.ok) {
-            const data = await groqRes.json();
-            reply = data.choices?.[0]?.message?.content || "";
+          if (claudeRes.ok) {
+            const cd = await claudeRes.json();
+            reply = cd.content?.[0]?.text || "";
           } else {
-            const errText = await groqRes.text();
-            console.error("Groq error:", groqRes.status, errText);
+            const errText = await claudeRes.text();
+            console.error("Anthropic error:", claudeRes.status, errText);
           }
         } catch (e) {
-          console.error("Groq fetch error:", e);
+          console.error("Anthropic fetch error:", e);
         }
       }
     }
