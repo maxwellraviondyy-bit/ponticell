@@ -237,7 +237,7 @@ export default function ProductClient({ product, related }) {
             {product.ram !== "-" && (
               <div style={{ background: G.blueAccent, border: `1px solid ${G.blue}22`, borderRadius: 10, padding: "10px 12px" }}>
                 <div style={{ fontSize: 9, color: G.blue, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3 }}>RAM</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: G.blue }}>{product.ram} GB</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: G.blue }}>{String(product.ram).replace(/\s*GB$/i, "")} GB</div>
               </div>
             )}
             <div style={{ background: G.grayLight, border: `1px solid ${G.border}`, borderRadius: 10, padding: "10px 12px" }}>
