@@ -23,6 +23,7 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
   const [selectedBrand, setSelectedBrand] = useState("Semua");
   const [selectedRam, setSelectedRam] = useState("Semua");
   const [selectedKondisi, setSelectedKondisi] = useState("Semua");
+  const [filterOpen, setFilterOpen] = useState(false);
   const [navSuggestions, setNavSuggestions] = useState([]);
   const [showSuggest, setShowSuggest] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -489,78 +490,123 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
-          {brands.map(b => (
-            <button key={b} onClick={() => setSelectedBrand(b)}
-              style={{ padding: "5px 14px", borderRadius: 20, border: `1px solid ${selectedBrand === b ? G.blue : G.border}`, background: selectedBrand === b ? G.blueAccent : G.white, color: selectedBrand === b ? G.blue : G.gray, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
-              {b}
-            </button>
-          ))}
-        </div>
+        {/* Tombol Filter + badge aktif */}
+        {(() => {
+          const activeCount = [
+            selectedBrand !== "Semua",
+            selectedKondisi !== "Semua",
+            selectedRam !== "Semua",
+            priceFilter[0] > priceRange[0] || priceFilter[1] < priceRange[1],
+          ].filter(Boolean).length;
+          return (
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={() => setFilterOpen(o => !o)}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 18px", borderRadius: 10, border: `1.5px solid ${filterOpen ? G.blue : G.border}`, background: filterOpen ? G.blueAccent : G.white, color: filterOpen ? G.blue : G.text, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s", boxShadow: "0 2px 6px rgba(0,0,0,0.05)" }}>
+                  <span>⚙️ Filter</span>
+                  {activeCount > 0 && (
+                    <span style={{ background: G.blue, color: "#fff", borderRadius: 20, fontSize: 11, fontWeight: 800, padding: "1px 7px", marginLeft: 2 }}>{activeCount}</span>
+                  )}
+                  <span style={{ fontSize: 10, marginLeft: 2 }}>{filterOpen ? "▲" : "▼"}</span>
+                </button>
+                {/* Ringkasan filter aktif */}
+                {activeCount > 0 && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                    {selectedBrand !== "Semua" && <span style={{ background: G.blueAccent, color: G.blue, borderRadius: 20, fontSize: 11, fontWeight: 700, padding: "3px 10px" }}>{selectedBrand} ✕</span>}
+                    {selectedKondisi !== "Semua" && <span style={{ background: G.blueAccent, color: G.blue, borderRadius: 20, fontSize: 11, fontWeight: 700, padding: "3px 10px" }}>{selectedKondisi} ✕</span>}
+                    {selectedRam !== "Semua" && <span style={{ background: G.blueAccent, color: G.blue, borderRadius: 20, fontSize: 11, fontWeight: 700, padding: "3px 10px" }}>{selectedRam} GB ✕</span>}
+                    <button onClick={() => { setSelectedBrand("Semua"); setSelectedKondisi("Semua"); setSelectedRam("Semua"); setPriceFilter([priceRange[0], priceRange[1]]); }}
+                      style={{ background: "none", border: "none", color: G.gray, fontSize: 11, cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 600, textDecoration: "underline" }}>
+                      Reset semua
+                    </button>
+                  </div>
+                )}
+              </div>
 
-        {/* Filter Kondisi */}
-        <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>Kondisi:</span>
-          {["Semua", "Baru", "Bekas"].map(k => (
-            <button key={k} onClick={() => setSelectedKondisi(k)}
-              style={{ padding: "4px 14px", borderRadius: 16, border: `1px solid ${selectedKondisi === k ? G.blue : G.border}`, background: selectedKondisi === k ? G.blueAccent : G.white, color: selectedKondisi === k ? G.blue : G.gray, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
-              {k === "Semua" ? "Semua" : k === "Baru" ? "✨ Baru" : "🔄 Bekas"}
-            </button>
-          ))}
-        </div>
+              {/* Panel filter accordion */}
+              {filterOpen && (
+                <div style={{ marginTop: 10, padding: 16, background: G.grayLight, borderRadius: 12, border: `1px solid ${G.border}` }}>
+                  {/* Brand */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: G.gray, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Brand</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {brands.map(b => (
+                        <button key={b} onClick={() => setSelectedBrand(b)}
+                          style={{ padding: "5px 14px", borderRadius: 20, border: `1px solid ${selectedBrand === b ? G.blue : G.border}`, background: selectedBrand === b ? G.blue : G.white, color: selectedBrand === b ? "#fff" : G.gray, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-        {rams.length > 2 && (
-          <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
-            <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>RAM:</span>
-            {rams.map(r => (
-              <button key={r} onClick={() => setSelectedRam(r)}
-                style={{ padding: "4px 12px", borderRadius: 16, border: `1px solid ${selectedRam === r ? G.blue : G.border}`, background: selectedRam === r ? G.blueAccent : G.white, color: selectedRam === r ? G.blue : G.gray, fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-                {r === "Semua" ? "Semua" : `${r} GB`}
-              </button>
-            ))}
-          </div>
-        )}
+                  {/* Kondisi */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: G.gray, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Kondisi</div>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {["Semua", "Baru", "Bekas"].map(k => (
+                        <button key={k} onClick={() => setSelectedKondisi(k)}
+                          style={{ padding: "6px 16px", borderRadius: 20, border: `1px solid ${selectedKondisi === k ? G.blue : G.border}`, background: selectedKondisi === k ? G.blue : G.white, color: selectedKondisi === k ? "#fff" : G.gray, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                          {k === "Semua" ? "Semua" : k === "Baru" ? "✨ Baru" : "🔄 Bekas"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-        {/* Filter Harga */}
-        {priceRange[1] > priceRange[0] && (
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontSize: 11, color: G.gray, fontWeight: 700 }}>HARGA</span>
-              <span style={{ fontSize: 12, color: G.blue, fontWeight: 800 }}>
-                {formatRpShort(priceFilter[0])} — {formatRpShort(priceFilter[1])}
-              </span>
+                  {/* RAM */}
+                  {rams.length > 2 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: G.gray, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>RAM</div>
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {rams.map(r => (
+                          <button key={r} onClick={() => setSelectedRam(r)}
+                            style={{ padding: "5px 14px", borderRadius: 20, border: `1px solid ${selectedRam === r ? G.blue : G.border}`, background: selectedRam === r ? G.blue : G.white, color: selectedRam === r ? "#fff" : G.gray, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+                            {r === "Semua" ? "Semua" : `${r} GB`}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Harga */}
+                  {priceRange[1] > priceRange[0] && (
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: G.gray, textTransform: "uppercase", letterSpacing: 0.5 }}>Harga</span>
+                        <span style={{ fontSize: 12, color: G.blue, fontWeight: 800 }}>{formatRpShort(priceFilter[0])} — {formatRpShort(priceFilter[1])}</span>
+                      </div>
+                      <div style={{ position: "relative", height: 36, display: "flex", alignItems: "center" }}>
+                        <div style={{ position: "absolute", left: 0, right: 0, height: 4, background: G.border, borderRadius: 2 }} />
+                        <div style={{ position: "absolute", left: `${((priceFilter[0]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`, right: `${100-((priceFilter[1]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`, height: 4, background: G.blue, borderRadius: 2 }} />
+                        <input type="range" min={priceRange[0]} max={priceRange[1]} step={Math.round((priceRange[1]-priceRange[0])/100)} value={priceFilter[0]}
+                          onChange={e => { const v = Number(e.target.value); if (v < priceFilter[1] - 500000) setPriceFilter([v, priceFilter[1]]); }}
+                          style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
+                        <input type="range" min={priceRange[0]} max={priceRange[1]} step={Math.round((priceRange[1]-priceRange[0])/100)} value={priceFilter[1]}
+                          onChange={e => { const v = Number(e.target.value); if (v > priceFilter[0] + 500000) setPriceFilter([priceFilter[0], v]); }}
+                          style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: G.gray }}>
+                        <span>{formatRpShort(priceRange[0])}</span>
+                        <span>{formatRpShort(priceRange[1])}</span>
+                      </div>
+                      {(priceFilter[0] > priceRange[0] || priceFilter[1] < priceRange[1]) && (
+                        <button onClick={() => setPriceFilter([priceRange[0], priceRange[1]])}
+                          style={{ background: "none", border: "none", color: G.blue, fontSize: 11, cursor: "pointer", fontFamily: "inherit", marginTop: 4, padding: 0, fontWeight: 600 }}>
+                          ✕ Reset harga
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Tombol tutup */}
+                  <button onClick={() => setFilterOpen(false)}
+                    style={{ marginTop: 14, width: "100%", padding: "9px", borderRadius: 10, border: "none", background: G.blue, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+                    Tampilkan {filtered.length} produk ✓
+                  </button>
+                </div>
+              )}
             </div>
-            <div style={{ position: "relative", height: 36, display: "flex", alignItems: "center" }}>
-              <div style={{ position: "absolute", left: 0, right: 0, height: 4, background: G.border, borderRadius: 2 }} />
-              <div style={{
-                position: "absolute",
-                left: `${((priceFilter[0]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`,
-                right: `${100-((priceFilter[1]-priceRange[0])/(priceRange[1]-priceRange[0]))*100}%`,
-                height: 4, background: G.blue, borderRadius: 2
-              }} />
-              <input type="range" min={priceRange[0]} max={priceRange[1]}
-                step={Math.round((priceRange[1]-priceRange[0])/100)}
-                value={priceFilter[0]}
-                onChange={e => { const v = Number(e.target.value); if (v < priceFilter[1] - 500000) setPriceFilter([v, priceFilter[1]]); }}
-                style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
-              <input type="range" min={priceRange[0]} max={priceRange[1]}
-                step={Math.round((priceRange[1]-priceRange[0])/100)}
-                value={priceFilter[1]}
-                onChange={e => { const v = Number(e.target.value); if (v > priceFilter[0] + 500000) setPriceFilter([priceFilter[0], v]); }}
-                style={{ position: "absolute", width: "100%", opacity: 0, cursor: "pointer", height: 36, zIndex: 3, margin: 0 }} />
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: G.gray }}>
-              <span>{formatRpShort(priceRange[0])}</span>
-              <span>{formatRpShort(priceRange[1])}</span>
-            </div>
-            {(priceFilter[0] > priceRange[0] || priceFilter[1] < priceRange[1]) && (
-              <button onClick={() => setPriceFilter([priceRange[0], priceRange[1]])}
-                style={{ background: "none", border: "none", color: G.blue, fontSize: 11, cursor: "pointer", fontFamily: "inherit", marginTop: 4, padding: 0, fontWeight: 600 }}>
-                ✕ Reset harga
-              </button>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {filtered.length === 0
           ? <div style={{ textAlign: "center", padding: "80px 0", color: G.gray }}><div style={{ fontSize: 48, marginBottom: 12 }}>📭</div><div style={{ fontSize: 16, fontWeight: 600 }}>Produk tidak ditemukan</div></div>
