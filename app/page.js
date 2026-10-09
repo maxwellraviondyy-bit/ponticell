@@ -120,7 +120,10 @@ function kasirProdukToLanding(p, metaMap) {
     brand = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1).toLowerCase();
   }
 
-  const model = namaParts.slice(1).join(" ") || p.nama || "";
+  // Model: sisa kata setelah brand, tapi pertahankan nama asli dari kasir sebagai fallback pencarian
+  const modelRaw = namaParts.slice(1).join(" ") || p.nama || "";
+  // Simpan nama lengkap asli dari kasir di _nama_kasir untuk pencarian robot
+  const model = modelRaw;
 
   // Ambil foto & deskripsi dari meta Ponticell (kalau ada)
   const metaKey = `${p._kasir_url}::${p.id}`;
@@ -135,8 +138,9 @@ function kasirProdukToLanding(p, metaMap) {
     _toko_nama: p._toko_nama,
     brand,
     model,
-    ram: p.ram || "-",
-    storage: p.rom || "-",
+    _nama_kasir: p.nama || "", // nama lengkap asli dari kasir untuk pencarian robot
+    ram: p.ram ? p.ram.toString().replace(/gb$/i, "").trim() : "-",
+    storage: p.rom ? p.rom.toString().replace(/gb$/i, "").trim() + "GB" : "-",
     color: "-",
     condition: p.kondisi || (p.kategori === "hp_baru" ? "Baru" : "Bekas"),
     sell_price: p.harga_jual || 0,

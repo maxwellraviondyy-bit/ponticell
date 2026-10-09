@@ -127,18 +127,50 @@ ATURAN PENTING:
       }),
     });
 
+    let reply = "";
+
     if (!groqRes.ok) {
       const err = await groqRes.text();
       console.error("Groq error:", groqRes.status, err);
-      return NextResponse.json({
-        reply: `Maaf, koneksi bermasalah. Langsung aja chat WA kami ya! 👉 wa.me/${waNumber}`,
-        botName: namaBot,
-        waNumber,
-      });
-    }
 
-    const data = await groqRes.json();
-    let reply = data.choices?.[0]?.message?.content || "Maaf, tidak ada jawaban.";
+      // Fallback ke Anthropic API kalau Groq gagal
+      const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
+      if (anthropicKey) {
+        try {
+          const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": anthropicKey,
+              "anthropic-version": "2023-06-01",
+            },
+            body: JSON.stringify({
+              model: "claude-haiku-4-5-20251001",
+              max_tokens: 400,
+              system: messages[0].content,
+              messages: messages.slice(1),
+            }),
+          });
+          if (claudeRes.ok) {
+            const cd = await claudeRes.json();
+            reply = cd.content?.[0]?.text || "";
+          }
+        } catch (e) {
+          console.error("Claude fallback error:", e);
+        }
+      }
+
+      if (!reply) {
+        return NextResponse.json({
+          reply: `Maaf, koneksi bermasalah. Langsung aja chat WA kami ya! 👉 wa.me/${waNumber}`,
+          botName: namaBot,
+          waNumber,
+        });
+      }
+    } else {
+      const data = await groqRes.json();
+      reply = data.choices?.[0]?.message?.content || "Maaf, tidak ada jawaban.";
+    }
 
     // Hapus thinking tags dari model reasoning jika ada
     reply = reply.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
@@ -150,12 +182,16 @@ ATURAN PENTING:
     const stopWords = new Set(["ada","yang","mana","apa","bisa","mau","cari","ingin","tolong","halo","hai","harga","berapa","stok","masih","untuk","sama","dengan","atau","dan","ini","itu","saja","dong","deh","kak","pak","bu"]);
     const words = msgLower.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
 
+    // Brand-brand yang kalau disebut sendiri sudah cukup spesifik (1 kata = boleh tampil)
+    const brandSpesifik = new Set(["iphone","ipad","samsung","xiaomi","realme","oppo","vivo","infinix","tecno","redmi","poco","nubia","nokia","sony","asus","huawei","honor","motorola","itel"]);
+    const adaBrandSpesifik = words.some(w => brandSpesifik.has(w));
+
     // Hitung skor kecocokan — produk dengan lebih banyak kata yang cocok = lebih relevan
     const scored = kasirProduk.map(p => {
       const namaProduk = (p.nama || "").toLowerCase();
       const matchCount = words.filter(w => namaProduk.includes(w)).length;
       return { p, matchCount };
-    }).filter(x => x.matchCount >= 2) // minimal 2 kata cocok (misal "infinix" + "note" atau "50")
+    }).filter(x => adaBrandSpesifik ? x.matchCount >= 1 : x.matchCount >= 2)
       .sort((a, b) => b.matchCount - a.matchCount);
 
     const produkSorot = scored.slice(0, 3).map(({ p }) => ({
