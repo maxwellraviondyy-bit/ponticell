@@ -162,9 +162,12 @@ ATURAN PENTING:
           }),
           signal: ctrl.signal,
         })
-          .then(r => r.ok ? r.json() : Promise.reject(r.status))
+          .then(r => {
+            if (r.ok) return r.json();
+            return r.text().then(t => { console.error(`Groq ${model} HTTP ${r.status}:`, t.slice(0,150)); return null; });
+          })
           .then(d => { clearTimeout(timer); resolve(d?.choices?.[0]?.message?.content || null); })
-          .catch(() => { clearTimeout(timer); resolve(null); });
+          .catch((e) => { clearTimeout(timer); console.error(`Groq ${model} catch:`, e?.message); resolve(null); });
       });
 
       const results = await Promise.allSettled(groqModels.map(tryGroq));
@@ -173,6 +176,36 @@ ATURAN PENTING:
       }
       if (reply) console.log("Groq OK");
       else console.error("Groq: semua model gagal");
+    }
+
+    // ─── FALLBACK: OPENROUTER (gratis, pakai key terpisah) ───────────────────
+    if (!reply) {
+      const orKey = process.env.OPENROUTER_API_KEY || "";
+      if (orKey) {
+        try {
+          const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${orKey}`,
+              "HTTP-Referer": "https://ponticell.vercel.app",
+            },
+            body: JSON.stringify({
+              model: "meta-llama/llama-3.1-8b-instruct:free",
+              messages: [{ role: "system", content: systemPrompt }, ...messages],
+              max_tokens: 350,
+            }),
+          });
+          if (orRes.ok) {
+            const d = await orRes.json();
+            reply = d?.choices?.[0]?.message?.content || "";
+            if (reply) console.log("OpenRouter OK");
+          } else {
+            const t = await orRes.text();
+            console.error("OpenRouter error:", orRes.status, t.slice(0,150));
+          }
+        } catch(e) { console.error("OpenRouter catch:", e.message); }
+      }
     }
 
     // ─── KALAU SEMUA GAGAL ────────────────────────────────────────────────────
