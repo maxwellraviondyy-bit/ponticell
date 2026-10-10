@@ -925,8 +925,46 @@ const handleLogin = async () => {
 
       <div style={c.main}>
 
+        {/* ===== LOGIN WALL (jika akses dashboard sebelum login) ===== */}
+        {activeTab === "dashboard" && !currentUser && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "60vh", padding: 24 }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: 32, width: "100%", maxWidth: 360, boxShadow: "0 8px 40px rgba(0,0,0,0.10)", textAlign: "center" }}>
+              <div style={{ width: 64, height: 64, background: "#334155", borderRadius: 18, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 16px" }}>🔐</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#1E293B", marginBottom: 4 }}>Login Diperlukan</div>
+              <div style={{ fontSize: 12, color: "#94A3B8", marginBottom: 24 }}>Masukkan username dan password untuk mengakses dashboard</div>
+              <div style={{ marginBottom: 12, textAlign: "left" }}>
+                <label style={{ fontSize: 11, color: "#64748B", fontWeight: 600, marginBottom: 5, display: "block" }}>Username</label>
+                <input style={{ width: "100%", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "11px 14px", color: "#1E293B", fontSize: 13, fontFamily: "'Sora', sans-serif", outline: "none", boxSizing: "border-box" }}
+                  placeholder="Masukkan username" value={loginUsername}
+                  onChange={e => { setLoginUsername(e.target.value); setLoginError(""); }}
+                  onKeyDown={e => e.key === "Enter" && handleLogin()}
+                  autoCapitalize="none" />
+              </div>
+              <div style={{ marginBottom: 16, textAlign: "left" }}>
+                <label style={{ fontSize: 11, color: "#64748B", fontWeight: 600, marginBottom: 5, display: "block" }}>Password</label>
+                <div style={{ position: "relative" }}>
+                  <input style={{ width: "100%", background: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: 10, padding: "11px 40px 11px 14px", color: "#1E293B", fontSize: 13, fontFamily: "'Sora', sans-serif", outline: "none", boxSizing: "border-box" }}
+                    type={showPassword ? "text" : "password"} placeholder="Masukkan password" value={loginPassword}
+                    onChange={e => { setLoginPassword(e.target.value); setLoginError(""); }}
+                    onKeyDown={e => e.key === "Enter" && handleLogin()} />
+                  <button onClick={() => setShowPassword(p => !p)} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 15, color: "#94A3B8" }}>
+                    {showPassword ? "🙈" : "👁️"}
+                  </button>
+                </div>
+              </div>
+              {loginError && <div style={{ background: "#FEE2E2", border: "1px solid #FECACA", borderRadius: 8, padding: "7px 12px", marginBottom: 12, fontSize: 12, color: "#EF4444", textAlign: "center" }}>❌ {loginError}</div>}
+              <button
+                style={{ width: "100%", padding: "12px", background: loginLockedUntil && Date.now() < loginLockedUntil ? "#94A3B8" : "#334155", border: "none", borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 700, cursor: loginLockedUntil && Date.now() < loginLockedUntil ? "not-allowed" : "pointer", fontFamily: "'Sora', sans-serif" }}
+                onClick={handleLogin}>
+                {loginLockedUntil && Date.now() < loginLockedUntil ? "🔒 Login Diblokir" : "Masuk"}
+              </button>
+              <div style={{ textAlign: "center", marginTop: 12, fontSize: 11, color: "#CBD5E1" }}>Hubungi pemilik toko untuk akun</div>
+            </div>
+          </div>
+        )}
+
         {/* ===== DASHBOARD ===== */}
-        {activeTab === "dashboard" && (() => {
+        {activeTab === "dashboard" && currentUser && (() => {
           // Hitung stok KP dari kasir modernshop
           const TABLET_KW = ["tab", "pad", "ipad", "fold", "flip", "mediapad"];
           const isTabletKasir = (p) => TABLET_KW.some(k => (p.nama||"").toLowerCase().includes(k));
