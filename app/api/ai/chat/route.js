@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+// ─── RATE LIMITER SEDERHANA (in-memory, reset tiap 60 detik) ─────────────────
+const rateLimitMap = new Map(); // ip → { count, resetAt }
+const RATE_LIMIT = 30;         // max 30 request per IP per menit
+const RATE_WINDOW = 60_000;    // 60 detik
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW });
+    return false; // OK
+  }
+  if (entry.count >= RATE_LIMIT) return true; // kena limit
+  entry.count++;
+  return false; // OK
+}
+
 export async function POST(req) {
+  // Rate limit per IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (checkRateLimit(ip)) {
+    return NextResponse.json({ reply: "Terlalu banyak pertanyaan. Coba lagi dalam 1 menit ya! 😊", botName: "Asisten PontiCell" }, { status: 429 });
+  }
+
   try {
     const { message, history = [] } = await req.json();
     const sql = getDb();
@@ -114,44 +137,33 @@ ATURAN PENTING:
 
     let reply = "";
 
-    // ─── GROQ PRIMARY: coba 3 model berbeda sampai ada yang jalan ────────────
-    const groqKey = process.env.GROQ_API_KEY || "";
-    if (groqKey) {
-      const groqModels = [
-        "llama-3.3-70b-versatile",
-        "llama3-70b-8192",
-        "llama3-8b-8192",
-      ];
-      for (const model of groqModels) {
-        if (reply) break;
-        try {
-          const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${groqKey}`,
-            },
-            body: JSON.stringify({
-              model,
-              messages: [{ role: "system", content: systemPrompt }, ...messages],
-              max_tokens: 400,
-              temperature: 0.65,
-            }),
-          });
-          if (groqRes.ok) {
-            const data = await groqRes.json();
-            reply = data.choices?.[0]?.message?.content || "";
-          } else {
-            const errText = await groqRes.text();
-            console.error(`Groq model ${model} error:`, groqRes.status, errText);
-          }
-        } catch (e) {
-          console.error(`Groq model ${model} fetch error:`, e);
-        }
+    // ─── GROQ (PRIMARY) ───────────────────────────────────────────────────────
+    try {
+      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "system", content: systemPrompt }, ...messages],
+          max_tokens: 400,
+          temperature: 0.65,
+        }),
+      });
+      if (groqRes.ok) {
+        const data = await groqRes.json();
+        reply = data.choices?.[0]?.message?.content || "";
+      } else {
+        const errText = await groqRes.text();
+        console.error("Groq error:", groqRes.status, errText);
       }
+    } catch (e) {
+      console.error("Groq fetch error:", e);
     }
 
-    // ─── FALLBACK KE ANTHROPIC KALAU SEMUA GROQ GAGAL ────────────────────────
+    // ─── FALLBACK KE ANTHROPIC KALAU GROQ GAGAL ──────────────────────────────
     if (!reply) {
       const anthropicKey = process.env.ANTHROPIC_API_KEY || "";
       if (anthropicKey) {

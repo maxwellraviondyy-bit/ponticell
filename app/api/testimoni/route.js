@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/apiAuth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -8,6 +9,7 @@ export async function GET() {
 }
 
 export async function POST(req) {
+  const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
   const body = await req.json();
   const rows = Array.isArray(body) ? body : [body];
@@ -18,6 +20,7 @@ export async function POST(req) {
 }
 
 export async function DELETE(req) {
+  const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
   const { id } = await req.json();
   await sql`DELETE FROM testimoni WHERE id=${id}`;

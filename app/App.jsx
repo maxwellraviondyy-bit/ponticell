@@ -21,12 +21,14 @@ const uploadToCloudinary = async (file) => {
 
 
 // ── API helpers ─────────────────────────────────────────────
+const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_API_KEY || "";
+const adminHeaders = { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY };
 const api = {
   get: (path) => fetch(path).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  post: (path, body) => fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  put: (path, body) => fetch(path, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  patch: (path, body) => fetch(path, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  del: (path, body) => fetch(path, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
+  post: (path, body) => fetch(path, { method: "POST", headers: adminHeaders, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
+  put: (path, body) => fetch(path, { method: "PUT", headers: adminHeaders, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
+  patch: (path, body) => fetch(path, { method: "PATCH", headers: adminHeaders, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
+  del: (path, body) => fetch(path, { method: "DELETE", headers: adminHeaders, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
 };
 const BRANCHES = [
   { id: "KP", name: "Cabang KP", city: "ModernShop · Pontianak", color: "#64748B" },

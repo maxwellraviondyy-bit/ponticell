@@ -1,9 +1,6 @@
 // app/api/produk-meta/route.js
-// Menyimpan foto & deskripsi tambahan untuk produk yang stoknya dari kasir.
-// GET  → ambil semua meta (atau filter by kasir_url)
-// POST → simpan/update meta (upsert by kasir_url + kasir_id)
-
 import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/apiAuth";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -19,6 +16,7 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
   const { kasir_url, kasir_id, photos, deskripsi } = await req.json();
 

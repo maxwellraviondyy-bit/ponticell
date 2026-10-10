@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/apiAuth";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -10,6 +11,7 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
   const { key, value } = await req.json();
   await sql`
