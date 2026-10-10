@@ -135,53 +135,23 @@ ATURAN PENTING:
       { role: "user", content: message },
     ];
 
-
     let reply = "";
 
-    // ─── GROQ: semua model PARALEL, ambil tercepat (bypass Vercel 10s timeout) ─
-    const groqKey = process.env.GROQ_API_KEY || "";
-    if (groqKey) {
-      const groqModels = [
-        "openai/gpt-oss-20b",   // cepat
-        "openai/gpt-oss-120b",  // pintar
-        "qwen/qwen3.8-27b",     // cadangan
+    // ─── PRIMARY: OPENROUTER ─────────────────────────────────────────────────
+    // OpenRouter lebih reliable, pakai sebagai primary
+    const orKey = process.env.OPENROUTER_API_KEY || "";
+    if (orKey) {
+      // Coba beberapa model OpenRouter secara berurutan
+      const orModels = [
+        "google/gemma-3-4b-it",
+        "meta-llama/llama-3.2-3b-instruct:free",
+        "qwen/qwen-2.5-7b-instruct:free",
       ];
-
-      const tryGroq = (model) => new Promise((resolve) => {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 7000);
-        fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqKey}` },
-          body: JSON.stringify({
-            model,
-            messages: [{ role: "system", content: systemPrompt }, ...messages],
-            max_tokens: 350,
-            temperature: 0.65,
-          }),
-          signal: ctrl.signal,
-        })
-          .then(r => {
-            if (r.ok) return r.json();
-            return r.text().then(t => { console.error(`Groq ${model} HTTP ${r.status}:`, t.slice(0,150)); return null; });
-          })
-          .then(d => { clearTimeout(timer); resolve(d?.choices?.[0]?.message?.content || null); })
-          .catch((e) => { clearTimeout(timer); console.error(`Groq ${model} catch:`, e?.message); resolve(null); });
-      });
-
-      const results = await Promise.allSettled(groqModels.map(tryGroq));
-      for (const r of results) {
-        if (r.status === "fulfilled" && r.value) { reply = r.value; break; }
-      }
-      if (reply) console.log("Groq OK");
-      else console.error("Groq: semua model gagal");
-    }
-
-    // ─── FALLBACK: OPENROUTER (gratis, pakai key terpisah) ───────────────────
-    if (!reply) {
-      const orKey = process.env.OPENROUTER_API_KEY || "";
-      if (orKey) {
+      for (const model of orModels) {
+        if (reply) break;
         try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 8000);
           const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -190,20 +160,62 @@ ATURAN PENTING:
               "HTTP-Referer": "https://ponticell.vercel.app",
             },
             body: JSON.stringify({
-              model: "google/gemma-3-4b-it:free",
+              model,
               messages: [{ role: "system", content: systemPrompt }, ...messages],
               max_tokens: 350,
+              temperature: 0.65,
             }),
+            signal: ctrl.signal,
           });
+          clearTimeout(timer);
           if (orRes.ok) {
             const d = await orRes.json();
             reply = d?.choices?.[0]?.message?.content || "";
-            if (reply) console.log("OpenRouter OK");
+            if (reply) { console.log("OpenRouter OK:", model); break; }
           } else {
             const t = await orRes.text();
-            console.error("OpenRouter error:", orRes.status, t.slice(0,150));
+            console.error(`OpenRouter ${model} error:`, orRes.status, t.slice(0,100));
           }
-        } catch(e) { console.error("OpenRouter catch:", e.message); }
+        } catch(e) { console.error(`OpenRouter ${model} catch:`, e.message); }
+      }
+    }
+
+    // ─── FALLBACK: GROQ ──────────────────────────────────────────────────────
+    if (!reply) {
+      const groqKey = process.env.GROQ_API_KEY || "";
+      if (groqKey) {
+        const groqModels = [
+          "openai/gpt-oss-20b",
+          "openai/gpt-oss-120b",
+          "qwen/qwen3.8-27b",
+        ];
+        const tryGroq = (model) => new Promise((resolve) => {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 7000);
+          fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqKey}` },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: "system", content: systemPrompt }, ...messages],
+              max_tokens: 350,
+              temperature: 0.65,
+            }),
+            signal: ctrl.signal,
+          })
+            .then(r => {
+              if (r.ok) return r.json();
+              return r.text().then(t => { console.error(`Groq ${model} HTTP ${r.status}:`, t.slice(0,150)); return null; });
+            })
+            .then(d => { clearTimeout(timer); resolve(d?.choices?.[0]?.message?.content || null); })
+            .catch((e) => { clearTimeout(timer); console.error(`Groq ${model} catch:`, e?.message); resolve(null); });
+        });
+
+        const results = await Promise.allSettled(groqModels.map(tryGroq));
+        for (const r of results) {
+          if (r.status === "fulfilled" && r.value) { reply = r.value; console.log("Groq OK"); break; }
+        }
+        if (!reply) console.error("Groq: semua model gagal");
       }
     }
 
