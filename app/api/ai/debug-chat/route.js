@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-// Endpoint debug sementara — cek kenapa AI tidak merespons
-// HAPUS SETELAH SELESAI DEBUG
+// Debug v2 - test model baru
 export async function GET() {
   const groqKey = process.env.GROQ_API_KEY || "";
   const orKey = process.env.OPENROUTER_API_KEY || "";
@@ -13,9 +12,10 @@ export async function GET() {
     },
     groqTest: null,
     orTest: null,
+    chatRouteModel: "llama-3.1-8b-instant (baru)",
   };
 
-  // Test Groq
+  // Test Groq dengan model BARU
   if (groqKey) {
     try {
       const ctrl = new AbortController();
@@ -24,8 +24,8 @@ export async function GET() {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqKey}` },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
-          messages: [{ role: "user", content: "Jawab satu kata saja: Halo" }],
+          model: "llama-3.1-8b-instant",
+          messages: [{ role: "user", content: "Jawab satu kata: Halo" }],
           max_tokens: 10,
         }),
         signal: ctrl.signal,
@@ -40,11 +40,9 @@ export async function GET() {
     } catch (e) {
       result.groqTest = { ok: false, error: e.message };
     }
-  } else {
-    result.groqTest = "SKIP - key tidak ada";
   }
 
-  // Test OpenRouter
+  // Test OpenRouter model BARU
   if (orKey) {
     try {
       const ctrl = new AbortController();
@@ -57,8 +55,8 @@ export async function GET() {
           "HTTP-Referer": "https://ponticell.vercel.app",
         },
         body: JSON.stringify({
-          model: "meta-llama/llama-3.1-8b-instruct:free",
-          messages: [{ role: "user", content: "Jawab satu kata saja: Halo" }],
+          model: "meta-llama/llama-3.2-3b-instruct:free",
+          messages: [{ role: "user", content: "Jawab satu kata: Halo" }],
           max_tokens: 10,
         }),
         signal: ctrl.signal,
@@ -73,8 +71,6 @@ export async function GET() {
     } catch (e) {
       result.orTest = { ok: false, error: e.message };
     }
-  } else {
-    result.orTest = "SKIP - key tidak ada";
   }
 
   return NextResponse.json(result, { status: 200 });
