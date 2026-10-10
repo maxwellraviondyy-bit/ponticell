@@ -175,8 +175,6 @@ ATURAN PENTING:
       else console.error("Groq: semua model gagal");
     }
 
-    }
-
     // ─── KALAU SEMUA GAGAL ────────────────────────────────────────────────────
     if (!reply) {
       return NextResponse.json({
