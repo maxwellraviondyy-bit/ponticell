@@ -236,17 +236,35 @@ ATURAN PENTING:
     const stopWords = new Set(["ada","yang","mana","apa","bisa","mau","cari","ingin","tolong","halo","hai","harga","berapa","stok","masih","untuk","sama","dengan","atau","dan","ini","itu","saja","dong","deh","kak","pak","bu"]);
     const words = msgLower.split(/\s+/).filter(w => w.length >= 3 && !stopWords.has(w));
 
+    // Deteksi budget dari pesan (contoh: "3 juta", "3jt", "3rb", "1.5 juta", "500rb")
+    let budgetMax = null;
+    const budgetMatch = msgLower.match(/(\d+(?:[.,]\d+)?)\s*(juta|jt|jt-an|jutaan)/i);
+    const budgetRbMatch = msgLower.match(/(\d+(?:[.,]\d+)?)\s*(ribu|rb|k)\b/i);
+    if (budgetMatch) {
+      budgetMax = parseFloat(budgetMatch[1].replace(",",".")) * 1_000_000;
+    } else if (budgetRbMatch) {
+      budgetMax = parseFloat(budgetRbMatch[1].replace(",",".")) * 1_000;
+    }
+    // Toleransi 15% di atas budget (biar produk yang "hampir" sesuai masih muncul)
+    const budgetCeiling = budgetMax ? budgetMax * 1.15 : null;
+
     // Brand-brand yang kalau disebut sendiri sudah cukup spesifik (1 kata = boleh tampil)
     const brandSpesifik = new Set(["iphone","ipad","samsung","xiaomi","realme","oppo","vivo","infinix","tecno","redmi","poco","nubia","nokia","sony","asus","huawei","honor","motorola","itel"]);
     const adaBrandSpesifik = words.some(w => brandSpesifik.has(w));
 
-    // Hitung skor kecocokan
+    // Hitung skor kecocokan + filter budget
     const scored = kasirProduk.map(p => {
       const namaProduk = (p.nama || "").toLowerCase();
       const matchCount = words.filter(w => namaProduk.includes(w)).length;
-      return { p, matchCount };
-    }).filter(x => adaBrandSpesifik ? x.matchCount >= 1 : x.matchCount >= 2)
-      .sort((a, b) => b.matchCount - a.matchCount);
+      const hargaProduk = Number(p.harga_jual || 0);
+      return { p, matchCount, hargaProduk };
+    }).filter(x => {
+      // Filter nama: minimal 1 kata cocok jika brand spesifik, 2 jika tidak
+      const namaOk = adaBrandSpesifik ? x.matchCount >= 1 : x.matchCount >= 2;
+      // Filter budget: jika ada budget di pesan, hanya tampilkan yang harganya <= ceiling
+      const budgetOk = budgetCeiling ? x.hargaProduk <= budgetCeiling : true;
+      return namaOk && budgetOk;
+    }).sort((a, b) => b.matchCount - a.matchCount || a.hargaProduk - b.hargaProduk);
 
     const produkSorot = scored.slice(0, 3).map(({ p }) => ({
       id: p.id,
