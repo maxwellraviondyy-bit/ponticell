@@ -142,10 +142,9 @@ ATURAN PENTING:
     const groqKey = process.env.GROQ_API_KEY || "";
     if (groqKey) {
       const groqModels = [
-        "llama-3.1-8b-instant",    // paling cepat (pengganti llama3-8b-8192)
-        "llama-3.3-70b-versatile", // paling pintar
-        "llama-3.1-70b-versatile", // alternatif
-        "gemma2-9b-it",            // cadangan
+        "openai/gpt-oss-20b",   // cepat
+        "openai/gpt-oss-120b",  // pintar
+        "qwen/qwen3.8-27b",     // cadangan
       ];
 
       const tryGroq = (model) => new Promise((resolve) => {
@@ -191,7 +190,7 @@ ATURAN PENTING:
               "HTTP-Referer": "https://ponticell.vercel.app",
             },
             body: JSON.stringify({
-              model: "meta-llama/llama-3.2-3b-instruct:free",
+              model: "google/gemma-3-4b-it:free",
               messages: [{ role: "system", content: systemPrompt }, ...messages],
               max_tokens: 350,
             }),
