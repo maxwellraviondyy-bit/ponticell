@@ -3,8 +3,199 @@ import LandingClient from "./LandingClient";
 
 export const dynamic = 'force-dynamic';
 
+// --- FOTO LIBRARY (fallback otomatis kalau tidak ada foto di meta) ------------
+// Source: GSMArena CDN - foto produk HP populer di Indonesia
+const FOTO_LIB = {
+  // Samsung
+  "samsung a57":      "https://fdn.gsmarena.com/imgroot/news/21/09/samsung-galaxy-a57-5g-official/-476x476w/gsmarena_001.jpg",
+  "samsung a56":      "https://fdn.gsmarena.com/imgroot/reviews/25/samsung-galaxy-a56/highres/gsmarena_001.jpg",
+  "samsung a55":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-a55/highres/gsmarena_001.jpg",
+  "samsung a54":      "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-a54/highres/gsmarena_001.jpg",
+  "samsung a35":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-a35/highres/gsmarena_001.jpg",
+  "samsung a25":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-a25/highres/gsmarena_001.jpg",
+  "samsung a16":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-a16/highres/gsmarena_001.jpg",
+  "samsung a15":      "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-a15/highres/gsmarena_001.jpg",
+  "samsung a14":      "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-a14/highres/gsmarena_001.jpg",
+  "samsung a13":      "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-a13/highres/gsmarena_001.jpg",
+  "samsung a07":      "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-a07/highres/gsmarena_001.jpg",
+  "samsung a04s":     "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-a04s/highres/gsmarena_001.jpg",
+  "samsung a04":      "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-a04/highres/gsmarena_001.jpg",
+  "samsung a05s":     "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-a05s/highres/gsmarena_001.jpg",
+  "samsung a05":      "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-a05/highres/gsmarena_001.jpg",
+  "samsung a03s":     "https://fdn.gsmarena.com/imgroot/reviews/21/samsung-galaxy-a03s/highres/gsmarena_001.jpg",
+  "samsung a03":      "https://fdn.gsmarena.com/imgroot/reviews/21/samsung-galaxy-a03/highres/gsmarena_001.jpg",
+  "samsung m15":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-m15/highres/gsmarena_001.jpg",
+  "samsung m14":      "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-m14/highres/gsmarena_001.jpg",
+  "samsung s24 ultra":"https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-s24-ultra/highres/gsmarena_001.jpg",
+  "samsung s24+":     "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-s24-plus/highres/gsmarena_001.jpg",
+  "samsung s24":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-s24/highres/gsmarena_001.jpg",
+  "samsung s23 ultra":"https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-s23-ultra/highres/gsmarena_001.jpg",
+  "samsung s23":      "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-s23/highres/gsmarena_001.jpg",
+  "samsung s22 ultra":"https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-s22-ultra/highres/gsmarena_001.jpg",
+  "samsung s22":      "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-s22/highres/gsmarena_001.jpg",
+  "samsung s21 ultra":"https://fdn.gsmarena.com/imgroot/reviews/21/samsung-galaxy-s21-ultra/highres/gsmarena_001.jpg",
+  "samsung s21":      "https://fdn.gsmarena.com/imgroot/reviews/21/samsung-galaxy-s21/highres/gsmarena_001.jpg",
+  "samsung s20 ultra":"https://fdn.gsmarena.com/imgroot/reviews/20/samsung-galaxy-s20-ultra/highres/gsmarena_001.jpg",
+  "samsung s20":      "https://fdn.gsmarena.com/imgroot/reviews/20/samsung-galaxy-s20/highres/gsmarena_001.jpg",
+  "samsung z fold5":  "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-z-fold5/highres/gsmarena_001.jpg",
+  "samsung z fold4":  "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-z-fold4/highres/gsmarena_001.jpg",
+  "samsung z flip5":  "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-z-flip5/highres/gsmarena_001.jpg",
+  "samsung z flip4":  "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-z-flip4/highres/gsmarena_001.jpg",
+  "samsung tab a9+":  "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-tab-a9-plus/highres/gsmarena_001.jpg",
+  "samsung tab a9":   "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-tab-a9/highres/gsmarena_001.jpg",
+  "samsung tab a8":   "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-tab-a8/highres/gsmarena_001.jpg",
+  "samsung tab s9":   "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-tab-s9/highres/gsmarena_001.jpg",
+  // Xiaomi / Redmi / Poco
+  "xiaomi 14":        "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-14/highres/gsmarena_001.jpg",
+  "xiaomi 13":        "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-13/highres/gsmarena_001.jpg",
+  "xiaomi 12":        "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-12/highres/gsmarena_001.jpg",
+  "redmi note 13 pro+":"https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-redmi-note-13-pro-plus/highres/gsmarena_001.jpg",
+  "redmi note 13 pro":"https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-redmi-note-13-pro/highres/gsmarena_001.jpg",
+  "redmi note 13":    "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-redmi-note-13/highres/gsmarena_001.jpg",
+  "redmi note 12 pro":"https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-redmi-note-12-pro/highres/gsmarena_001.jpg",
+  "redmi note 12":    "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-redmi-note-12/highres/gsmarena_001.jpg",
+  "redmi note 11":    "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-redmi-note-11/highres/gsmarena_001.jpg",
+  "redmi note 10":    "https://fdn.gsmarena.com/imgroot/reviews/21/xiaomi-redmi-note-10/highres/gsmarena_001.jpg",
+  "redmi 13c":        "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-redmi-13c/highres/gsmarena_001.jpg",
+  "redmi 13":         "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-redmi-13/highres/gsmarena_001.jpg",
+  "redmi 12c":        "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-redmi-12c/highres/gsmarena_001.jpg",
+  "redmi 12":         "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-redmi-12/highres/gsmarena_001.jpg",
+  "redmi 10c":        "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-redmi-10c/highres/gsmarena_001.jpg",
+  "redmi 10":         "https://fdn.gsmarena.com/imgroot/reviews/21/xiaomi-redmi-10/highres/gsmarena_001.jpg",
+  "poco x6 pro":      "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-poco-x6-pro/highres/gsmarena_001.jpg",
+  "poco x6":          "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-poco-x6/highres/gsmarena_001.jpg",
+  "poco x5 pro":      "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-poco-x5-pro/highres/gsmarena_001.jpg",
+  "poco x5":          "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-poco-x5/highres/gsmarena_001.jpg",
+  "poco m6 pro":      "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-poco-m6-pro/highres/gsmarena_001.jpg",
+  "poco m6":          "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-poco-m6/highres/gsmarena_001.jpg",
+  "poco m5s":         "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-m5s/highres/gsmarena_001.jpg",
+  "poco m5":          "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-m5/highres/gsmarena_001.jpg",
+  "poco c65":         "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-poco-c65/highres/gsmarena_001.jpg",
+  "poco c55":         "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-poco-c55/highres/gsmarena_001.jpg",
+  "poco c51":         "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-c51/highres/gsmarena_001.jpg",
+  "poco c40":         "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-c40/highres/gsmarena_001.jpg",
+  // OPPO
+  "oppo reno12 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno12-pro/highres/gsmarena_001.jpg",
+  "oppo reno12":      "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno12/highres/gsmarena_001.jpg",
+  "oppo reno11 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno11-pro/highres/gsmarena_001.jpg",
+  "oppo reno11":      "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno11/highres/gsmarena_001.jpg",
+  "oppo reno10 pro":  "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-reno10-pro/highres/gsmarena_001.jpg",
+  "oppo reno10":      "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-reno10/highres/gsmarena_001.jpg",
+  "oppo reno8 pro":   "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-reno8-pro/highres/gsmarena_001.jpg",
+  "oppo reno8":       "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-reno8/highres/gsmarena_001.jpg",
+  "oppo a3 pro":      "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-a3-pro/highres/gsmarena_001.jpg",
+  "oppo a3":          "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-a3/highres/gsmarena_001.jpg",
+  "oppo a79":         "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-a79/highres/gsmarena_001.jpg",
+  "oppo a78":         "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-a78/highres/gsmarena_001.jpg",
+  "oppo a77s":        "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a77s/highres/gsmarena_001.jpg",
+  "oppo a58":         "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-a58/highres/gsmarena_001.jpg",
+  "oppo a57s":        "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a57s/highres/gsmarena_001.jpg",
+  "oppo a57":         "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a57/highres/gsmarena_001.jpg",
+  "oppo a38":         "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-a38/highres/gsmarena_001.jpg",
+  "oppo a18":         "https://fdn.gsmarena.com/imgroot/reviews/23/oppo-a18/highres/gsmarena_001.jpg",
+  "oppo a17k":        "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a17k/highres/gsmarena_001.jpg",
+  "oppo a17":         "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a17/highres/gsmarena_001.jpg",
+  // Realme
+  "realme gt6":       "https://fdn.gsmarena.com/imgroot/reviews/24/realme-gt6/highres/gsmarena_001.jpg",
+  "realme gt neo6":   "https://fdn.gsmarena.com/imgroot/reviews/24/realme-gt-neo6/highres/gsmarena_001.jpg",
+  "realme 13 pro+":   "https://fdn.gsmarena.com/imgroot/reviews/24/realme-13-pro-plus/highres/gsmarena_001.jpg",
+  "realme 13 pro":    "https://fdn.gsmarena.com/imgroot/reviews/24/realme-13-pro/highres/gsmarena_001.jpg",
+  "realme 13":        "https://fdn.gsmarena.com/imgroot/reviews/24/realme-13/highres/gsmarena_001.jpg",
+  "realme 12 pro+":   "https://fdn.gsmarena.com/imgroot/reviews/24/realme-12-pro-plus/highres/gsmarena_001.jpg",
+  "realme 12 pro":    "https://fdn.gsmarena.com/imgroot/reviews/24/realme-12-pro/highres/gsmarena_001.jpg",
+  "realme 12":        "https://fdn.gsmarena.com/imgroot/reviews/24/realme-12/highres/gsmarena_001.jpg",
+  "realme 11 pro+":   "https://fdn.gsmarena.com/imgroot/reviews/23/realme-11-pro-plus/highres/gsmarena_001.jpg",
+  "realme 11 pro":    "https://fdn.gsmarena.com/imgroot/reviews/23/realme-11-pro/highres/gsmarena_001.jpg",
+  "realme 11":        "https://fdn.gsmarena.com/imgroot/reviews/23/realme-11/highres/gsmarena_001.jpg",
+  "realme c67":       "https://fdn.gsmarena.com/imgroot/reviews/24/realme-c67/highres/gsmarena_001.jpg",
+  "realme c65":       "https://fdn.gsmarena.com/imgroot/reviews/24/realme-c65/highres/gsmarena_001.jpg",
+  "realme c63":       "https://fdn.gsmarena.com/imgroot/reviews/24/realme-c63/highres/gsmarena_001.jpg",
+  "realme c55":       "https://fdn.gsmarena.com/imgroot/reviews/23/realme-c55/highres/gsmarena_001.jpg",
+  "realme c53":       "https://fdn.gsmarena.com/imgroot/reviews/23/realme-c53/highres/gsmarena_001.jpg",
+  "realme c51":       "https://fdn.gsmarena.com/imgroot/reviews/23/realme-c51/highres/gsmarena_001.jpg",
+  "realme c35":       "https://fdn.gsmarena.com/imgroot/reviews/22/realme-c35/highres/gsmarena_001.jpg",
+  "realme c33":       "https://fdn.gsmarena.com/imgroot/reviews/22/realme-c33/highres/gsmarena_001.jpg",
+  "realme c31":       "https://fdn.gsmarena.com/imgroot/reviews/22/realme-c31/highres/gsmarena_001.jpg",
+  // Vivo
+  "vivo v40 pro":     "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v40-pro/highres/gsmarena_001.jpg",
+  "vivo v40":         "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v40/highres/gsmarena_001.jpg",
+  "vivo v30 pro":     "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v30-pro/highres/gsmarena_001.jpg",
+  "vivo v30":         "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v30/highres/gsmarena_001.jpg",
+  "vivo v29 pro":     "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-v29-pro/highres/gsmarena_001.jpg",
+  "vivo v29":         "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-v29/highres/gsmarena_001.jpg",
+  "vivo v27 pro":     "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-v27-pro/highres/gsmarena_001.jpg",
+  "vivo v27":         "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-v27/highres/gsmarena_001.jpg",
+  "vivo y200 pro":    "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-y200-pro/highres/gsmarena_001.jpg",
+  "vivo y200":        "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-y200/highres/gsmarena_001.jpg",
+  "vivo y100":        "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-y100/highres/gsmarena_001.jpg",
+  "vivo y36":         "https://fdn.gsmarena.com/imgroot/reviews/23/vivo-y36/highres/gsmarena_001.jpg",
+  "vivo y35":         "https://fdn.gsmarena.com/imgroot/reviews/22/vivo-y35/highres/gsmarena_001.jpg",
+  "vivo y22s":        "https://fdn.gsmarena.com/imgroot/reviews/22/vivo-y22s/highres/gsmarena_001.jpg",
+  "vivo y22":         "https://fdn.gsmarena.com/imgroot/reviews/22/vivo-y22/highres/gsmarena_001.jpg",
+  "vivo y16":         "https://fdn.gsmarena.com/imgroot/reviews/22/vivo-y16/highres/gsmarena_001.jpg",
+  "vivo y15s":        "https://fdn.gsmarena.com/imgroot/reviews/21/vivo-y15s/highres/gsmarena_001.jpg",
+  // Infinix
+  "infinix hot 50 pro+": "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50-pro-plus/highres/gsmarena_001.jpg",
+  "infinix hot 50 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50-pro/highres/gsmarena_001.jpg",
+  "infinix hot 50":      "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50/highres/gsmarena_001.jpg",
+  "infinix hot 40 pro":  "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-hot-40-pro/highres/gsmarena_001.jpg",
+  "infinix hot 40":      "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-hot-40/highres/gsmarena_001.jpg",
+  "infinix hot 30":      "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-hot-30/highres/gsmarena_001.jpg",
+  "infinix hot 20s":     "https://fdn.gsmarena.com/imgroot/reviews/22/infinix-hot-20s/highres/gsmarena_001.jpg",
+  "infinix hot 20":      "https://fdn.gsmarena.com/imgroot/reviews/22/infinix-hot-20/highres/gsmarena_001.jpg",
+  "infinix note 40 pro": "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-note-40-pro/highres/gsmarena_001.jpg",
+  "infinix note 40":     "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-note-40/highres/gsmarena_001.jpg",
+  "infinix note 30 pro": "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-note-30-pro/highres/gsmarena_001.jpg",
+  "infinix note 30":     "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-note-30/highres/gsmarena_001.jpg",
+  "infinix smart 8 pro": "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-smart-8-pro/highres/gsmarena_001.jpg",
+  "infinix smart 8":     "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-smart-8/highres/gsmarena_001.jpg",
+  "infinix smart 7":     "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-smart-7/highres/gsmarena_001.jpg",
+  "infinix zero 40":     "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-zero-40/highres/gsmarena_001.jpg",
+  "infinix zero 30":     "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-zero-30/highres/gsmarena_001.jpg",
+  // iPhone / iPad
+  "iphone 16 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-pro-max/highres/gsmarena_001.jpg",
+  "iphone 16 pro":      "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-pro/highres/gsmarena_001.jpg",
+  "iphone 16 plus":     "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-plus/highres/gsmarena_001.jpg",
+  "iphone 16":          "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16/highres/gsmarena_001.jpg",
+  "iphone 15 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/23/apple-iphone-15-pro-max/highres/gsmarena_001.jpg",
+  "iphone 15 pro":      "https://fdn.gsmarena.com/imgroot/reviews/23/apple-iphone-15-pro/highres/gsmarena_001.jpg",
+  "iphone 15 plus":     "https://fdn.gsmarena.com/imgroot/reviews/23/apple-iphone-15-plus/highres/gsmarena_001.jpg",
+  "iphone 15":          "https://fdn.gsmarena.com/imgroot/reviews/23/apple-iphone-15/highres/gsmarena_001.jpg",
+  "iphone 14 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/22/apple-iphone-14-pro-max/highres/gsmarena_001.jpg",
+  "iphone 14 pro":      "https://fdn.gsmarena.com/imgroot/reviews/22/apple-iphone-14-pro/highres/gsmarena_001.jpg",
+  "iphone 14 plus":     "https://fdn.gsmarena.com/imgroot/reviews/22/apple-iphone-14-plus/highres/gsmarena_001.jpg",
+  "iphone 14":          "https://fdn.gsmarena.com/imgroot/reviews/22/apple-iphone-14/highres/gsmarena_001.jpg",
+  "iphone 13 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/21/apple-iphone-13-pro-max/highres/gsmarena_001.jpg",
+  "iphone 13 pro":      "https://fdn.gsmarena.com/imgroot/reviews/21/apple-iphone-13-pro/highres/gsmarena_001.jpg",
+  "iphone 13 mini":     "https://fdn.gsmarena.com/imgroot/reviews/21/apple-iphone-13-mini/highres/gsmarena_001.jpg",
+  "iphone 13":          "https://fdn.gsmarena.com/imgroot/reviews/21/apple-iphone-13/highres/gsmarena_001.jpg",
+  "iphone 12 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/20/apple-iphone-12-pro-max/highres/gsmarena_001.jpg",
+  "iphone 12 pro":      "https://fdn.gsmarena.com/imgroot/reviews/20/apple-iphone-12-pro/highres/gsmarena_001.jpg",
+  "iphone 12 mini":     "https://fdn.gsmarena.com/imgroot/reviews/20/apple-iphone-12-mini/highres/gsmarena_001.jpg",
+  "iphone 12":          "https://fdn.gsmarena.com/imgroot/reviews/20/apple-iphone-12/highres/gsmarena_001.jpg",
+  "iphone 11 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/19/apple-iphone-11-pro-max/highres/gsmarena_001.jpg",
+  "iphone 11 pro":      "https://fdn.gsmarena.com/imgroot/reviews/19/apple-iphone-11-pro/highres/gsmarena_001.jpg",
+  "iphone 11":          "https://fdn.gsmarena.com/imgroot/reviews/19/apple-iphone-11/highres/gsmarena_001.jpg",
+  "iphone se":          "https://fdn.gsmarena.com/imgroot/reviews/22/apple-iphone-se-2022/highres/gsmarena_001.jpg",
+  "ipad pro":           "https://fdn.gsmarena.com/imgroot/reviews/24/apple-ipad-pro-13-2024/highres/gsmarena_001.jpg",
+  "ipad air":           "https://fdn.gsmarena.com/imgroot/reviews/24/apple-ipad-air-11-2024/highres/gsmarena_001.jpg",
+  "ipad mini":          "https://fdn.gsmarena.com/imgroot/reviews/24/apple-ipad-mini-7/highres/gsmarena_001.jpg",
+  "ipad":               "https://fdn.gsmarena.com/imgroot/reviews/24/apple-ipad-10-2/highres/gsmarena_001.jpg",
+};
+
+// Cari foto dari library berdasarkan nama produk (longest key match dulu)
+function cariFotoLib(namaProduk) {
+  if (!namaProduk) return null;
+  const nama = namaProduk.toLowerCase().replace(/[^\w\s+]/g, "").replace(/\s+/g, " ").trim();
+  const keys = Object.keys(FOTO_LIB).sort((a, b) => b.length - a.length);
+  for (const k of keys) {
+    if (nama.includes(k)) return FOTO_LIB[k];
+  }
+  return null;
+}
+
 // Daftar kasir yang terhubung ke Ponticell.
-// Tambah baris baru di sini kalau ada cabang baru — tidak perlu ubah kode lain.
+// Tambah baris baru di sini kalau ada cabang baru -- tidak perlu ubah kode lain.
 const KASIR_SOURCES = [
   {
     url: process.env.KASIR_KP_URL || "",
@@ -16,7 +207,7 @@ const KASIR_SOURCES = [
 ];
 
 // Fetch stok dari satu kasir. Kalau gagal (kasir down, env belum diset),
-// kembalikan array kosong — landing page tetap tampil meski satu kasir error.
+// kembalikan array kosong -- landing page tetap tampil meski satu kasir error.
 async function fetchKasirStok(kasir) {
   if (!kasir.url || !kasir.key) return [];
   try {
@@ -38,7 +229,7 @@ async function fetchKasirStok(kasir) {
 }
 
 // Normalisasi nama brand dari kasir ke nama brand resmi.
-// Key: lowercase kata pertama nama produk → Value: nama brand yang benar
+// Key: lowercase kata pertama nama produk -> Value: nama brand yang benar
 const BRAND_MAP = {
   // Motorola / Motopad (Motopad adalah sub-brand tablet Motorola)
   "motorola": "Motorola",
@@ -99,12 +290,12 @@ function looksLikeModelCode(str) {
 // LandingClient mengharapkan: id, brand, model, ram, storage, color, condition,
 // sell_price, original_price, photos, stocks, notes, sold_count.
 function kasirProdukToLanding(p, metaMap) {
-  // Parsing nama kasir: "Samsung Galaxy A15 128GB" → brand="Samsung", model="Galaxy A15"
+  // Parsing nama kasir: "Samsung Galaxy A15 128GB" -> brand="Samsung", model="Galaxy A15"
   // Heuristik: kata pertama = brand, tapi normalisasi dulu
   const namaParts = (p.nama || "").trim().split(" ");
   const rawBrand = namaParts[0] || p.nama || "";
 
-  // Normalisasi brand — kalau ada di peta, pakai nama resmi
+  // Normalisasi brand -- kalau ada di peta, pakai nama resmi
   const brandNormalized = BRAND_MAP[rawBrand.toLowerCase()];
 
   // Kalau kata pertama terlihat seperti kode model (ada angka), atau tidak ada di peta brand
@@ -113,7 +304,7 @@ function kasirProdukToLanding(p, metaMap) {
   if (brandNormalized) {
     brand = brandNormalized;
   } else if (looksLikeModelCode(rawBrand)) {
-    // Kata pertama ada angkanya = bukan nama brand → pakai "Lainnya"
+    // Kata pertama ada angkanya = bukan nama brand -> pakai "Lainnya"
     brand = "Lainnya";
   } else {
     // Pertahankan nama asli (huruf pertama kapital)
@@ -128,7 +319,10 @@ function kasirProdukToLanding(p, metaMap) {
   // Ambil foto & deskripsi dari meta Ponticell (kalau ada)
   const metaKey = `${p._kasir_url}::${p.id}`;
   const meta = metaMap[metaKey] || {};
-  const photos = Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : []);
+  const photosFromMeta = Array.isArray(meta.photos) ? meta.photos : (meta.photos ? JSON.parse(meta.photos) : []);
+  // Fallback: cari foto dari FOTO_LIB kalau meta tidak punya foto
+  const fotoLib = photosFromMeta.length === 0 ? cariFotoLib(p.nama) : null;
+  const photos = photosFromMeta.length > 0 ? photosFromMeta : (fotoLib ? [fotoLib] : []);
 
   return {
     id: `${p._kasir_label}_${p.id}`,  // unik antar kasir
@@ -166,7 +360,7 @@ export default async function HomePage() {
     sql`SELECT * FROM kasir_produk_meta`,
   ]);
 
-  // Bangun lookup map: "kasir_url::kasir_id" → meta
+  // Bangun lookup map: "kasir_url::kasir_id" -> meta
   const metaMap = {};
   for (const m of metaRows) {
     metaMap[`${m.kasir_url}::${m.kasir_id}`] = m;
