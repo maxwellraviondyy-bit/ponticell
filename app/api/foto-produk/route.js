@@ -1,13 +1,13 @@
 // app/api/foto-produk/route.js
-// GET  ? ambil foto untuk produk (by kasir_id atau nama)
-// POST ? simpan/update foto produk (admin only)
-// PUT  ? auto-seed foto semua produk dari kasir (admin only)
+// GET  → ambil foto untuk produk (by kasir_id atau nama)
+// POST → simpan/update foto produk (admin only)
+// PUT  → auto-seed foto semua produk dari kasir (admin only)
 
 import { getDb } from "@/lib/db";
 import { requireAdmin } from "@/lib/apiAuth";
 import { NextResponse } from "next/server";
 
-// --- DATABASE INIT ------------------------------------------------------------
+// ─── DATABASE INIT ────────────────────────────────────────────────────────────
 async function ensureTable(sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS foto_produk (
@@ -22,10 +22,10 @@ async function ensureTable(sql) {
   `;
 }
 
-// --- FOTO DATABASE (model HP populer Indonesia) -------------------------------
-// Pattern: keyword (lowercase) ? URL foto resmi
+// ─── FOTO DATABASE (model HP populer Indonesia) ───────────────────────────────
+// Pattern: keyword (lowercase) → URL foto resmi
 const FOTO_DB = {
-  // --- SAMSUNG ---
+  // ═══ SAMSUNG ═══
   "samsung a57":      "https://fdn.gsmarena.com/imgroot/news/21/09/samsung-galaxy-a57-5g-official/-476x476w/gsmarena_001.jpg",
   "samsung a56":      "https://fdn.gsmarena.com/imgroot/reviews/25/samsung-galaxy-a56/highres/gsmarena_001.jpg",
   "samsung a55":      "https://fdn.gsmarena.com/imgroot/reviews/24/samsung-galaxy-a55/highres/gsmarena_001.jpg",
@@ -65,7 +65,7 @@ const FOTO_DB = {
   "samsung tab a8":   "https://fdn.gsmarena.com/imgroot/reviews/22/samsung-galaxy-tab-a8/highres/gsmarena_001.jpg",
   "samsung tab s9":   "https://fdn.gsmarena.com/imgroot/reviews/23/samsung-galaxy-tab-s9/highres/gsmarena_001.jpg",
 
-  // --- XIAOMI / REDMI / POCO ---
+  // ═══ XIAOMI / REDMI / POCO ═══
   "xiaomi 14":        "https://fdn.gsmarena.com/imgroot/reviews/24/xiaomi-14/highres/gsmarena_001.jpg",
   "xiaomi 13":        "https://fdn.gsmarena.com/imgroot/reviews/23/xiaomi-13/highres/gsmarena_001.jpg",
   "xiaomi 12":        "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-12/highres/gsmarena_001.jpg",
@@ -95,7 +95,7 @@ const FOTO_DB = {
   "poco c51":         "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-c51/highres/gsmarena_001.jpg",
   "poco c40":         "https://fdn.gsmarena.com/imgroot/reviews/22/xiaomi-poco-c40/highres/gsmarena_001.jpg",
 
-  // --- OPPO ---
+  // ═══ OPPO ═══
   "oppo reno12 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno12-pro/highres/gsmarena_001.jpg",
   "oppo reno12":      "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno12/highres/gsmarena_001.jpg",
   "oppo reno11 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/oppo-reno11-pro/highres/gsmarena_001.jpg",
@@ -117,7 +117,7 @@ const FOTO_DB = {
   "oppo a17k":        "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a17k/highres/gsmarena_001.jpg",
   "oppo a17":         "https://fdn.gsmarena.com/imgroot/reviews/22/oppo-a17/highres/gsmarena_001.jpg",
 
-  // --- REALME ---
+  // ═══ REALME ═══
   "realme gt6":       "https://fdn.gsmarena.com/imgroot/reviews/24/realme-gt6/highres/gsmarena_001.jpg",
   "realme gt neo6":   "https://fdn.gsmarena.com/imgroot/reviews/24/realme-gt-neo6/highres/gsmarena_001.jpg",
   "realme 13 pro+":   "https://fdn.gsmarena.com/imgroot/reviews/24/realme-13-pro-plus/highres/gsmarena_001.jpg",
@@ -139,7 +139,7 @@ const FOTO_DB = {
   "realme c33":       "https://fdn.gsmarena.com/imgroot/reviews/22/realme-c33/highres/gsmarena_001.jpg",
   "realme c31":       "https://fdn.gsmarena.com/imgroot/reviews/22/realme-c31/highres/gsmarena_001.jpg",
 
-  // --- VIVO ---
+  // ═══ VIVO ═══
   "vivo v40 pro":     "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v40-pro/highres/gsmarena_001.jpg",
   "vivo v40":         "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v40/highres/gsmarena_001.jpg",
   "vivo v30 pro":     "https://fdn.gsmarena.com/imgroot/reviews/24/vivo-v30-pro/highres/gsmarena_001.jpg",
@@ -158,7 +158,7 @@ const FOTO_DB = {
   "vivo y16":         "https://fdn.gsmarena.com/imgroot/reviews/22/vivo-y16/highres/gsmarena_001.jpg",
   "vivo y15s":        "https://fdn.gsmarena.com/imgroot/reviews/21/vivo-y15s/highres/gsmarena_001.jpg",
 
-  // --- INFINIX ---
+  // ═══ INFINIX ═══
   "infinix hot 50 pro+": "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50-pro-plus/highres/gsmarena_001.jpg",
   "infinix hot 50 pro":  "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50-pro/highres/gsmarena_001.jpg",
   "infinix hot 50":      "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-hot-50/highres/gsmarena_001.jpg",
@@ -177,7 +177,7 @@ const FOTO_DB = {
   "infinix zero 40":     "https://fdn.gsmarena.com/imgroot/reviews/24/infinix-zero-40/highres/gsmarena_001.jpg",
   "infinix zero 30":     "https://fdn.gsmarena.com/imgroot/reviews/23/infinix-zero-30/highres/gsmarena_001.jpg",
 
-  // --- IPHONE ---
+  // ═══ IPHONE ═══
   "iphone 16 pro max":  "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-pro-max/highres/gsmarena_001.jpg",
   "iphone 16 pro":      "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-pro/highres/gsmarena_001.jpg",
   "iphone 16 plus":     "https://fdn.gsmarena.com/imgroot/reviews/24/apple-iphone-16-plus/highres/gsmarena_001.jpg",
@@ -208,7 +208,7 @@ const FOTO_DB = {
   "ipad":               "https://fdn.gsmarena.com/imgroot/reviews/24/apple-ipad-10-2/highres/gsmarena_001.jpg",
 };
 
-// --- FUNGSI MATCH FOTO --------------------------------------------------------
+// ─── FUNGSI MATCH FOTO ────────────────────────────────────────────────────────
 function cariFoto(namaProduk) {
   if (!namaProduk) return null;
   const nama = namaProduk.toLowerCase()
@@ -224,7 +224,7 @@ function cariFoto(namaProduk) {
   return null;
 }
 
-// --- GET: ambil foto satu produk ---------------------------------------------
+// ─── GET: ambil foto satu produk ─────────────────────────────────────────────
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const nama = searchParams.get("nama") || "";
@@ -250,7 +250,7 @@ export async function GET(req) {
   return NextResponse.json({ foto_url: null, source: "not_found" });
 }
 
-// --- POST: simpan foto manual -------------------------------------------------
+// ─── POST: simpan foto manual ─────────────────────────────────────────────────
 export async function POST(req) {
   const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
@@ -273,7 +273,7 @@ export async function POST(req) {
   return NextResponse.json({ ok: true });
 }
 
-// --- PUT: auto-seed foto dari kasir storefront --------------------------------
+// ─── PUT: auto-seed foto dari kasir storefront ────────────────────────────────
 export async function PUT(req) {
   const err = requireAdmin(req); if (err) return err;
   const sql = getDb();
@@ -321,4 +321,3 @@ export async function PUT(req) {
     message: `${seeded} produk berhasil diseed, ${notFound} tidak ditemukan fotonya`,
   });
 }
-

@@ -53,7 +53,7 @@ export async function POST(req) {
     const larangan   = settings.robot_larangan  || "";
     const waNumber   = settings.robot_wa        || "6283808484969";
 
-    // Produk dari kasir — format lebih kaya untuk konteks AI
+    // Produk dari kasir -- format lebih kaya untuk konteks AI
     const kasirProduk = kasirRes.produk || [];
     const productList = kasirProduk.map(p => {
       const harga = Number(p.harga_jual || 0);
@@ -64,7 +64,7 @@ export async function POST(req) {
       const rom = p.rom ? `/${p.rom}` : "";
       const cond = p.kondisi === "Baru" ? "Baru" : "Second";
       const stok = p.stok ? (Number(p.stok) <= 2 ? ` ??STOK ${p.stok}` : "") : "";
-      return `• ${p.nama}${ram ? ` ${ram}${rom}` : ""} [${cond}] Rp${hargaFmt}${stok}`;
+      return `* ${p.nama}${ram ? ` ${ram}${rom}` : ""} [${cond}] Rp${hargaFmt}${stok}`;
     }).join("\n");
 
     const gayaInstruksi = {
@@ -74,7 +74,7 @@ export async function POST(req) {
     }[gayaBahasa] || "Bahasa Indonesia ramah.";
 
     // --- SYSTEM PROMPT SALES CLOSER -----------------------------------------
-    const systemPrompt = `Kamu adalah ${namaBot} — sales specialist handal PontiCell, toko HP & tablet di Pontianak.
+    const systemPrompt = `Kamu adalah ${namaBot} -- sales specialist handal PontiCell, toko HP & tablet di Pontianak.
 Tugasmu BUKAN hanya menjawab pertanyaan. Tugasmu adalah MENUTUP PENJUALAN (closing) setiap percakapan.
 
 GAYA: ${gayaInstruksi}
@@ -88,23 +88,23 @@ ${larangan ? `--- DILARANG ---\n${larangan}\n` : ""}
 
 --- PANDUAN SALES CLOSING ---
 
-FASE 1 — KENALI KEBUTUHAN:
+FASE 1 -- KENALI KEBUTUHAN:
 - Jika customer menyebut budget ? langsung rekomendasikan 2-3 produk dari stok yang cocok
 - Jika customer menyebut kebutuhan (gaming, kamera, kerja) ? rekomendasikan berdasarkan spesifikasi yang relevan
 - Jika tidak ada produk yang pas ? rekomendasikan yang paling mendekati + jelaskan kenapa masih worth it
 
-FASE 2 — BANGUN KEYAKINAN:
+FASE 2 -- BANGUN KEYAKINAN:
 - Sebutkan kondisi produk (Baru/Second) dengan jelas
 - Jika stok ?? ? buat urgensi: "stok tinggal sedikit, bisa habis hari ini"
 - Bandingkan value: "dibanding beli online, di sini bisa cek langsung + garansi toko"
 - Jika ada promo ? selalu sebut sebagai alasan untuk beli sekarang
 
-FASE 3 — TANGANI KEBERATAN:
+FASE 3 -- TANGANI KEBERATAN:
 - Harga mahal ? "Bisa nego sedikit, langsung WA aja biar bisa diskusi harga terbaik"
 - Ragu kondisi ? "Second kami sudah dicek teknisi, bisa test di tempat sebelum beli"
-- Mau pikir-pikir ? "Stok terbatas, sayang kalau keduluan yang lain — mau saya sisihkan dulu?"
+- Mau pikir-pikir ? "Stok terbatas, sayang kalau keduluan yang lain -- mau saya sisihkan dulu?"
 
-FASE 4 — CLOSING (WAJIB di setiap respons setelah fase 1):
+FASE 4 -- CLOSING (WAJIB di setiap respons setelah fase 1):
 SELALU akhiri dengan ajakan WA yang spesifik. Format:
 "?? Langsung chat WA sekarang: wa.me/${waNumber}?text=Halo+mau+tanya+soal+[NAMA_PRODUK]"
 Ganti [NAMA_PRODUK] dengan produk yang dibahas. Jika belum tahu produk ? gunakan "HP+yang+cocok+buat+saya"
@@ -266,7 +266,7 @@ ATURAN PENTING:
       return namaOk && budgetOk;
     }).sort((a, b) => b.matchCount - a.matchCount || a.hargaProduk - b.hargaProduk);
 
-    // Foto library — fallback otomatis jika produk tidak punya foto
+    // Foto library -- fallback otomatis jika produk tidak punya foto
     const FOTO_LIB = {
       "samsung a57":"https://fdn.gsmarena.com/imgroot/news/21/09/samsung-galaxy-a57-5g-official/-476x476w/gsmarena_001.jpg",
       "samsung a56":"https://fdn.gsmarena.com/imgroot/reviews/25/samsung-galaxy-a56/highres/gsmarena_001.jpg",
