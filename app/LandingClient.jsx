@@ -112,18 +112,34 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
     return () => clearInterval(t);
   }, [banners.length, bannersMobile.length]);
 
-  // Nav search
+  // Nav search — suggestions dropdown
   useEffect(() => {
     if (navSearch.length < 2) { setNavSuggestions([]); return; }
     const q = navSearch.toLowerCase();
-    setNavSuggestions(allProducts.filter(p => p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)).slice(0,5));
+    setNavSuggestions(allProducts.filter(p =>
+      p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || (p._nama_kasir || "").toLowerCase().includes(q)
+    ).slice(0, 5));
   }, [navSearch]);
+
+  // Submit nav search → scroll ke produk & set filter
+  const handleNavSearch = (q) => {
+    if (!q) return;
+    setSearch(q);
+    setNavSearch(q);
+    setShowSuggest(false);
+    setSelectedBrand("Semua");
+    setSelectedRam("Semua");
+    setSelectedKondisi("Semua");
+    setTimeout(() => {
+      document.getElementById("produk-section")?.scrollIntoView({ behavior: "smooth" });
+    }, 50);
+  };
 
   const filtered = products.filter(p => {
     const q = search.toLowerCase();
     const price = Number(p.sell_price);
     const inPriceRange = priceFilter[1] === 0 || (price >= priceFilter[0] && price <= priceFilter[1]);
-    return (!q || p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q))
+    return (!q || p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || (p._nama_kasir || "").toLowerCase().includes(q))
       && (selectedBrand === "Semua" || p.brand === selectedBrand)
       && (selectedRam === "Semua" || p.ram === selectedRam)
       && (selectedKondisi === "Semua" || p.condition === selectedKondisi)
@@ -295,15 +311,20 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
 
         {/* Search */}
         <div className="nav-search" style={{ position: "relative", maxWidth: 480, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", background: "#FFFFFF", border: `2px solid ${G.blue}`, borderRadius: 24, padding: "0 16px", height: 44, gap: 8, boxShadow: "0 2px 12px rgba(21,101,192,0.15)" }}>
+          <div style={{ display: "flex", alignItems: "center", background: "#FFFFFF", border: `2px solid ${G.blue}`, borderRadius: 24, padding: "0 4px 0 16px", height: 44, gap: 8, boxShadow: "0 2px 12px rgba(21,101,192,0.15)" }}>
             <span style={{ color: G.blue, fontSize: 15 }}>🔍</span>
             <input style={{ flex: 1, background: "none", border: "none", outline: "none", fontSize: 14, color: G.text, fontFamily: "inherit", fontWeight: 500 }}
               placeholder="Cari HP, Tablet, brand..."
               value={navSearch}
-              onChange={e => setNavSearch(e.target.value)}
+              onChange={e => { setNavSearch(e.target.value); if (!e.target.value) setSearch(""); }}
               onFocus={() => setShowSuggest(true)}
-              onBlur={() => setTimeout(() => setShowSuggest(false), 200)} />
-            {navSearch && <span style={{ cursor: "pointer", color: G.gray }} onClick={() => setNavSearch("")}>✕</span>}
+              onBlur={() => setTimeout(() => setShowSuggest(false), 200)}
+              onKeyDown={e => { if (e.key === "Enter") handleNavSearch(navSearch); }} />
+            {navSearch && <span style={{ cursor: "pointer", color: G.gray, fontSize: 13, padding: "0 4px" }} onClick={() => { setNavSearch(""); setSearch(""); }}>✕</span>}
+            <button onClick={() => handleNavSearch(navSearch)}
+              style={{ background: `linear-gradient(135deg, ${G.blue}, ${G.blueLight})`, border: "none", borderRadius: 20, padding: "0 14px", height: 34, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", flexShrink: 0 }}>
+              Cari
+            </button>
           </div>
           {showSuggest && navSuggestions.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, minWidth: 240, background: G.white, borderRadius: 12, border: `1px solid ${G.border}`, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", overflow: "hidden", zIndex: 100 }}>
@@ -459,7 +480,9 @@ export default function LandingClient({ hp, tablet, testimoni, banners = [], ban
             </div>
             <input style={{ padding: "10px 14px", background: G.white, border: `1px solid ${G.border}`, borderRadius: 10, color: G.text, fontSize: 13, fontFamily: "inherit", outline: "none", width: 200, boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
               placeholder="🔍 Cari produk..."
-              value={search} onChange={e => setSearch(e.target.value)} />
+              value={search}
+              onChange={e => { setSearch(e.target.value); setNavSearch(e.target.value); }}
+              onKeyDown={e => { if (e.key === "Enter") { setNavSearch(search); } }} />
           </div>
           {/* Urutan tampil */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
