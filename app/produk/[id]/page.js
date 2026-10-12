@@ -142,14 +142,20 @@ export default async function ProductPage({ params }) {
 
   const sql = getDb();
 
-  // Fetch produk kasir + meta dari DB secara paralel
-  const [kasirRes, metaRows] = await Promise.all([
+  // Fetch produk kasir + meta dari DB + info toko secara paralel
+  const [kasirRes, metaRows, kontenRows] = await Promise.all([
     fetch(`${kasir.url}/api/storefront`, {
       headers: { "x-storefront-key": kasir.key },
       cache: "no-store",
     }).then(r => r.json()).catch(() => ({ produk: [] })),
     sql`SELECT * FROM kasir_produk_meta WHERE kasir_url=${kasir.url} AND kasir_id=${kasirId} LIMIT 1`,
+    sql`SELECT kunci, nilai FROM konten WHERE kunci IN ('info_wa', 'info_nama')`,
   ]);
+
+  const konten = {};
+  kontenRows.forEach(r => { konten[r.kunci] = r.nilai; });
+  const waNumber = konten.info_wa || "6283808484969";
+  const tokoNama = konten.info_nama || "PontiCell";
 
   const allProduk = kasirRes.produk || [];
   const kasirProduk = allProduk.find(p => String(p.id) === String(kasirId));
@@ -204,7 +210,7 @@ export default async function ProductPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductClient product={product} related={related} />
+      <ProductClient product={product} related={related} waNumber={waNumber} tokoNama={tokoNama} />
     </>
   );
 }

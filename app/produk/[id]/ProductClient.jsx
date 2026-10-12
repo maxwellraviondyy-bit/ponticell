@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toggleWishlist, isWishlisted } from "@/lib/wishlist";
 
-const WA_NUMBER = "6283808484969";
 const formatRp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
 // Mapping nama warna Indonesia/Inggris → kode hex untuk dot indicator
@@ -32,7 +31,8 @@ const G = {
   gray: "#64748B", grayLight: "#F1F5F9", text: "#0F172A",
 };
 
-export default function ProductClient({ product, related }) {
+export default function ProductClient({ product, related, waNumber = "6283808484969", tokoNama = "PontiCell" }) {
+  const WA_NUMBER = waNumber;
   const router = useRouter();
   const [activePhoto, setActivePhoto] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
@@ -68,6 +68,7 @@ export default function ProductClient({ product, related }) {
           storage: product.storage,
           condition: product.condition,
           price: product.sell_price,
+          toko: tokoNama,
         }),
       });
       const data = await res.json();
@@ -128,7 +129,7 @@ export default function ProductClient({ product, related }) {
           produk_harga: product.sell_price,
         }),
       });
-      const msg = encodeURIComponent(`🛒 *PESANAN BARU - PontiCell*\n\n👤 Nama: ${form.nama}\n📱 WA: ${form.whatsapp}\n📦 Produk: ${product.brand} ${product.model}\n💾 Spek: ${product.ram}/${product.storage} · ${product.color}\n💰 Harga: ${formatRp(product.sell_price)}\n📍 Alamat: ${form.alamat}, ${form.kota}\n📝 Catatan: ${form.catatan || "-"}`);
+      const msg = encodeURIComponent(`🛒 *PESANAN BARU - ${tokoNama}*\n\n👤 Nama: ${form.nama}\n📱 WA: ${form.whatsapp}\n📦 Produk: ${product.brand} ${product.model}\n💾 Spek: ${product.ram}/${product.storage} · ${product.color}\n💰 Harga: ${formatRp(product.sell_price)}\n📍 Alamat: ${form.alamat}, ${form.kota}\n📝 Catatan: ${form.catatan || "-"}`);
       window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, "_blank");
       setSent(true); setShowOrder(false);
     } catch (e) { alert("Gagal: " + e.message); }
@@ -158,7 +159,7 @@ export default function ProductClient({ product, related }) {
       {/* Navbar */}
       <nav style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(255,255,255,0.97)", backdropFilter: "blur(16px)", borderBottom: `1px solid ${G.border}`, padding: "0 16px", height: 52, display: "flex", alignItems: "center", gap: 10 }}>
         <button onClick={() => router.push("/")} style={{ background: "none", border: "none", color: G.gray, cursor: "pointer", fontSize: 20, padding: 4 }}>←</button>
-        <Link href="/" style={{ fontSize: 15, fontWeight: 900, color: G.blue, textDecoration: "none" }}>PontiCell</Link>
+        <Link href="/" style={{ fontSize: 15, fontWeight: 900, color: G.blue, textDecoration: "none" }}>{tokoNama}</Link>
         <span style={{ color: G.border }}>/</span>
         <span style={{ fontSize: 12, color: G.gray, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{product.brand} {product.model}</span>
       </nav>
@@ -294,7 +295,7 @@ export default function ProductClient({ product, related }) {
             <button
               onClick={async () => {
                 const shareUrl = `https://ponticell.vercel.app/produk/${product.id}`;
-                const shareText = `Cek ${product.brand} ${product.model} – ${formatRp(product.sell_price)} di PontiCell 👉 ${shareUrl}`;
+                const shareText = `Cek ${product.brand} ${product.model} – ${formatRp(product.sell_price)} di ${tokoNama} 👉 ${shareUrl}`;
                 if (navigator.share) {
                   try {
                     await navigator.share({
@@ -315,7 +316,7 @@ export default function ProductClient({ product, related }) {
           {/* Tombol */}
           {totalStok > 0 && !sent && (
             <div style={{ display: "flex", gap: 10 }}>
-              <a href={`https://wa.me/${WA_NUMBER}?text=Halo%20PontiCell,%20saya%20tertarik%20${encodeURIComponent(product.brand + " " + product.model)}`}
+              <a href={`https://wa.me/${WA_NUMBER}?text=Halo%20${encodeURIComponent(tokoNama)},%20saya%20tertarik%20${encodeURIComponent(product.brand + " " + product.model)}`}
                 target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, padding: "14px 10px", background: G.white, border: `1.5px solid ${G.blue}`, borderRadius: 14, color: G.blue, fontSize: 14, fontWeight: 700, textDecoration: "none", textAlign: "center", display: "block", boxSizing: "border-box" }}>
                 💬 WhatsApp
